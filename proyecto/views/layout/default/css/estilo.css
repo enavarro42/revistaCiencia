@@ -1,0 +1,681 @@
+*{
+        padding: 0;
+        margin: 0;
+}
+
+article, aside, figure, footer, header, hgroup, nav, section {
+    display: block;
+}
+
+html, body{
+    background-color: #EEEEEE;
+    height: 100%;
+    width: 100%;
+    font-family: arial;
+    font-size: 16px;
+    padding: 0;
+    margin: 0;
+}
+
+h1, h2, h3, h4, h5, h6{
+    color: #115599;
+}
+
+#bar-top{
+    overflow: hidden;
+    margin: 0px auto;
+    max-width: 1200px;
+    height:auto;
+    background: #00549a; 
+}
+
+
+#usuario{
+    float: right;
+    overflow: hidden;
+}
+
+#usuario a{
+    /*color: #888;*/
+    padding-left: 4px;
+}
+
+#usuario a.perfil{
+    color: #12ADEE;
+}
+
+#contenedor{
+    margin: 0px auto;
+    background-color: #FFFFFF;
+    max-width: 1200px;
+    min-height: 100%;
+    height: auto!important;
+    height: 100%;
+    padding: 0px 10px;
+    overflow: hidden;
+
+
+}
+
+header{
+        width: 100%;
+        overflow: hidden;
+}
+
+.grid-header{
+	width: 100%;
+	max-width: 1200px;
+}
+
+.grid-header:after {
+	content: "";
+	display: table;
+	clear: both;
+}
+
+
+
+/* Content Columns */
+
+/*.col-1-1 {
+	width: 100%;
+}
+.col-2-3, .col-8-12 {
+	width: 66.66%;
+}
+
+.col-1-2, .col-6-12 {
+	width: 50%;
+}
+
+.col-1-3, .col-4-12 {
+	width: 33.33%;
+}
+
+.col-1-4, .col-3-12 {
+	width: 25%;
+}
+
+.col-1-5 {
+	width: 20%;
+}
+
+.col-1-6, .col-2-12 {
+	width: 16.667%;
+}
+
+.col-1-7 {
+	width: 14.28%;
+}
+
+.col-1-8 {
+	width: 12.5%;
+}
+
+.col-1-9 {
+	width: 11.1%;
+}
+
+.col-1-10 {
+	width: 10%;
+}
+
+.col-1-11 {
+	width: 9.09%;
+}
+
+.col-1-12 {
+	width: 8.33%
+}*/
+
+/* Layout Columns */
+
+/*.col-11-12 {
+	width: 91.66%
+}
+
+.col-10-12 {
+	width: 83.333%;
+}
+
+.col-9-12 {
+	width: 75%;
+}
+
+.col-5-12 {
+	width: 41.66%;
+}
+
+.col-7-12 {
+	width: 58.33%
+}*/
+
+
+
+/*Nav top*/
+
+ul.navTop {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+ul.navTop li {
+    float: left;
+}
+
+ul.navTop li a {
+    display: block;
+    color: #FFF;
+    padding: 6px 15px;
+    text-decoration: none;
+    text-align: center;
+    font-size: 1em;
+    border-bottom: 3px solid transparent;
+}
+
+ul.navTop li a:hover{
+    background-color: #FFF;
+    color: #555;
+    border-bottom: 3px solid #bdce0c;
+}
+
+.text_user{
+    color: #FFF;
+    font-weight: 600;
+}
+
+
+
+
+/*Logo LUZ*/
+#logoLuz, #logo{
+        float: left;
+        overflow: hidden;
+}
+#logoLuz{
+	/*background-color: red;*/
+}
+
+#logoLuz img{
+        /*width: 65px;*/
+    height: 80px;
+    float: left;
+    padding-top: 10px;
+}
+
+#logoLuz p{
+    padding-top: 22px;
+    float:left;
+    font-family:"Times New Roman",Georgia,Serif;
+    color: #00549A;
+    font-weight: 600;
+}
+#logoLuz p span#delZulia{
+        font-size: 22px;
+}
+
+/*Logo Revista*/
+#logo img{
+    padding-left: 20px;
+    padding-right: 20px;
+    height: 75px;
+    margin-top: 10px;
+}
+
+#logo p{
+    font-size: 34px;
+    padding-top: 24px;
+    overflow: hidden;
+}
+#logo p a{
+    font-family: arial;
+    float: left;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.75);
+    text-decoration: none;
+    padding: 2px;
+}
+#logo p a:nth-child(1){
+    color: #00549A;
+}
+
+#logo p a:nth-child(2){
+    color: #12ADEE;
+    padding-left: 5px;
+}
+
+.logoRevista2{
+    display: inline;
+}
+
+.logoRevista2{
+    display: none;
+}
+
+.caja_search{
+    float: right;
+    padding: 30px 5px 0;
+    width: 40%;
+}
+
+
+/*menu horizoltal*/
+nav#menu_horizontal{
+        height: 35px;
+        width: 100%;
+        background-color: #00549A;
+        z-index: 30;
+}
+nav#menu_horizontal ul{
+        padding: 0;
+        margin: 0;
+        overflow: hidden;
+        z-index: 40;
+}
+
+
+nav#menu_horizontal ul li{
+        list-style: none;
+        float: left;
+        text-align: left;
+        width: 16.666%;
+        height: 35px;
+        z-index: 50;
+        display: block;
+}
+
+nav#menu_horizontal ul li:nth-child(3n+1){
+        background-color: #BDCE0C;
+}
+
+nav#menu_horizontal ul li:nth-child(3n+2){
+        background-color: #12ADEE;
+}
+
+nav#menu_horizontal ul li:nth-child(3n+3){
+        background-color: #FCC32E;
+
+}
+
+nav#menu_horizontal ul li a{
+        /*width: 166px;*/
+        display: block;
+        padding: 0px 0px;
+        line-height: 30px; 
+        background-color: #00549A;
+        color: #FFF;
+        padding-left: 5px;
+        text-decoration: none;
+        z-index: 60;
+}
+nav#menu_horizontal ul li a:hover{
+        background-color: #BDCE0C;
+        color: #000;
+}
+
+
+/*sub-menu horizontal*/
+/*nav#menu_horizontal ul li ul { 
+    position: absolute;  
+    display: none;
+} 
+nav#menu_horizontal ul li:hover ul { 
+    display: block; 
+} 
+nav#menu_horizontal ul li ul li:nth-child(n) { 
+    float: none;
+    padding: none;
+    padding-top: 0px;
+    display: block;
+    width: 160%;
+    height: 35px;
+    background-color: #00549A;
+}
+
+
+nav#menu_horizontal ul li ul li a { 
+        height: 35px;
+        line-height: 32px; 
+}
+*/
+
+
+
+/* Estilos #nav-mobile y lo ocultamos */
+#nav-mobile{
+    display: none;
+    background: url('../img/nav.png') no-repeat center center;
+    float: right;
+    width: 34px;
+    height: 34px;
+    opacity: .6;
+}
+ 
+    /* Agregaremos esta clase a #nav-mobile, cuando el menu mobile haya sido desplegado */
+    #nav-mobile.nav-active{
+        opacity: 1;
+    }
+
+
+/*
+Contenido
+aside panel left
+*/
+section#caja_contenido{
+        max-width: 1200px;
+        background-color: green;
+}
+aside#panel_left{
+        background-color: white;
+        width: 18.66%;
+        float: left;
+}
+
+aside#panel_right{
+        background-color: white;
+        width: 18.66%;
+        float: left;
+        overflow: hidden;
+}
+
+section#contenido{
+        width: 62.68%;
+        background-color: white;
+        float: left;
+}
+
+section#contenido p{
+    text-align: justify;
+}
+
+section#contenido #pad_content{
+    overflow: hidden;
+    margin: 0px 5px;
+    padding: 0px 5px;
+}
+
+ul.list_user_group{
+    list-style-type: none;
+}
+
+/*menu vertical*/
+nav.menu_vertical{
+        border-top: 4px solid #EEEEEE;
+        border-right: 1px solid #EEEEEE;
+        border-bottom: 1px solid #CCCCCC;
+        border-left: 1px solid #EEEEEE;
+        overflow: hidden;
+}
+
+nav.menu_vertical ul{
+        list-style: disc outside url("../img/list.gif");
+        font-size: 14px;
+        margin-left: 15px;
+}
+
+nav.menu_vertical ul li:nth-child(n) a{
+        color: #666666;
+}
+
+nav.menu_vertical ul li.current {
+          list-style: disc outside;
+}
+
+nav.menu_vertical ul li.current a{
+          color: #00549A;
+}
+/*nav.menu_vertical ul li:nth-child(1) a{
+        color: #00549A;
+}*/
+
+#tabs{
+    overflow: hidden;
+}
+
+#tabs-1{
+    overflow: scroll;
+    height: 600px;
+}
+
+#btn_tabs{
+    padding-top: 10px;
+}
+
+.btn-right{
+    float: right;
+    margin-left: 5px;
+}
+
+.caja_btn_submit{
+    width: 100px;
+    margin: 0 auto;
+}
+
+.corte {clear: both;padding-top: 2em;}
+
+.error{
+    color: red;
+    font-size: 12px;
+}
+
+.controls label, .help-block{
+    font-size: 16px;
+    font-weight: normal;
+}
+
+.separador{
+    color: #12ADEE;
+}
+
+.icon_gly{
+    margin-right: 5px;
+}
+
+
+footer{
+    text-align: center;
+    margin: 4px auto;
+    font-size: 14px;
+    color: gray;
+}
+
+
+
+@media handheld, only screen and (max-width: 768px) {
+
+    #logo{
+        float: left;
+        width: 50%;
+    }
+
+    #logo img{
+        float: right;
+    }
+
+    #logoLuz{
+        float: left;
+        width: 50%;
+    }
+
+    .caja_search{
+        width: 100%;
+        float: left;
+        padding-top: 10px;
+    }
+
+
+    #nav-mobile{ display: block; }
+
+    nav#menu_horizontal{
+        width: 100%;
+        height: auto;
+        overflow: hidden;
+    }
+
+    nav#menu_horizontal ul{
+        max-height: 0;
+        width: 100%;
+        overflow: hidden;
+        /*padding-top: 34px;*/
+    }
+
+
+    nav#menu_horizontal ul li:nth-child(n){
+        background-color: #00549A;
+        float: none;
+        width: 100%;
+    }
+
+    nav#menu_horizontal ul li a{
+        height: auto;
+        padding: 5px 0px;
+        text-align: center;
+        /*line-height: normal;*/
+        color: #fff;
+         background-color: none;
+    }
+
+    nav#menu_horizontal ul li:nth-child(n) a:hover{
+        background-color: #BDCE0C;
+    }
+
+    nav#menu_horizontal ul.open-menu{
+            max-height: 400px;
+            transition: max-height .4s;
+    }
+
+   #search-box {
+        margin: 0;
+        width: 100%;
+    }
+
+
+/*	#logoLuz{
+		padding-left: 32%;
+                -webkit-transition: padding .4s;
+                -moz-transition: padding .4s;
+                -ms-transition: padding .4s;
+                -o-transition: padding .4s;
+                transition: padding .4s;
+	}
+
+	#logo{
+		margin-left: 28%;
+		margin-top: 0px;
+		padding: 0px;
+                -webkit-transition: padding .4s;
+                -moz-transition: padding .4s;
+                -ms-transition: padding .4s;
+                -o-transition: padding .4s;
+                transition: padding .4s;
+	}
+	#logo p{
+		margin: 0px;
+		padding:0px 0px 5px 0px;
+                -webkit-transition: padding .4s;
+                -moz-transition: padding .4s;
+                -ms-transition: padding .4s;
+                -o-transition: padding .4s;
+                transition: padding .4s;
+	}*/
+
+	
+	.grid-header {
+		width: 100%;
+		min-width: 0;
+		margin-left: 0px;
+		margin-right: 0px;
+		padding-left: 0px;
+		padding-right: 0px;
+                
+	}
+        
+        .caja_search{
+            padding-bottom: 5px;
+        }
+	
+	[class*='col-'] {
+		width: auto;
+		float: none;
+		clear: both;
+                -webkit-transition: width .4s;
+                -moz-transition: width .4s;
+                -ms-transition: width .4s;
+                -o-transition: width .4s;
+                transition: width .4s;
+	}
+
+    aside#panel_left, aside#panel_right{
+        display: none;
+    }
+
+    section#contenido{
+        width: 100%;
+    }
+
+}
+
+@media handheld, only screen and (max-width: 480px) {
+
+    .logoRevista1{
+        display: none;
+    }
+
+    .logoRevista2{
+        display: inline;
+    }
+
+    .text_logo_luz{
+        display: none;
+    }
+
+}
+
+@media handheld, only screen and (max-width: 460px) {
+
+/*    #logoLuz{
+        padding-left: 26%;
+        -webkit-transition: padding .4s;
+        -moz-transition: padding .4s;
+        -ms-transition: padding .4s;
+        -o-transition: padding .4s;
+        transition: padding .4s;
+    }
+    #logo{
+        margin-left: 20%;
+        -webkit-transition: padding .4s;
+        -moz-transition: padding .4s;
+        -ms-transition: padding .4s;
+        -o-transition: padding .4s;
+        transition: padding .4s;
+        
+    }*/
+    
+}
+
+@media handheld, only screen and (max-width: 410px) {
+
+/*    #logo{
+        margin-left: 6%;
+        -webkit-transition: padding .4s;
+        -moz-transition: padding .4s;
+        -ms-transition: padding .4s;
+        -o-transition: padding .4s;
+        transition: padding .4s;
+    }
+
+    #logoLuz{
+        padding-left: 18%;
+        transition: max-height .4s;
+        -webkit-transition: padding .4s;
+        -moz-transition: padding .4s;
+        -ms-transition: padding .4s;
+        -o-transition: padding .4s;
+        transition: padding .4s;
+    }
+    
+    #logo p{
+        font-size: 18px;
+    }*/
+}

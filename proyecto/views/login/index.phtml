@@ -1,0 +1,23 @@
+
+
+<form name='form1' method='post' action='' class="col-sm-6 col-lg-6">
+    
+    <h3>Iniciar Sesi&oacute;n</h3>
+
+    <input type="hidden" value="1" name="enviar" />
+    
+    <div class="controls">
+        <label for="usuario">Usuario: </label>
+        <input type="text" name="usuario" value="<?php if(isset($this->datos)) echo $this->datos['usuario']; ?>" class="form-control" />
+    </div>
+    
+    <div class="controls">
+        <label for="pass">Password: </label>
+        <input type="password" name="pass" class="form-control"/>
+    </div><br />
+    
+    <div class="caja_btn_submit">
+        <button class="btn btn-primary btn-block" type="submit">Aceptar</button>
+    </div>
+    
+</form>

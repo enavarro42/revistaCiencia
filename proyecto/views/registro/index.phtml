@@ -1,0 +1,173 @@
+
+     <!-- <ul class="nav nav-pills">
+        <li class="active"><a href="#">Home <span class="badge">42</span></a></li>
+        <li><a href="#">Profile</a></li>
+        <li><a href="#">Messages <span class="badge">3</span></a></li>
+      </ul>
+      <br>
+      <ul class="nav nav-pills nav-stacked" style="max-width: 260px;">
+        <li class="active">
+          <a href="#">
+            <span class="badge pull-right">42</span>
+            Home
+          </a>
+        </li>
+        <li><a href="#">Profile</a></li>
+        <li>
+          <a href="#">
+            <span class="badge pull-right">3</span>
+            Messages
+          </a>
+        </li>
+      </ul>
+      <br>
+      <button class="btn btn-primary" type="button">
+        Messages <span class="badge">4</span>
+      </button>-->
+
+
+<form id="registro" class="col-sm-6 col-lg-6" method='post' action='' >
+    
+    
+    <h2>Registro</h2>
+
+    
+    <input type="hidden" value="1" name="enviar" />
+    
+    
+    <div class="controls">
+      <label for="usuario">Usuario: </label>
+      <input type="text" name="usuario" id="usuario" class="form-control" value="<?php if(isset($this->datos)) echo $this->datos['usuario']; ?>" /><br />
+      <label class="error" id="error_usuario"><?php if(isset($this->_error_usuario)) echo $this->_error_usuario; ?></label> 
+    </div>
+    
+
+    <div class="controls">
+      <label for="pass">Password: </label>
+      <input type="password" name="pass" id="pass" class="form-control" />
+      <label class="error" id="error_pass"><?php if(isset($this->_error_pass)) echo $this->_error_pass; ?></label>
+    </div>
+
+
+    <div class="controls">
+      <label for="confirmar">Confirmar: </label>
+      <input type="password" name="confirmar" id="confirmar" class="form-control" />
+      <label class="error" id="error_confir"><?php if(isset($this->_error_pass_confir)) echo $this->_error_pass_confir; ?></label>
+    </div>
+
+
+    <div class="controls">
+      <label for="nombre">Nombre: </label>
+      <input type="text" name="nombre" id="nombre" class="form-control" value="<?php if(isset($this->datos)) echo $this->datos['nombre']; ?>" />
+      <label class="error" id="error_nombre"><?php if(isset($this->_error_nombre)) echo $this->_error_nombre; ?></label>
+    </div>
+
+
+    <div class="controls">
+      <label for="apellido">Apellido: </label>
+      <input type="text" name="apellido" id="apellido" class="form-control" value="<?php if(isset($this->datos)) echo $this->datos['apellido']; ?>" />
+      <label class="error" id="error_apellido"><?php if(isset($this->_error_apellido)) echo $this->_error_apellido; ?></label>
+    </div>
+
+    <div class="controls">
+        <label>G&eacute;nero</label>
+        <div class="radio">
+            <label>
+              <input type="radio" name="genero" id="opcionRadio1" value="M" checked>
+              Masculino
+            </label>
+        </div>
+        <div class="radio">
+            <label>
+              <input type="radio" name="genero" id="opcionRadio2" value="F">
+              Femenino
+            </label>
+        </div>
+    </div>
+    
+
+    <div class="controls">
+      <label for="email">Email: </label>
+      <input type="email" name="email" id="email" class="form-control" value="<?php if(isset($this->datos)) echo $this->datos['email']; ?>" />
+      <label class="error" id="error_email"><?php if(isset($this->_error_email)) echo $this->_error_email; ?></label>
+    </div>
+
+
+    <div class="controls">
+      <label for="telefono">Tel&eacute;fono</label>
+      <input type="text" name="telefono" id="telefono" class="form-control" value="" />
+      <label class="error" id="error_telefono"><?php if(isset($this->_error_telefono)) echo $this->_error_telefono; ?></label>
+    </div>
+
+
+    <div class="controls">
+      <label for="pais">Pais</label>
+      <select id="pais" name="pais" class="form-control required">
+           <option value="">-seleccione-</option>
+           <?php for($i = 0; $i<count($this->paises); $i++): ?>
+                <?php if($this->paises[$i]['id_pais'] == $this->datos['pais']): ?>
+                    <option value="<?php echo $this->paises[$i]['id_pais']?>" selected> <?php echo $this->paises[$i]['nombre'];?> </option>
+                <?php else: ?>
+                    <option value="<?php echo $this->paises[$i]['id_pais']?>"> <?php echo $this->paises[$i]['nombre'];?> </option>
+                <?php endif; ?>
+           <?php endfor;?>
+      </select>
+      <label class="error" id="error_pais"><?php if(isset($this->_error_pais)) echo $this->_error_pais; ?></label>
+    </div>
+
+    
+    <div class="controls">
+        <label for="resumenBiografico">Resumen Biografico</label>
+        <textarea id="resumenBiografico" name="resumenBiografico" class="form-control" rows="3"><?php if(isset($this->datos)) echo $this->datos['resumenBiografico']; ?></textarea>
+    </div>
+
+    
+    <div class="controls">
+        <label>Registrarse como</label>
+
+        <div class="checkbox">
+
+            <label>
+              <input type="checkbox" name="cuenta[]" value="1" checked>Lector
+            </label>
+        </div>
+
+        <div class="checkbox">
+            <label>
+              <input type="checkbox" name="cuenta[]" value="2">Arbitro
+            </label>
+        </div>
+
+        <div class="checkbox">
+            <label>
+              <input type="checkbox" name="cuenta[]" value="3">Autor
+            </label>
+        </div>
+        
+        <label class="error" id="error_cuenta"><?php if(isset($this->_error_cuenta)) echo $this->_error_cuenta; ?></label>
+
+        <div class="caja_btn_submit">
+            <button class="btn btn-primary btn-block" type="submit">Enviar</button>
+        </div>
+        
+        
+    </div>
+    <!--
+    <p>
+        <input type="checkbox" name="cuenta[]" value="1" checked>Lector
+    </p>
+    
+    <p>
+        <input type="checkbox" name="cuenta[]" value="2">Arbitro
+    </p>
+    
+    <p>
+        <input type="checkbox" name="cuenta[]" value="3">Autor
+    </p>
+    
+    <p>
+        <input type="submit" value="enviar" />
+    </p>
+    
+    -->
+</form>

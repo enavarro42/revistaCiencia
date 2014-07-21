@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project-private xmlns="http://www.netbeans.org/ns/project-private/1">
+    <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
+    <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
+        <group>
+            <file>file:/C:/wamp/www/revista/proyecto/controllers/loginController.php</file>
+            <file>file:/C:/wamp/www/revista/proyecto/views/layout/default/header.php</file>
+            <file>file:/C:/wamp/www/revista/proyecto/views/registro/index.phtml</file>
+            <file>file:/C:/wamp/www/revista/proyecto/application/config.php</file>
+            <file>file:/C:/wamp/www/revista/proyecto/controllers/manuscritoController.php</file>
+            <file>file:/C:/wamp/www/revista/proyecto/models/registroModel.php</file>
+            <file>file:/C:/wamp/www/revista/proyecto/controllers/autorController.php</file>
+            <file>file:/C:/wamp/www/revista/proyecto/views/registro/activar.phtml</file>
+            <file>file:/C:/wamp/www/revista/proyecto/views/ajax/js/ajax.js</file>
+            <file>file:/C:/wamp/www/revista/proyecto/application/controller.php</file>
+            <file>file:/C:/wamp/www/revista/proyecto/models/autorModel.php</file>
+            <file>file:/C:/wamp/www/revista/proyecto/views/registro/js/validarRegistro.js</file>
+            <file>file:/C:/wamp/www/revista/proyecto/views/manuscrito/nuevo.phtml</file>
+            <file>file:/C:/wamp/www/revista/proyecto/application/view.php</file>
+            <file>file:/C:/wamp/www/revista/proyecto/controllers/registroController.php</file>
+            <file>file:/C:/wamp/www/revista/proyecto/models/manuscritoModel.php</file>
+            <file>file:/C:/wamp/www/revista/proyecto/views/manuscrito/js/js_tabs.js</file>
+            <file>file:/C:/wamp/www/revista/proyecto/views/layout/default/footer.php</file>
+            <file>file:/C:/wamp/www/revista/proyecto/views/layout/default/css/estilo.css</file>
+            <file>file:/C:/wamp/www/revista/proyecto/views/manuscrito/misManuscritos.phtml</file>
+        </group>
+    </open-files>
+</project-private>
