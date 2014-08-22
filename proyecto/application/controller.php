@@ -48,6 +48,15 @@ abstract class Controller{
         }
         return 0;
     }
+
+    protected function getUrl($ruta = false){
+        if($ruta){
+            return BASE_URL . $ruta;
+        }
+
+        return BASE_URL;
+
+    }
     
     
     protected function redireccionar($ruta = false){

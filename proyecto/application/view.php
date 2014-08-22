@@ -91,7 +91,7 @@ class View{
                 );
             
             if(isset($_SESSION['level'])){
-                if(Session::get('level') == 'autor'){
+                if(Session::get('level') == 'Autor'){
                     $menu_right = array(
                         array(
                             'id' => 'manuscrito',
@@ -108,6 +108,29 @@ class View{
                             'id' => 'articulos',
                             'titulo' => 'Mis Art&iacute;culos',
                             'enlace' => BASE_URL . 'articulo'
+                        ),
+
+                        array(
+                            'id' => 'usuario',
+                            'titulo' => 'Usuario',
+                            'enlace' => BASE_URL . 'usuario'
+                        ),
+                        
+                        array(
+                            'id' => 'perfil',
+                            'titulo' => 'Perfil',
+                            'enlace' => BASE_URL . 'perfil'
+                        )
+
+                    );
+                }
+
+                if(Session::get('level') == 'Arbitro'){
+                    $menu_right = array(
+                        array(
+                            'id' => 'arbitro',
+                            'titulo' => 'Arbitrar Manuscritos',
+                            'enlace' => BASE_URL . 'arbitro'
                         ),
 
                         array(
@@ -199,7 +222,7 @@ class View{
        // var_dump(ROOT);
         
         
-        $rutaView = ROOT . 'views' . DS . $this->_controlador . DS . $vista . '.phtml';
+        $rutaView = ROOT . 'views' . DS . $this->_controlador . DS . $vista . '.php';
         
         if(is_readable($rutaView)){
             include_once ROOT . 'views' . DS . 'layout' . DS . DEFAULT_LAYOUT . DS . 'header.php';

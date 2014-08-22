@@ -29,8 +29,8 @@ class ajaxController extends Controller{
         echo json_encode($this->_ajax->getRevistas());
     }
     
-    public function getMaterias(){
-        echo json_encode($this->_ajax->getMaterias());
+    public function getAreas(){
+        echo json_encode($this->_ajax->getAreas());
     }
     
     

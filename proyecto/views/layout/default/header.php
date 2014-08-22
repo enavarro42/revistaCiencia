@@ -158,10 +158,10 @@
 
 <body>
 
-<!-- <div class="visible-lg">lg</div>
+<div class="visible-lg">lg</div>
 <div class="visible-md">md</div>
 <div class="visible-sm">sm</div>
-<div class="visible-xs">xs</div> -->
+<div class="visible-xs">xs</div>
     
 <div id="bar-top">
     <div id="usuario">
@@ -210,7 +210,7 @@
                 <div class="caja_search">
                     <div>
                         <div class="input-group">
-                          <input type="text" class="form-control">
+                          <input type="text" class="form-control" placeholder="Buscar aqu&iacute;...">
                           <span class="input-group-btn">
                             <button class="btn btn-default" type="button">Buscar</button>
                           </span>

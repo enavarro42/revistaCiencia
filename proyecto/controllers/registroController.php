@@ -8,6 +8,7 @@ class registroController extends Controller{
         parent::__construct();
         
         $this->_registro = $this->loadModel('registro');
+        $this->_rol = $this->loadModel('rol');
     }
     
     public function index(){
@@ -19,6 +20,17 @@ class registroController extends Controller{
         
         $this->_view->titulo = "Registro";
         $this->_view->paises = $this->_registro->getPaises();
+
+        $arregloCuentas = array();
+
+
+        $rol= $this->_rol->getIdRol('Arbitro');
+        $arregloCuentas[] = $rol[0];
+
+        $rol = $this->_rol->getIdRol('Autor');
+        $arregloCuentas[] = $rol[0];
+
+        $this->_view->cuentas = $arregloCuentas;
             
         if($this->getInt('enviar') == 1){
             $this->_view->datos = false;
@@ -42,7 +54,7 @@ class registroController extends Controller{
 
             }
             //^[a-zA-Z]((\.|_|-)?[a-zA-Z0-9]+){3}$
-            $exp = '/^[a-zA-Z0-9áéíóúÁÉÍÓÚ_]+$/';
+            $exp = '/^[a-zA-Z0-9-_]+$/';
             
             if(!preg_match($exp, $this->getPostParam('usuario'))){
                 $this->_view->_error_usuario = 'nombre de usuario inv&aacute;lido';
@@ -81,30 +93,31 @@ class registroController extends Controller{
                 var_dump("Error 7");
             }
       
-            if(!$this->getSql('nombre')){
-                $this->_view->_error_nombre = 'Debe introducir su nombre';
+            if(!$this->getSql('primerNombre')){
+                $this->_view->_error_primerNombre = 'Debe introducir su nombre';
                // $this->_view->renderizar('index', 'registro');
                 $validado = false;
 
             }
             
-            if(!(strlen($this->getSql('nombre')) > 2)){
-                $this->_view->_error_nombre = 'Por favor introduzca como m&iacute;nimo 4 car&aacute;cteres';
+            if(!(strlen($this->getSql('primerNombre')) > 2)){
+                $this->_view->_error_primerNombre = 'Por favor introduzca como m&iacute;nimo 3 car&aacute;cteres';
                 //$this->_view->renderizar('index', 'registro');
                 $validado = false;
 
             }
             
-            $exp = '/^[a-zA-ZáéíóúÁÉÍÓÚ]+$/';
+            $exp = '/^[a-zA-ZÀ-ÖØ-öø-ÿ]+\.?((|\-)[a-zA-ZÀ-ÖØ-öø-ÿ]+\.?)*$/';
             
-            if(!preg_match($exp, $this->getPostParam('nombre'))){
-                $this->_view->_error_nombre = 'Nombre inv&aacute;lido';
+            if(!preg_match($exp, $this->getPostParam('primerNombre'))){
+                $this->_view->_error_primerNombre = 'Nombre inv&aacute;lido';
                // $this->_view->renderizar('index', 'registro');
                 $validado = false;
 
             }
                 
-            
+            $exp = '/^[a-zA-ZÀ-ÖØ-öø-ÿ]+\.?(( |\-)[a-zA-ZÀ-ÖØ-öø-ÿ]+\.?)*$/';
+
             if(!$this->getSql('apellido')){
                 $this->_view->_error_apellido = 'Debe introducir su apellido';
                // $this->_view->renderizar('index', 'registro');
@@ -119,16 +132,21 @@ class registroController extends Controller{
 
             }
             
-            $exp = '/^[a-zA-ZáéíóúÁÉÍÓ]+$/';
             
             if(!preg_match($exp, $this->getPostParam('apellido'))){
                 $this->_view->_error_apellido = 'Apellido inv&aacute;lido';
                // $this->_view->renderizar('index', 'registro');
                 $validado = false;
             }
+
+            if(!$this->getPostParam('email')){
+                $this->_view->_error_email = 'Debe introducir su cuenta de correo electr&oacute;nico';
+               // $this->_view->renderizar('index', 'registro');
+                $validado = false;
+            }
             
             if(!$this->validarEmail($this->getPostParam('email'))){
-                $this->_view->_error_email = 'La direccion de email es inv&aacute;lida';
+                $this->_view->_error_email = 'La direcci&oacute;n de email es inv&aacute;lida';
                // $this->_view->renderizar('index', 'registro');
                 $validado = false;
             }
@@ -148,17 +166,27 @@ class registroController extends Controller{
             }
             
             if($this->getInt('pais') == 0){
-                $this->_view->_error_pais = 'Debe seleccionar un pais';
+                $this->_view->_error_pais = 'Debe seleccionar un pa&iacute;s';
                 //$this->_view->renderizar('index', 'registro');
                 $validado = false;
             }
             
             
             if(!$this->validarParam('cuenta')){
-                $this->_view->_error_cuenta = 'Debe seleccionar por lo menos un tipo de cuenta';
+                $this->_view->_error_cuenta = 'Debe seleccionar un tipo de cuenta';
                // $this->_view->renderizar('index', 'registro');
                 $validado = false;
 
+            }
+
+            if(!$this->getSql('din')){
+                $this->_view->_error_din = 'Debe introducir su DIN';
+                $validado = false;
+            }
+
+            if($this->_registro->verificarDin($this->getSql('din'))){
+                $this->_view->_error_din = 'El usuario con el DIN: '. $this->getSql('din') .' ya se ha registado';
+                $validado = false;
             }
             
             if($validado){
@@ -167,12 +195,15 @@ class registroController extends Controller{
                 $mail = new PHPMailer();
 
                 $this->_registro->registrarUsuario(
-                        $this->getSql('nombre'),
+                        $this->getSql('primerNombre'),
                         $this->getSql('apellido'),
+                        $this->getSql('din'),
                         $this->getPostParam('genero'),
                         $this->getPostParam('telefono'),
                         $this->getInt('pais'),
                         $this->getSql('resumenBiografico'),
+                        $this->getSql('filiacion'),
+                        $this->getSql('segundoNombre'),
                         $this->getAlphaNum('usuario'),
                         $this->getSql('pass'),
                         $this->getPostParam('email'),
@@ -191,9 +222,9 @@ class registroController extends Controller{
 
 
                 $mail->From = 'www.fecRevistasCientificas.com';
-                $mail->FromName = 'Revistas Cientificas';
+                $mail->FromName = 'Revistas Cient&iacute;ficas';
                 $mail->Subject = 'Revistas FEC';
-                $mail->Body = 'Hola <strong>'.$this->getSql('nombre'). '</strong>' .
+                $mail->Body = 'Hola, <strong>'.$this->getSql('primerNombre').' ' .$this->getSql('apellido'). '</strong>' .
                         '<p> Se ha registrado en www.fecRevistasCientificas.com para activar '.
                         'su cuenta haga clic sobre el siguiente enlace:<br />'.
                         '<a href="' . BASE_URL . 'registro/activar/'.
@@ -217,12 +248,24 @@ class registroController extends Controller{
     
     public function comprobarUsuario(){
         $resp['resp'] = "<span style='color:green;'>Disponible...!</span>";
+
+        $exp = '/^[a-zA-Z0-9-_]+$/';
+            
+        if(!preg_match($exp, $_POST['usuario'])){
+            $resp['resp'] = 'nombre de usuario inv&aacute;lido';
+        }
         
         if($_POST['usuario'] == "") $resp['resp'] = "";
         
         if($this->_registro->verificarUsuario($this->getAlphaNum('usuario'))){
             $resp['resp'] = 'El usuario '. $this->getAlphaNum('usuario') . ' ya existe';
         }
+
+        if(!(strlen($this->getAlphaNum('usuario')) > 3)){
+            $resp['resp'] = 'Introduzca como m&iacute;nimo 4 car&aacute;cteres';
+        }
+
+
         echo $resp['resp'];
     }
     
@@ -230,9 +273,16 @@ class registroController extends Controller{
         
         
         $resp['resp'] = "";
+
+        if(!$this->validarEmail($this->getPostParam('email'))){
+            $resp['resp'] = 'La direcci&oacute;n de correo es inv&aacute;lida';
+        }
+
+        if($_POST['email'] == "") $resp['resp'] = "";
+        
             
         if($this->_registro->verificarEmail($this->getPostParam('email'))){
-            $resp['resp'] = 'Esta direcci&oacute;n de email ya est&aacute; registrada';
+            $resp['resp'] = 'Esta direcci&oacute;n de correo ya est&aacute; registrada';
         }
             
     
@@ -273,7 +323,7 @@ class registroController extends Controller{
                 );
         
         if($row['estado'] == 0){
-            $this->_view->_error = "Error al activar tu cuenta, por favor intentar mas tarde";
+            $this->_view->_error = "Error al activar tu cuenta, por favor intentar m&aacute;s tarde";
             $this->_view->_mensaje_class = 'class="alert alert-danger"';
             $this->_view->renderizar('activar', 'registro');
         }

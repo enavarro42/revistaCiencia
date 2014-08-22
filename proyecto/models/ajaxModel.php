@@ -19,11 +19,11 @@ class ajaxModel extends Model{
         return $revista->fetchAll();
     }
     
-    public function getMaterias(){
-        $materia = $this->_db->query(
-                "select * from materia"
+    public function getAreas(){
+        $area = $this->_db->query(
+                "select * from area"
                 );
-        return $materia->fetchAll();
+        return $area->fetchAll();
     }
     
     

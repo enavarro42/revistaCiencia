@@ -23,20 +23,34 @@ class registroModel extends Model{
         
         return false;
     }
+
+    public function verificarDin($din){
+        $id = $this->_db->query(
+                "SELECT din from persona WHERE din = '$din'"
+                );
+        if($id->fetch()){
+            return true;
+        }
+        
+        return false;
+    }
     
-    public function setPersona($nombre, $apellido, $genero, $email, $telefono, $pais, $resumenBiografico){
+    public function setPersona($primerNombre, $apellido, $din = "", $genero, $email, $telefono, $pais, $resumenBiografico = "", $filiacion = "", $segundoNombre = ""){
         $this->_db->prepare(
-         "insert into persona(nombre, apellido, genero, email, telefono, pais, resumenBiografico) VALUES(:nombre, :apellido, :genero, :email, :telefono, :pais, :resumenBiografico)"
+         "insert into persona('primerNombre', apellido, genero, email, telefono, pais, 'resumenBiografico', din, filiacion, 'segundoNombre') VALUES(:primerNombre, :apellido, :genero, :email, :telefono, :pais, :resumenBiografico, :dni, :filiacion, :segundoNombre)"
          )
          ->execute(
                  array(
-                     ':nombre' => $nombre,
+                     ':primerNombre' => $primerNombre,
                      ':apellido' => $apellido,
                      ':genero' => $genero,
                      ':email' => $email,
                      ':telefono' => $telefono,
                      ':pais' => $pais,
-                     ':resumenBiografico' => $resumenBiografico
+                     ':resumenBiografico' => $resumenBiografico,
+                     ':din' => $din,
+                     ':filiacion' => $filiacion,
+                     ':segundoNombre' => $segundoNombre
                  )
          );
     }
@@ -54,22 +68,26 @@ class registroModel extends Model{
         return $id->fetch();
     }
     
-    public function registrarUsuario($nombre, $apellido, $genero, $telefono, $pais, $resumenBiografico, $usuario, $password, $email, $cuenta){
+    public function registrarUsuario($primerNombre, $apellido, $din, $genero, $telefono, $pais, $resumenBiografico = "", $filiacion = "", $segundoNombre, $usuario, $password, $email, $cuenta){
        
         $random = rand(1782598471, 9999999999);
 
          $this->_db->prepare(
-         'insert into persona(nombre, apellido, genero, email, telefono, pais, "resumenBiografico") VALUES(:nombre, :apellido, :genero, :email, :telefono, :pais, :resumenBiografico)'
+         'insert into persona("primerNombre", apellido, genero, email, telefono, pais, "resumenBiografico", din, filiacion, "segundoNombre") VALUES(:primerNombre, :apellido, :genero, :email, :telefono, :pais, :resumenBiografico, :din, :filiacion, :segundoNombre)'
          )
          ->execute(
                  array(
-                     ':nombre' => $nombre,
+                     ':primerNombre' => $primerNombre,
                      ':apellido' => $apellido,
                      ':genero' => $genero,
                      ':email' => $email,
                      ':telefono' => $telefono,
                      ':pais' => $pais,
-                     ':resumenBiografico' => $resumenBiografico
+                     ':resumenBiografico' => $resumenBiografico,
+                     ':din' => $din,
+                     ':filiacion' => $filiacion,
+                     ':segundoNombre' => $segundoNombre
+
                  )
          );
 
@@ -83,14 +101,6 @@ class registroModel extends Model{
                     ->execute(array(
                        ':id_persona' => $persona['id_persona'],
                        ':id_rol' => $cuenta[$i]
-                    ));
-        }
-        
-        if(in_array("3", $cuenta)){
-        
-            $this->_db->prepare("insert into autor(id_persona) VALUES (:id_persona)")
-                    ->execute(array(
-                        ':id_persona' => $persona['id_persona']
                     ));
         }
         
@@ -123,6 +133,7 @@ class registroModel extends Model{
         $paises = $this->_db->query("select * from pais");
         return $paises->fetchAll();
     }
+
 }
 
 ?>

@@ -21,6 +21,10 @@ h1, h2, h3, h4, h5, h6{
     color: #115599;
 }
 
+.margin-top5{
+    margin-top: 5px;
+}
+
 #bar-top{
     overflow: hidden;
     margin: 0px auto;
@@ -74,84 +78,6 @@ header{
 }
 
 
-
-/* Content Columns */
-
-/*.col-1-1 {
-	width: 100%;
-}
-.col-2-3, .col-8-12 {
-	width: 66.66%;
-}
-
-.col-1-2, .col-6-12 {
-	width: 50%;
-}
-
-.col-1-3, .col-4-12 {
-	width: 33.33%;
-}
-
-.col-1-4, .col-3-12 {
-	width: 25%;
-}
-
-.col-1-5 {
-	width: 20%;
-}
-
-.col-1-6, .col-2-12 {
-	width: 16.667%;
-}
-
-.col-1-7 {
-	width: 14.28%;
-}
-
-.col-1-8 {
-	width: 12.5%;
-}
-
-.col-1-9 {
-	width: 11.1%;
-}
-
-.col-1-10 {
-	width: 10%;
-}
-
-.col-1-11 {
-	width: 9.09%;
-}
-
-.col-1-12 {
-	width: 8.33%
-}*/
-
-/* Layout Columns */
-
-/*.col-11-12 {
-	width: 91.66%
-}
-
-.col-10-12 {
-	width: 83.333%;
-}
-
-.col-9-12 {
-	width: 75%;
-}
-
-.col-5-12 {
-	width: 41.66%;
-}
-
-.col-7-12 {
-	width: 58.33%
-}*/
-
-
-
 /*Nav top*/
 
 ul.navTop {
@@ -193,9 +119,6 @@ ul.navTop li a:hover{
 #logoLuz, #logo{
         float: left;
         overflow: hidden;
-}
-#logoLuz{
-	/*background-color: red;*/
 }
 
 #logoLuz img{
@@ -457,6 +380,19 @@ nav.menu_vertical ul li.current a{
 .error{
     color: red;
     font-size: 12px;
+    display: block;
+    font-weight: bold;
+}
+
+.text-success{
+    color: green;
+    font-size: 12px;
+    display: block;
+    font-weight: bold;
+}
+
+.controls{
+    margin: 10px 0px;
 }
 
 .controls label, .help-block{
@@ -480,6 +416,56 @@ footer{
     color: gray;
 }
 
+
+/*LOGIN*/
+.form-signin{max-width:330px;margin:0 auto;padding:15px;}
+.form-signin .form-signin-heading,.form-signin .checkbox{margin-bottom:10px;}
+.form-signin .checkbox{font-weight:normal;}
+.form-signin .form-control{position:relative;font-size:16px;height:auto;-webkit-box-sizing:border-box;-moz-box-sizing:border-box;box-sizing:border-box;padding:10px;}
+.form-signin .form-control:focus{z-index:2;}
+.form-signin input[type="text"]{margin-bottom:-1px;border-bottom-left-radius:0;border-bottom-right-radius:0;}
+.form-signin input[type="password"]{margin-bottom:10px;border-top-left-radius:0;border-top-right-radius:0;}
+.account-wall{margin-top:20px;background-color:#f7f7f7;-moz-box-shadow:0 2px 2px rgba(0,0,0,0.3);-webkit-box-shadow:0 2px 2px rgba(0,0,0,0.3);box-shadow:0 2px 2px rgba(0,0,0,0.3);padding:40px 0 20px; border: 1px solid #ccc; overflow: hidden;}
+.login-title{color: #115599;font-size:24px;font-weight:400;display:block;}
+.profile-img{width:96px;height:96px;display:block;-moz-border-radius:50%;-webkit-border-radius:50%;border-radius:50%;margin:0 auto 10px;}
+.need-help{margin-top:10px;}
+.new-account{display:block;margin-top:10px;}
+
+/*registro*/
+.control_input{
+    overflow: hidden;
+}
+
+#registro{
+    padding: 15px;
+}
+
+.input_inline{
+    display: inline-block;
+}
+
+.text_ejemplo{
+    font-weight: 400;
+    font-size: 12px;
+}
+
+
+.campo_date{
+
+    background-color: rgb(255, 255, 255);
+    background-image: none;
+    border: 1px solid rgb(204, 204, 204);
+    border-radius: 4px;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset;
+    color: rgb(85, 85, 85);
+    font-size: 14px;
+    height: 34px;
+    line-height: 1.42857;
+    padding: 6px 12px;
+    transition: border-color 0.15s ease-in-out 0s, box-shadow 0.15s ease-in-out 0s;
+    vertical-align: middle;
+
+}
 
 
 @media handheld, only screen and (max-width: 768px) {
@@ -550,36 +536,6 @@ footer{
         width: 100%;
     }
 
-
-/*	#logoLuz{
-		padding-left: 32%;
-                -webkit-transition: padding .4s;
-                -moz-transition: padding .4s;
-                -ms-transition: padding .4s;
-                -o-transition: padding .4s;
-                transition: padding .4s;
-	}
-
-	#logo{
-		margin-left: 28%;
-		margin-top: 0px;
-		padding: 0px;
-                -webkit-transition: padding .4s;
-                -moz-transition: padding .4s;
-                -ms-transition: padding .4s;
-                -o-transition: padding .4s;
-                transition: padding .4s;
-	}
-	#logo p{
-		margin: 0px;
-		padding:0px 0px 5px 0px;
-                -webkit-transition: padding .4s;
-                -moz-transition: padding .4s;
-                -ms-transition: padding .4s;
-                -o-transition: padding .4s;
-                transition: padding .4s;
-	}*/
-
 	
 	.grid-header {
 		width: 100%;
@@ -634,48 +590,9 @@ footer{
 
 @media handheld, only screen and (max-width: 460px) {
 
-/*    #logoLuz{
-        padding-left: 26%;
-        -webkit-transition: padding .4s;
-        -moz-transition: padding .4s;
-        -ms-transition: padding .4s;
-        -o-transition: padding .4s;
-        transition: padding .4s;
-    }
-    #logo{
-        margin-left: 20%;
-        -webkit-transition: padding .4s;
-        -moz-transition: padding .4s;
-        -ms-transition: padding .4s;
-        -o-transition: padding .4s;
-        transition: padding .4s;
-        
-    }*/
     
 }
 
 @media handheld, only screen and (max-width: 410px) {
 
-/*    #logo{
-        margin-left: 6%;
-        -webkit-transition: padding .4s;
-        -moz-transition: padding .4s;
-        -ms-transition: padding .4s;
-        -o-transition: padding .4s;
-        transition: padding .4s;
-    }
-
-    #logoLuz{
-        padding-left: 18%;
-        transition: max-height .4s;
-        -webkit-transition: padding .4s;
-        -moz-transition: padding .4s;
-        -ms-transition: padding .4s;
-        -o-transition: padding .4s;
-        transition: padding .4s;
-    }
-    
-    #logo p{
-        font-size: 18px;
-    }*/
 }

@@ -1,7 +1,7 @@
 $(document).ready(function(){
     
-    //var URL_BASE = "/revista/proyecto/";
-    var URL_BASE = "";
+    var URL_BASE = "/revista/proyecto/";
+    //var URL_BASE = "";
     
     $('input#usuario').keydown(function(event){ 
        if(event.keyCode != 8)
@@ -18,7 +18,12 @@ $(document).ready(function(){
            $("label#error_confir").text("");
     });
     
-    $("input#nombre").keyup(function(event){
+    $("input#primerNombre").keyup(function(event){
+       if(event.keyCode != 8)
+           $("label#error_nombre").text("");
+    });
+
+    $("input#segundoNombre").keyup(function(event){
        if(event.keyCode != 8)
            $("label#error_nombre").text("");
     });
@@ -26,6 +31,11 @@ $(document).ready(function(){
     $("input#apellido").keyup(function(event){
        if(event.keyCode != 8)
            $("label#error_apellido").text("");
+    });
+
+    $("input#din").keyup(function(event){
+       if(event.keyCode != 8)
+           $("label#error_din").text("");
     });
     
     $("input#email").keyup(function(event){
@@ -51,9 +61,21 @@ $(document).ready(function(){
             $("label#error_usuario").html(datos);
         }, 'html');
     });
+
+    $("input#usuario").focusout(function(){
+       $.post(URL_BASE + '/registro/comprobarUsuario', 'usuario='+$("input#usuario").val(), function(datos){
+              $("label#error_usuario").html(datos);
+          }, 'html');
+    });
     
     $("input#email").keyup(function(event){
             $.post(URL_BASE + '/registro/comprobarEmail', 'email='+$("input#email").val(), function(datos){
+            $("label#error_email").html(datos);
+        }, 'html');
+    });
+
+    $("input#email").focusout(function(){
+       $.post(URL_BASE + '/registro/comprobarEmail', 'email='+$("input#email").val(), function(datos){
             $("label#error_email").html(datos);
         }, 'html');
     });
