@@ -2,17 +2,16 @@
     <div class="row">
         <div class="col-lg-12">
 
-        	<?php var_dump($this->datos); ?>
+        	<form role="form" id="form_usuario" action="" method="POST">
 
-        	<form role="form" id="form_usuario" action="" method="post">
+        		<input type="hidden" name="tipoAccion" id="tipoAccion" value="<?php echo $this->tipoAccion; ?>">
 
-        	
             	<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">
-	            	<h2 clasbtns="page-header">Nuevo Usuario</h2>
+	            	<h2 clasbtns="page-header"><?php if(isset($this->titulo)) echo $this->titulo; ?></h2>
 	        	</div>
 
 	        	<div class="caja_acciones col-xs-6 col-sm-6 col-md-6 col-lg-6">
-	        		<a href="<?php echo BASE_URL; ?>acl" class="btn btn-danger btn_accion">Cancelar</a>
+	        		<a href="<?php echo BASE_URL; ?>usuario" class="btn btn-danger btn_accion">Cancelar</a>
 	        		<button type="submit" class="btn btn-success btn_accion">Guardar</button>
 	        	</div>
 
@@ -48,26 +47,41 @@
 			  	<hr>
 
 				<div class="col-md-6 col-lg-6">
+					<?php if(isset($this->tipoAccion) && $this->tipoAccion == 'editar'){ ?>
+					<input type="hidden" name="id_persona" id="id_persona" value="<?php echo $this->id_persona; ?>">
+					<?php } ?>
 				      
 			      <div class="form-group control_input">
 			        <label for="usuario">Usuario *</label>
 			        <input type="text" name="usuario" id="usuario" class="form-control" value="<?php if(isset($this->datos)) echo $this->datos['usuario']; ?>" />
 			        <label class="error" id="error_usuario"><?php if(isset($this->_error_usuario)) echo $this->_error_usuario; ?></label>
 			      </div>
+
+			      <div id="cajaPass" style="display:<?php echo $this->cajaPass; ?>">
+
+			      	<input type="hidden" name="nuevaPass" id="nuevaPass" value="<?php if(isset($this->nuevaPass)) echo $this->nuevaPass; else echo 0; ?>">
 			      
+				      <div class="form-group">
+				        <label for="pass">Contrase&ntilde;a *</label>
+				        <input type="password" name="pass" id="pass" class="form-control" value="" />
+				        <label class="error" id="error_pass"><?php if(isset($this->_error_pass)) echo $this->_error_pass; ?></label>
+				      </div>
 
-			      <div class="form-group">
-			        <label for="pass">Password *</label>
-			        <input type="password" name="pass" id="pass" class="form-control" />
-			        <label class="error" id="error_pass"><?php if(isset($this->_error_pass)) echo $this->_error_pass; ?></label>
-			      </div>
 
+				      <div class="form-group">
+				        <label for="confirmar">Confirmar *</label>
+				        <input type="password" name="confirmar" id="confirmar" value=""  class="form-control" />
+				        <label class="error" id="error_confir"><?php if(isset($this->_error_pass_confir)) echo $this->_error_pass_confir; ?></label>
+				      </div>
+				   </div>
 
-			      <div class="form-group">
-			        <label for="confirmar">Confirmar *</label>
-			        <input type="password" name="confirmar" id="confirmar" class="form-control" />
-			        <label class="error" id="error_confir"><?php if(isset($this->_error_pass_confir)) echo $this->_error_pass_confir; ?></label>
-			      </div>
+				   <div class="form-group" style="display:<?php echo $this->linkCambiarPass; ?>">
+				   	<?php if(isset($this->nuevaPass) && $this->nuevaPass){ ?>
+			      		<a id="cambiarPass" class="link">Cancelar Cambiar Contrase&ntilde;a</a>
+			      	<?php }else{ ?>
+			      		<a id="cambiarPass" class="link">Cambiar Contrase&ntilde;a</a>
+			      	<?php } ?>
+			  		</div>
 			    </div>
 
 			    <div class="col-md-6 col-lg-6">
@@ -93,17 +107,21 @@
 
 			    </div>
 
+			    <div class="clearfix visible-xs-block visible-sm-block visible-md-block visible-lg-block"></div>
+
 			    <div class="form-group col-md-6 col-lg-6">
 			      <label for="din">DIN *</label>
 			      <input type="text" name="din" id="din" class="form-control" value="<?php if(isset($this->datos)) echo $this->datos['din']; ?>" />
 			      <label class="error" id="error_din"><?php if(isset($this->_error_din)) echo $this->_error_din; ?></label>
 			    </div>
 
-			    <div class="form-group col-md-6 col-lg-6">
+ 			    <div class="form-group col-md-6 col-lg-6">
 			      <label for="email">Correo *</label>
-			      <input type="email" name="email" id="email" class="form-control" value="<?php if(isset($this->datos)) echo $this->datos['email']; ?>" />
+			      <input type="text" name="email" id="email" class="form-control" value="<?php if(isset($this->datos)) echo $this->datos['email']; ?>" />
 			      <label class="error" id="error_email"><?php if(isset($this->_error_email)) echo $this->_error_email; ?></label>
 			    </div>
+
+
 
 			 <div class="clearfix visible-lg-block"></div>
 
@@ -111,16 +129,32 @@
 			      <div class="form-group col-md-6 col-lg-6">
 			          <label>G&eacute;nero *</label>
 			          <div class="radio">
+			          	<?php if(isset($this->datos['genero']) && $this->datos['genero'] == 'M'){ ?>
 			              <label>
 			                <input type="radio" name="genero" id="opcionRadio1" value="M" checked>
 			                Masculino
 			              </label>
+			            <?php }else{ ?>
+			         	  <label>
+			                <input type="radio" name="genero" id="opcionRadio1" value="M">
+			                Masculino
+			              </label>
+			            <?php } ?>
 			          </div>
 			          <div class="radio">
+			          	<?php if(isset($this->datos['genero']) && $this->datos['genero'] == 'F'){ ?>
 			              <label>
+			                <input type="radio" name="genero" id="opcionRadio2" value="F" checked>
+			                Femenino
+			              </label>
+			            <?php }else{ ?>
+
+			         	  <label>
 			                <input type="radio" name="genero" id="opcionRadio2" value="F">
 			                Femenino
 			              </label>
+
+			            <?php } ?>
 			          </div>
 			      </div>
 			      

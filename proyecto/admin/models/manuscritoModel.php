@@ -13,6 +13,25 @@ class manuscritoModel extends Model{
                 );
         return $persona->fetch();
     }
+
+    public function editarManuscrito($datos = false){
+        if($datos){
+            $this->_db->query(
+                "UPDATE manuscrito ".
+                "SET titulo='".$datos['titulo']."', resumen='".$datos['resumen']."' WHERE id_manuscrito = " . $datos['id_manuscrito']
+                );
+
+            $manuscrito = $this->_db->query("select * from manuscrito WHERE id_manuscrito = " . $datos['id_manuscrito']);
+
+            if($manuscrito){
+                $manuscrito = $manuscrito->fetch();
+
+                $id_obra = $manuscrito['id_obra'];
+
+                $this->_db->query("UPDATE obra set id_idioma=" . $datos['idioma'] . ", issn='".$datos['revista']."', id_area=". $datos['area'] . " where id_obra = " . $id_obra);
+            }
+        }
+    }
     
     public function setObra($id_idioma, $issn, $id_area){
         $this->_db->prepare(
@@ -136,6 +155,39 @@ class manuscritoModel extends Model{
         $rol = $this->_db->query("select rol from rol where id_rol = $id_rol");
         return $rol->fetch();
     }
+
+    // ----------------------------------
+
+    public function getManuscritosParaAdmin(){
+        $manuscrito = $this->_db->query("SELECT m.id_manuscrito, m.titulo, r.nombre, o.fecha FROM manuscrito m, revista r, obra o WHERE m.id_obra = o.id_obra and o.issn = r.issn order by r.issn");
+        return $manuscrito->fetchAll();
+    }
+
+    public function getInfoManuscrito($id_manuscrito){
+        $manuscrito = $this->_db->query("SELECT m.id_manuscrito, m.titulo, m.resumen, o.issn, o.id_idioma, o.id_area FROM manuscrito m, obra o WHERE m.id_manuscrito = $id_manuscrito and m.id_obra = o.id_obra");
+        return $manuscrito->fetch();
+    }
+
+    public function getAutoresManuscrito($id_manuscrito){
+        $persona = $this->_db->query("SELECT p.id_persona, p.\"primerNombre\" || ' ' || p.apellido as nombreCompleto ".
+                                 "FROM responsable r, persona p ".
+                                  "WHERE r.id_manuscrito = $id_manuscrito and r.id_persona = p.id_persona ".
+                                  "and (r.id_rol = (select id_rol from rol where rol = 'Autor') or r.id_rol = (select id_rol from rol where rol = 'Co-Autor')) order by p.id_persona");
+        return $persona->fetchAll();
+    }
+
+    public function eliminarAutores($id_manuscrito=false, $ids=false){
+        if($ids && $id_manuscrito){
+            $this->_db->query("DELETE FROM responsable WHERE id_manuscrito = $id_manuscrito and id_persona IN($ids)");
+        }
+    }
+
+    // ----------------------------------
+
+    public function getManuscritos(){
+        $manuscrito = $this->_db->query("select * from manuscrito order by id_manuscrito DESC");
+        return $manuscrito->fetchAll();
+    }
     
     public function getManuscrito($id_manuscrito){
 
@@ -228,6 +280,27 @@ class manuscritoModel extends Model{
         $revision = $this->_db->query("select * from revision where id_responsable = $responsable order by fecha DESC");
         return $revision->fetch();
         
+    }
+
+    public function getAutoresByManuscrito($id_manuscrito){
+
+        $responsables = $this->_db->query("select * from responsable where id_manuscrito = $id_manuscrito and (id_rol = 4 or id_rol = 5)");
+
+        $responsables = $responsables->fetchAll();
+
+        $ids = '';
+
+        for($i=0; $i<count($responsables); $i++){
+            if($ids == '') $ids .= $responsables[$i]['id_persona'];
+            else
+                $ids .= ", " . $responsables[$i]['id_persona'];
+        }
+
+        $autores = $this->_db->query("select (p.\"primerNombre\" || ' ' || p.apellido) as nombreCompleto from persona p where id_persona IN ($ids) order by nombreCompleto");
+
+        $autores = $autores->fetchAll();
+
+        return $autores;
     }
 
     public function getManuscritoUbicacion($id_fisico){

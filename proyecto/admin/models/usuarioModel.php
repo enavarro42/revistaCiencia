@@ -6,8 +6,21 @@ class usuarioModel extends Model{
         parent::__construct();
     }
 
+    public function eliminar($ids = false){
+
+        if($ids){
+            $this->_db->query("DELETE FROM persona_rol WHERE id_persona IN($ids)");
+            $this->_db->query("DELETE FROM usuario WHERE id_persona IN($ids)");
+            $this->_db->query("DELETE FROM responsable WHERE id_persona IN($ids)");
+            $this->_db->query("DELETE FROM persona WHERE id_persona IN($ids)");
+        }
+
+    }
+
 
     public function setUsuario($datos){
+
+        var_dump($datos);
 
         $random = rand(1782598471, 9999999999);
 
@@ -54,6 +67,72 @@ class usuarioModel extends Model{
                 ));
     }
 
+    public function editarUsuario($id_persona, $datos){
+
+        $this->_db->query("UPDATE persona SET \"primerNombre\"='".$datos['primerNombre']."', apellido='".$datos['apellido']."', genero='".$datos['genero']."', ".
+            "email='".$datos['email']."', telefono='".$datos['telefono']."', pais=".$datos['pais'].", \"resumenBiografico\"='".$datos['resumenBiografico']."', din='".$datos['din']."', filiacion='".$datos['filiacion']."', \"segundoNombre\"='".$datos['segundoNombre']."' ".
+            "WHERE id_persona = $id_persona;");
+
+         $this->_db->query("DELETE FROM persona_rol WHERE id_persona = $id_persona;");
+
+        for($i = 0; $i < count($datos['check_rol']); $i++){
+            $this->_db->prepare("insert into persona_rol(id_persona, id_rol) VALUES (:id_persona, :id_rol)")
+                    ->execute(array(
+                       ':id_persona' => $id_persona,
+                       ':id_rol' => $datos['check_rol'][$i]
+                    ));
+        }
+
+        if(isset($datos['pass'])){
+
+            if($datos['pass'] != ''){
+                $this->_db->query("UPDATE usuario SET usuario='".$datos['usuario']."', pass='".Hash::getHash('md5', $datos['pass'], HASH_KEY)."' WHERE id_persona = $id_persona;");
+            }else{
+                $this->_db->query("UPDATE usuario SET usuario='".$datos['usuario']."' WHERE id_persona = $id_persona;");
+            }
+        }
+
+        
+
+    }
+
+    public function getPersona($id_persona){
+        $persona = $this->_db->query(
+                "select * from persona where id_persona=$id_persona"
+                );
+        if($persona === false) return false;
+
+        $persona = $persona->fetch();
+
+        return $persona;
+    }
+
+    public function getPersonaRol($id_persona){
+
+        $persona = $this->_db->query(
+                "select * from persona_rol where id_persona=$id_persona"
+                );
+        if($persona === false) return false;
+
+        $persona = $persona->fetchAll();
+
+        return $persona;
+
+    }
+
+    public function getUsuario($id_persona){
+        $usuario = $this->_db->query(
+                "select * from usuario where id_persona=$id_persona"
+                );
+        if($usuario === false) return false;
+
+        $usuario = $usuario->fetch();
+
+        return $usuario;
+    }
+
+
+
     public function getUsuariosByFiltro($filtro = false){
     	$sql = "SELECT p.id_persona, (p.\"primerNombre\" || ' ' || p.apellido) AS nombreCompleto, p.email FROM persona p, persona_rol pr ";
 
@@ -80,7 +159,7 @@ class usuarioModel extends Model{
 
         $sql .= "ORDER BY p.\"primerNombre\" ";
 
-        var_dump($sql);
+        // var_dump($sql);
 
         $result = $this->_db->query($sql);
 

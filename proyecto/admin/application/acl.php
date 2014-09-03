@@ -18,9 +18,12 @@ class Acl {
 			}
 		}
 
-		$this->_db = new Database();
-		$this->_id_rol = $this->getRol();
-		$this->_permisos = $this->getPermisoRol();
+		// if(isset($_SESSION['level'])){
+			$this->_db = new Database();
+			$this->_id_rol = $this->getRol();
+			$this->_permisos = $this->getPermisoRol();
+		// }
+
 	}
 
 	public function getRol(){
@@ -55,7 +58,10 @@ class Acl {
 			"where id_rol = " . $this->_id_rol
 			);
 
-		$permisos = $permisos->fetchAll();
+		if($permisos)
+			$permisos = $permisos->fetchAll();
+		else
+			$permisos = 0;
 
 		$data = array();
 

@@ -478,7 +478,6 @@ function agregar_campos(iter){
             valido = false;
         }
         else if(!exp.test(primerNombre)){
-            alert(nombre + "asd");
             msj_nombre = "El nombre no es v&aacute;lido";
             valido = false;
         }

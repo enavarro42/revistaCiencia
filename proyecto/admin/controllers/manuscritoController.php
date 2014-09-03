@@ -3,20 +3,23 @@
 class manuscritoController extends Controller{
     
     private $_manuscrito;
-    private $_registro;
-    private $_persona;
+    private $_usuario;
+    private $_ajax;
+    private $_rol;
     
     public function __construct(){
         parent::__construct();
         $this->_manuscrito = $this->loadModel('manuscrito');
-        $this->_registro = $this->loadModel('registro');
-        $this->_persona = $this->loadModel("persona");
+        $this->_usuario = $this->loadModel('usuario');
+        $this->_ajax = $this->loadModel('ajax');
         $this->_rol = $this->loadModel("rol");
     }
     
     public function index($pagina = false){
-        
-        Session::accesoEstricto(array('Autor'));
+
+        if(!isset($_SESSION['id_user'])){
+            $this->redireccionar();
+        }
         
         if(!$this->filtrarInt($pagina)){
            $pagina = false;
@@ -29,21 +32,253 @@ class manuscritoController extends Controller{
         $this->getLibrary('paginador');
         $paginador = new Paginador();
         
-        $id_persona = Session::get('id_persona');
         
-        $misManuscritos = $this->_manuscrito->getManuscritosPersona($id_persona);
-        if($misManuscritos)
-            $this->_view->manuscritos = $paginador->paginar($misManuscritos, $pagina);
+        $manuscritos = $this->_manuscrito->getManuscritosParaAdmin();
+
+        if($manuscritos){
+
+            for($i=0; $i<count($manuscritos); $i++){
+                $responsable =  $this->_manuscrito->getResponsable($manuscritos[$i]['id_manuscrito']);
+
+                $manuscritoActual = $this->_manuscrito->getManuscritoActual($responsable['id_responsable']);
+
+                $id_estatus = $manuscritoActual['id_estatus'];
+
+                $estatus = $this->_manuscrito->getEstatus($id_estatus);
+
+                $manuscritos[0]['estatus'] = $estatus['estatus'];
+
+                $autores = $this->_manuscrito->getAutoresByManuscrito($manuscritos[$i]['id_manuscrito']);
+
+
+                $lista_autores = array();
+
+                 for($j = 0; $j < count($autores); $j++){
+                    $lista_autores[] = $autores[$j]['nombrecompleto'];
+                 }
+                $manuscritos[0]['autores'] = $lista_autores;
+            }
+
+            $this->_view->manuscritos = $paginador->paginar($manuscritos, false, $pagina);
+        }
+            
         else
             $this->_view->sin_manuscritos = "No se encontraron manuscritos";
         
-        //$this->_view->pagina = $pagina;
         
         $this->_view->paginacion = $paginador->getView('prueba', 'manuscrito/index');
         
         $this->_view->titulo = 'Manuscritos';
         $this->_view->renderizar('index', 'manuscrito');
     }
+
+    public function crear(){
+
+        $this->_view->setCssPublic(array('jquery-ui'));
+
+        $this->_view->setJsPublic(array('jquery-ui'));
+        $this->_view->setJs(array('controllerTabs'));
+
+        $this->_view->titulo = 'Crear Manuscrito';
+        $this->_view->renderizar('crear', 'manuscrito');
+
+    }
+
+    public function editar($id_manuscrito = false){
+
+        $this->_view->setJs(array('editarController'));
+
+        if($this->filtrarInt($id_manuscrito)){
+
+
+            $manuscrito = $this->_manuscrito->getInfoManuscrito((int)$id_manuscrito);
+
+            if($manuscrito){
+                $this->_view->id_manuscrito = $id_manuscrito;
+            }else{
+                //redirecccionar
+            }
+
+            $revista = $this->_ajax->getRevistas();
+            $this->_view->revista = $revista;
+
+            $areas = $this->_ajax->getAreas();
+            $this->_view->areas = $areas;
+
+            $idiomas = $this->_ajax->getIdiomas();
+            $this->_view->idiomas = $idiomas;
+
+            $this->_view->manuscrito = $manuscrito;
+
+            if($this->getInt('enviado')){
+
+                $valido = true;
+
+                $datos['id_manuscrito'] = $this->getInt('id_manuscrito');
+
+                $datos["titulo"] = $this->getSql('titulo');
+                if(!$this->getSql('titulo')){
+                    $this->_view->error_titulo = 'Debe introducir el titulo';
+                    $valido = false;
+                }
+                
+                //resumen
+                
+                $datos["resumen"] = $this->getSql('resumen');
+                if(!$this->getSql('resumen')){
+                    $this->_view->error_resumen = 'Debe introducir el resumen';
+                    $valido = false;
+                }
+                
+                //revista
+                $datos["revista"] = $this->getPostParam('revista');
+                if($this->getPostParam('revista') == 0){
+                    $this->_view->error_revista = 'Debe seleccionar una revista';
+                    $valido = false;
+                }
+                
+                //area
+                $datos["area"] = $this->getInt('area');
+                if($this->getInt('area') == 0){
+                    $this->_view->error_area = 'Debe seleccionar un &aacute;rea';
+                    $valido = false;
+                }
+                
+                //idioma
+                $datos["idioma"] = $this->getInt('idioma');
+                if($this->getInt('idioma') == 0){
+                    $this->_view->error_idioma = 'Debe seleccionar un idioma';
+                    $valido = false;
+                }
+
+                $this->_view->manuscrito = $datos;
+                
+                //palabrasClave
+                
+                // if(!$this->getSql('palabrasClave')){
+                //     $datos["palabrasClave"] = 'Debe introducir palabras claves';
+                //     $valido = false; 
+                // }
+
+
+                if($valido){
+                    // editar
+                    $this->_manuscrito->editarManuscrito($datos);
+                    $this->redireccionar('manuscrito');
+                }
+
+            }
+        }
+
+        
+
+
+        $this->_view->titulo = 'Editar Manuscrito';
+        $this->_view->renderizar('editar', 'manuscrito');
+
+    }
+
+    public function getResponsable(){
+        $responsable = false;
+        $resp['resp'] = 0;
+        if($this->getInt('id_manuscrito'))
+            $responsable = $this->_manuscrito->getResponsable($this->getInt('id_manuscrito'));
+
+        if($responsable)
+             $resp['resp'] = 1;
+
+         echo $resp['resp'];
+    }
+
+
+    public function setAutor(){
+        $resp = array();
+
+        if($this->getInt('id_persona')){
+
+            //verificar si existe y si es de tipo autor o co-autor
+
+            $id_autor = $this->_rol->getIdRol($this->getPostParam('rol'));
+
+            $personaRol =  $this->_rol->getPersonaRol($this->getInt('id_persona'), $id_autor[0]);
+
+            if($personaRol){
+                if($this->getPostParam('rol') == 'Autor'){
+                    $this->_manuscrito->setResponsable($this->getInt('id_manuscrito'), $this->getInt('id_persona'), $id_autor[0], 1, 1);
+                }else{
+                    $this->_manuscrito->setResponsable($this->getInt('id_manuscrito'), $this->getInt('id_persona'), $id_autor[0], 0, 0);
+                }
+
+                $resp['prueba1'] = $this->getInt('id_manuscrito');
+                $resp['prueba2'] = $this->getInt('id_persona');
+                $resp['prueba3'] = $id_autor[0];
+                
+                $resp['result'] = 1;
+                $resp['response'] = 'El autor fu&eacute; agregado con &Eacute;xito';
+            }else{
+                $resp['result'] = 0;
+                $resp['response'] = 'No se pudo agregar el Autor, compruebe que el Id sea v&aacute;lido';
+            }
+            
+        }else{
+            $resp['result'] = 0;
+            $resp['response'] = 'No se pudo agregar el Autor, compruebe que el Id sea v&aacute;lido';
+        }
+
+
+
+        echo json_encode($resp);
+    }
+
+    public function eliminarAutores(){
+        if($this->getInt('id_manuscrito') && $this->getPostParam('ids'))
+            $this->_manuscrito->eliminarAutores($this->getInt('id_manuscrito'), $this->getPostParam('ids'));
+    }
+
+    public function getAutoresManuscrito(){
+        if($this->getInt('id_manuscrito'))
+            echo json_encode($this->_manuscrito->getAutoresManuscrito($this->getInt('id_manuscrito')));
+    }
+
+    public function comprobarEmail(){
+        
+        
+        $resp['resp'] = "";
+
+        if(!$this->validarEmail($this->getPostParam('email'))){
+            $resp['resp'] = 'La direcci&oacute;n de correo es inv&aacute;lida';
+        }
+
+        if($_POST['email'] == "") $resp['resp'] = "";
+        
+            
+        if($this->_usuario->verificarEmail($this->getPostParam('email'))){
+            $resp['resp'] = 'Esta direcci&oacute;n de correo ya est&aacute; registrada';
+        }
+            
+    
+        echo $resp['resp'];
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     
     //Modificar este metodo para que solo muestre el historial de un manuscrit en particular
     

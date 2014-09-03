@@ -6,7 +6,7 @@ class indexController extends Controller{
     }
     
     public function index(){
-        $post = $this->loadModel('post');
+        // $post = $this->loadModel('post');
 
         if(!Session::get('autenticado_admin')){
         	$this->redireccionar('login');

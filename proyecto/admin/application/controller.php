@@ -20,7 +20,7 @@ abstract class Controller{
             $modelo = new $modelo;
             return $modelo;
         }else{
-            throw new Exception('Error de modelo');
+            throw new Exception('Error de modelo: ' . $modelo);
         }
     }
     

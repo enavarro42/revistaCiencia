@@ -7,7 +7,7 @@
 	        	</div>
 
 	        	<div class="caja_acciones col-xs-6 col-sm-6 col-md-6 col-lg-6">
-	        		<a href="<?php echo BASE_URL; ?>acl" class="btn btn-danger btn_accion">Eliminar</a>
+	        		<a href="<?php echo BASE_URL; ?>usuario" class="btn btn-danger btn_accion">Eliminar</a>
 	        		<a href="<?php echo BASE_URL; ?>usuario/insertar" class="btn btn-success btn_accion">Insertar</a>
 	        	</div>
 
@@ -85,7 +85,7 @@
 		        					<td><input type="checkbox" name="id" class="case"  value="<?php echo $this->resultado[$i]['id_persona']; ?>"></td>
 		        					<td><?php echo $this->resultado[$i]['nombrecompleto']; ?></td>
 		        					<td><?php echo $this->resultado[$i]['email']; ?></td>
-		        					<td><a href="" class="btn btn-info">Editar</a></td>
+		        					<td><a href="<?php echo BASE_URL . "usuario/editar/" . $this->resultado[$i]['id_persona']; ?>" class="btn btn-info">Editar</a></td>
 		        				</tr>
 		        				<?php } ?>
 		        				
@@ -98,8 +98,6 @@
         				</div>
 		        	<?php } ?>
 				</div>
-
-				<?php var_dump($this->filtro); var_dump($this->param); var_dump($this->resultado); ?>
             
         </div>
         <!-- /.col-lg-12 -->

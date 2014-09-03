@@ -104,7 +104,7 @@
                         <?php if(isset($_layoutParams['menu_principal'])): ?>
                         <?php for($i = 0; $i < count($_layoutParams['menu_principal']); $i++): ?>
                         <li>
-                            <a href="<?php echo $_layoutParams['menu_principal'][$i]['enlace']?>"><i class="fa fa-dashboard fa-fw"></i> <?php echo $_layoutParams['menu_principal'][$i]['titulo']?>
+                            <a href="<?php echo $_layoutParams['menu_principal'][$i]['enlace']?>"><i class="<?php echo $_layoutParams['menu_principal'][$i]['class']; ?>"></i> <?php echo $_layoutParams['menu_principal'][$i]['titulo']?>
                                 <?php if($_layoutParams['menu_principal'][$i]['flecha']) echo '<span class="fa arrow"></span>'; ?>
                             </a>
                             

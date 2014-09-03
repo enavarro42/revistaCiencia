@@ -24,19 +24,22 @@ class View{
                 'id' => 'index',
                 'titulo' => 'Inicio',
                 'enlace' => BASE_URL,
-                'flecha' => false
+                'flecha' => false,
+                'class' => "fa fa-file-text fa-fw"
             ),
             array(
                 'id' => 'manuscrito',
                 'titulo' => 'Manuscrito',
                 'enlace' => BASE_URL . 'manuscrito',
-                'flecha' => false
+                'flecha' => false,
+                'class' => "fa fa-file-text fa-fw"
             ),
             array(
                 'id' => 'acl',
                 'titulo' => 'Usuarios',
                 'enlace' => '',
-                'flecha' => true
+                'flecha' => true,
+                'class' => "fa fa-users fa-fw"
             )
         );
 
@@ -220,6 +223,7 @@ class View{
 
        // var_dump(ROOT);
         
+        // var_dump(ROOT . 'views' . DS . 'layout' . DS . DEFAULT_LAYOUT . DS . 'header.php');
         
         $rutaView = ROOT . 'views' . DS . $this->_controlador . DS . $vista . '.php';
 
