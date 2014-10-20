@@ -59,6 +59,15 @@ abstract class Controller{
         return BASE_URL;
 
     }
+
+    protected function getUrlPagina($ruta = false){
+        if($ruta){
+            return 'http://localhost/revista/proyecto/' . $ruta;
+        }
+
+        return BASE_URL;
+
+    }
     
     
     protected function redireccionar($ruta = false){

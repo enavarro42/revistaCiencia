@@ -136,6 +136,10 @@ class manuscritoModel extends Model{
         $rol = $this->_db->query("select rol from rol where id_rol = $id_rol");
         return $rol->fetch();
     }
+
+    public function editarSolicitudArbitraje($id_persona, $id_manuscrito, $opcion){
+        $this->_db->query("UPDATE arbitros_manuscrito SET estatus=$opcion WHERE id_persona = $id_persona and id_manuscrito = $id_manuscrito;");
+    }
     
     public function getManuscrito($id_manuscrito){
 

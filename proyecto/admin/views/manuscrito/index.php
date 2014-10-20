@@ -38,7 +38,8 @@
                         <?php } ?>
                       </select>
                     </td>
-                    <td><a href="" class="btn btn-warning center-block"><span class="fa fa-gavel fa-fw"></span></a></td>
+                    <!-- arbritros -->
+                    <td><a href="<?php echo BASE_URL . 'manuscrito/arbitros/' .$this->manuscritos[$i]['id_manuscrito']; ?>" class="btn btn-warning center-block"><span class="fa fa-gavel fa-fw"></span></a></td> 
                     <td><?php echo trim($this->manuscritos[$i]['fecha']); ?></td>
                     <td><label><?php echo trim($this->manuscritos[$i]['estatus']); ?></label></td>
                     <td><a href="<?php echo BASE_URL . 'manuscrito/editar/' .$this->manuscritos[$i]['id_manuscrito']; ?>" class="btn btn-info center-block"><span class="fa fa-pencil-square-o"></span></a></td>

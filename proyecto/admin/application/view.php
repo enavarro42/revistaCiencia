@@ -30,8 +30,8 @@ class View{
             array(
                 'id' => 'manuscrito',
                 'titulo' => 'Manuscrito',
-                'enlace' => BASE_URL . 'manuscrito',
-                'flecha' => false,
+                'enlace' => '',
+                'flecha' => true,
                 'class' => "fa fa-file-text fa-fw"
             ),
             array(
@@ -40,6 +40,19 @@ class View{
                 'enlace' => '',
                 'flecha' => true,
                 'class' => "fa fa-users fa-fw"
+            )
+        );
+
+        $sub_menu_manuscrito = array(
+            array(
+                'id' => 'manuscrito',
+                'titulo' => 'Manuscrito',
+                'enlace' => BASE_URL . 'manuscrito'
+            ),
+            array(
+                'id' => 'evaluacionArbitro',
+                'titulo' => 'Evaluaci&oacute;nes del Manuscrito',
+                'enlace' => BASE_URL . 'manuscrito/evaluaciones'
             )
         );
 
@@ -212,6 +225,7 @@ class View{
             'ruta_js' => BASE_URL . 'views/layout/'. DEFAULT_LAYOUT . '/js/',
             'menu_principal' => $menu_principal,
             'sub_menu_acl' => $sub_menu_acl,
+            'sub_menu_manuscrito' => $sub_menu_manuscrito,
             'menu_top' => $menu_top,
             'menu_left' => $menu_left,
             'menu_right' => $menu_right,

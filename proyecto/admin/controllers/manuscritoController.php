@@ -6,13 +6,15 @@ class manuscritoController extends Controller{
     private $_usuario;
     private $_ajax;
     private $_rol;
-    
+    private $_persona;
+
     public function __construct(){
         parent::__construct();
         $this->_manuscrito = $this->loadModel('manuscrito');
         $this->_usuario = $this->loadModel('usuario');
         $this->_ajax = $this->loadModel('ajax');
         $this->_rol = $this->loadModel("rol");
+        $this->_persona = $this->loadModel("persona");
     }
     
     public function index($pagina = false){
@@ -175,6 +177,218 @@ class manuscritoController extends Controller{
 
         $this->_view->titulo = 'Editar Manuscrito';
         $this->_view->renderizar('editar', 'manuscrito');
+
+    }
+
+    public function ajaxEvaluacionDetalles(){
+         $json = array();
+
+        if($this->getInt("id_evaluacion")){
+            
+
+            $result = $this->_manuscrito->getEvaluacionById($this->getInt("id_evaluacion"));
+
+             $json['evaluacion'] = $result;
+
+            $result2 = $this->_manuscrito->getEvaluacionResult($this->getInt("id_evaluacion"));
+
+            $json['detalles'] = $result2;
+        }
+
+        echo json_encode($json);
+    }
+
+    public function evaluaciones($pagina = false){
+
+        if(!$this->filtrarInt($pagina)){
+           $pagina = false;
+           $this->_view->pagina = 1;
+        }else{
+           $pagina = (int) $pagina;
+           $this->_view->pagina = $pagina;
+        }
+        
+        $this->getLibrary('paginador');
+        $paginador = new Paginador();
+
+        $manuscritos = $this->_manuscrito->getManuscritos();
+
+        if($manuscritos){
+            $this->_view->manuscritos = $paginador->paginar($manuscritos, false, $pagina);
+            $this->_view->paginacion = $paginador->getView('prueba', 'manuscrito/index');
+            $this->_view->enlace = $this->getUrl('manuscrito/detallesEvaluacionArbitro');
+        }else{
+            $this->_view->manuscritosVacio = 'No hay Manuscritos';
+        }
+
+
+        $this->_view->titulo = 'Evaluaci&oacute;n del Manuscrito';
+        $this->_view->renderizar('evaluaciones', 'manuscrito');
+    }
+
+    //enviar evaluacion de los arbitros
+    public function enviarEvaluacion(){
+        $id_perosna = Session::get('id_persona');
+        $id_rol = $this->_rol->getRolByIdPersona($id_perosna);
+
+        $id_manuscrito = $this->getInt('id_manuscrito');
+
+        $this->_manuscrito->setResponsable($id_manuscrito, $id_perosna, $id_rol, 0, 0);
+
+        $id_resposnable = $this->_manuscrito->getUltimoResponsable();
+
+        //get id_estatus pamatro clave
+        $estatus = $this->_manuscrito->getEstatusByClave('evaluacionArbitro');
+
+        $this->_manuscrito->setRevision($id_resposnable, $estatus['id_estatus'], null);
+    }
+
+    public function detallesEvaluacionArbitro($id_manuscrito = false){
+
+        //metodo para validar la existencia del id
+        if($id_manuscrito){
+
+            $this->_view->setJs(array('controllerEvaluacion'));
+
+            $id_arbitro = $this->_rol->getIdRol('Arbitro');
+
+            $responsables = $this->_manuscrito->getResponsableManuscrito($id_manuscrito, $id_arbitro[0]);
+
+            $ids = '';
+            for($i = 0; $i<count($responsables); $i++){
+                if($i > 0){
+                    $ids .= $responsables[$i]['id_responsable'] . ', ';
+                }else{
+                    $ids = $responsables[$i]['id_responsable']  . '';
+                }
+            }
+
+            $detalleEvaluacion = $this->_manuscrito->getDetallesEvaluacionArbitro($ids);
+
+            $this->_view->detalleEvaluacion = $detalleEvaluacion;
+            $this->_view->responsable = $responsables;
+            $this->_view->id_manuscrito = $id_manuscrito;
+
+            $this->_view->titulo = 'Evaluaciones del &Aacute;rbitro';
+            $this->_view->renderizar('detallesEvaluacionArbitro', 'manuscrito');
+        }
+    }
+
+    public function arbitros($id_manuscrito = false, $pagina = false){
+
+        $this->_view->setJs(array('controllerArbitro'));
+
+        if($this->filtrarInt($id_manuscrito)){
+
+            $this->_view->id_manuscrito = $this->filtrarInt($id_manuscrito);
+
+            if(!$this->filtrarInt($pagina)){
+               $pagina = false;
+               $this->_view->pagina = 1;
+            }else{
+               $pagina = (int) $pagina;
+               $this->_view->pagina = $pagina;
+            }
+            
+            $this->getLibrary('paginador');
+            $paginador = new Paginador();
+
+            $id_arbitro = $this->_rol->getIdRol('Arbitro');
+
+            $arbitrosPostulados = $this->_manuscrito->getArbitrosPostulados($this->filtrarInt($id_manuscrito));
+
+            $ids = '';
+
+            for($i = 0; $i < count($arbitrosPostulados); $i++){
+                if($i > 0) $ids .= ", "; 
+                $ids .= $arbitrosPostulados[$i]['id_persona']; 
+            }
+
+
+            $this->_view->arbitrosPostulados = $arbitrosPostulados;
+
+            $arbitros = $this->_manuscrito->getArbitros($id_arbitro[0], $ids);
+
+            $this->_view->arbitros = $paginador->paginar($arbitros, false, $pagina);
+
+        }
+
+         
+        $this->_view->paginacion = $paginador->getView('prueba', 'manuscrito/index');
+
+        $this->_view->titulo = 'Arbitros';
+        $this->_view->renderizar('arbitros', 'manuscrito');
+    }
+
+    public function asignarArbitroManuscrito(){
+        $resp['resp'] = 0;
+
+        $id_arbitro = $this->_rol->getIdRol('Arbitro');
+
+        if($this->getInt('id_persona') && $this->getInt('id_manuscrito')){
+            $this->_manuscrito->editarEstatusArbitro($this->getInt('id_persona'), $this->getInt('id_manuscrito'), 1);
+            $this->_manuscrito->asignarArbitroManuscrito($this->getInt('id_persona'), $this->getInt('id_manuscrito'), $id_arbitro[0]);
+            $resp['resp'] = 1;
+        }
+
+        echo $resp['resp'];
+    }
+
+    public function quitarArbitro(){
+        $resp['resp'] = 0;
+
+        if($this->getInt('id_persona') && $this->getInt('id_manuscrito')){
+            $this->_manuscrito->quitarArbitro($this->getInt('id_persona'), $this->getInt('id_manuscrito'));
+            $resp['resp'] = 1;
+        }
+
+        echo $resp['resp'];
+    }
+
+    public function setArbitroPostulado(){
+        $resp['resp'] = 0;
+
+        if($this->getInt('id_persona') && $this->getInt('id_manuscrito')){
+            $this->_manuscrito->setArbitroPostulado($this->getInt('id_persona'), $this->getInt('id_manuscrito'));
+            $resp['resp'] = 1;
+        }
+
+        echo $resp['resp'];
+    }
+
+    public function enviarSolicitud(){
+
+            // VALIDAR
+
+        if($this->_manuscrito->getArbitroPostulado($this->getInt('id_persona'), $this->getInt('id_manuscrito'))){
+
+            $persona = $this->_persona->getDatos($this->getInt('id_persona'));
+            $manuscrito = $this->_manuscrito->getInfoManuscrito($this->getInt('id_manuscrito'));
+            $postulado = $this->_manuscrito->getArbitroPostulado($this->getInt('id_persona'), $this->getInt('id_manuscrito'));
+            $this->_manuscrito->editarEstatusArbitro($this->getInt('id_persona'), $this->getInt('id_manuscrito'), -1);
+
+            $this->getLibrary('class.phpmailer');
+            $mail = new PHPMailer();
+            $mail->From = 'www.fecRevistasCientificas.com';
+            $mail->FromName = 'Revistas Cient&iacute;ficas';
+            $mail->Subject = 'Revistas FEC';
+            $url = $this->getUrlPagina('arbitro/' . $this->getInt('id_persona') . "/" . $this->getInt('id_manuscrito') . "/" . $postulado['codigo']);
+            $mail->Body = '<p>Ciudadano (a) <strong>' . $persona['primerNombre'] . " " . $persona['apellido'] . '</strong></p>'.
+                    '<p>La Revista CIENCIA adscrita a la Facultad de Ciencias de la Universidad del Zulia, '.
+                    'Maracaibo Venezuela se complace en invitarle a participar como árbitro de nuestra revista '.
+                    'y de ser su gusto, solicitarle la revisión del manuscrito titulado: </p>'.
+                    '<p><strong>'. $manuscrito['titulo'] .'</strong></p>'.
+                    '<p>Para responder sobre su desici&oacute;n de arbitraje pulsar en el enlace:</p> '.
+                    '<a href="'. $url .'">'.$url.'</a>';
+            $mail->AltBody = "Su servidor de correo no soporta html";
+            $mail->addAddress($persona['email']);
+            $mail->Send();
+        }
+    }
+
+    public function getArbitrosPostulados(){
+
+        echo $this->_manuscrito->getArbitrosPostulados();
 
     }
 

@@ -14,6 +14,50 @@ class manuscritoModel extends Model{
         return $persona->fetch();
     }
 
+    public function getArbitros($id_rol, $ids = false){
+
+        if($ids != '' && $ids != false){
+            $persona = $this->_db->query("SELECT p.id_persona, p.\"primerNombre\" || ' ' || p.apellido as nombrecompleto, p.filiacion, p.\"resumenBiografico\" FROM persona p, persona_rol pr WHERE pr.id_rol = $id_rol and p.id_persona = pr.id_persona and p.id_persona NOT IN ($ids) order by p.\"primerNombre\"");
+        }else{
+            $persona = $this->_db->query("SELECT p.id_persona, p.\"primerNombre\" || ' ' || p.apellido as nombrecompleto, p.filiacion, p.\"resumenBiografico\" FROM persona p, persona_rol pr WHERE pr.id_rol = $id_rol and p.id_persona = pr.id_persona order by p.\"primerNombre\"");
+        }
+        
+        return $persona->fetchAll();
+    }
+
+    public function asignarArbitroManuscrito($id_persona, $id_manuscrito, $rol){
+        $this->_db->query("INSERT INTO responsable(id_manuscrito, id_persona, id_rol, permiso, correspondencia) ".
+                        "VALUES ($id_manuscrito, $id_persona, $rol, 0, 0);");
+    }
+
+    public function editarEstatusArbitro($id_persona, $id_manuscrito, $estatus){
+        $this->_db->query("UPDATE arbitros_manuscrito SET estatus=$estatus WHERE id_persona = $id_persona and id_manuscrito = $id_manuscrito;");
+    }
+
+    public function quitarArbitro($id_persona, $id_manuscrito){
+        $this->_db->query("DELETE FROM arbitros_manuscrito WHERE id_persona = $id_persona and id_manuscrito = $id_manuscrito;");
+        $this->_db->query("DELETE FROM responsable WHERE id_persona = $id_persona and id_manuscrito = $id_manuscrito;");
+    }
+
+    public function setArbitroPostulado($id_persona, $id_manuscrito){
+        $random = rand(1718, 9999999999);
+        $this->_db->query("INSERT INTO arbitros_manuscrito(id_persona, id_manuscrito, codigo) VALUES ($id_persona, $id_manuscrito, $random);");
+    }
+
+    public function getArbitrosPostulados($id_manuscrito){
+
+        $arbitros = $this->_db->query("SELECT p.id_persona, p.\"primerNombre\" || ' ' || p.apellido as nombrecompleto, p.filiacion, p.\"resumenBiografico\", am.estatus FROM persona p, arbitros_manuscrito am WHERE am.id_persona = p.id_persona and am.id_manuscrito = $id_manuscrito order by p.\"primerNombre\"");
+
+        return $arbitros->fetchAll();
+    }
+
+    public function getArbitroPostulado($id_persona, $id_manuscrito){
+
+        $arbitro = $this->_db->query("SELECT * from arbitros_manuscrito where id_persona = $id_persona and id_manuscrito = $id_manuscrito");
+
+        return $arbitro->fetch();
+    }
+
     public function editarManuscrito($datos = false){
         if($datos){
             $this->_db->query(
@@ -81,6 +125,18 @@ class manuscritoModel extends Model{
                             ":carpeta" => $carpeta,
                             ":nombre_arch" => $nombre_arch
                         ));
+    }
+
+    public function getEstatusById($id_estatus){
+        $id = $this->_db->query(
+                "SELECT * FROM estatus where id_estatus = $id_estatus"
+                );
+        return $id->fetch();
+    }
+
+    public function getEstatusByClave($clave){
+        $id = $this->_db->query("SELECT * FROM estatus where clave = '$clave'");
+        return $id->fetch();
     }
     
     public function getCountFisico(){
@@ -155,6 +211,56 @@ class manuscritoModel extends Model{
         $rol = $this->_db->query("select rol from rol where id_rol = $id_rol");
         return $rol->fetch();
     }
+
+    // ============================================
+
+    public function getResponsableManuscrito($id_manuscrito = false, $id_rol = false){
+        $responsable = $this->_db->query("select * from responsable where id_manuscrito = $id_manuscrito and id_rol = $id_rol");
+        return $responsable->fetchAll();
+    }
+
+    public function getDetallesEvaluacionArbitro($ids = false){
+        $evaluaciones = $this->_db->query("select evaluacion.id_evaluacion, evaluacion.id_responsable, evaluacion.id_revision, evaluacion.evaluacion, evaluacion.fecha, persona.\"primerNombre\" || ' ' || persona.apellido as nombreCompleto ".
+                        "from evaluacion, responsable, persona ".
+                        "where evaluacion.id_responsable IN ($ids) and ".
+                        "responsable.id_responsable = evaluacion.id_responsable ".
+                        "and responsable.id_persona = persona.id_persona ".
+                        "ORDER BY evaluacion.id_responsable, evaluacion.evaluacion DESC");
+
+        return $evaluaciones->fetchAll();
+    }
+
+    public function getEvaluacionById($id_evaluacion){
+        $evaluacion = $this->_db->query("SELECT e.sugerencia, e.cambios, e.evaluar_nuevamente ".
+                                    "FROM evaluacion e ".
+                                    "WHERE e.id_evaluacion = $id_evaluacion");
+
+        return $evaluacion->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function getEvaluacionResult($id_evaluacion){
+        $result = $this->_db->query("SELECT ed.id_pregunta, ed.id_opcion, p.pregunta, s.seccion, p.id_seccion, o.opcion, o.id_opcion ".
+                                        "from evaluacion_detalle ed, pregunta p, seccion s, opcion o ".
+                                        "where ed.id_evaluacion = $id_evaluacion and ed.id_pregunta = p.id_pregunta and p.id_seccion = s.id_seccion and o.id_opcion = ed.id_opcion");
+
+        return $result->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /*
+//query 1
+SELECT e.sugerencia, e.cambios, e.evaluar_nuevamente
+FROM evaluacion e
+WHERE e.id_evaluacion = 5
+
+
+//query 2
+SELECT ed.id_pregunta, ed.id_opcion, p.pregunta, s.seccion, p.id_seccion, o.opcion, o.id_opcion
+from evaluacion_detalle ed, pregunta p, seccion s, opcion o
+where ed.id_evaluacion = 12 and ed.id_pregunta = p.id_pregunta and p.id_seccion = s.id_seccion and o.id_opcion = ed.id_opcion
+
+    */
+
+    //=============================================
 
     // ----------------------------------
 

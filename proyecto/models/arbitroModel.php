@@ -5,6 +5,13 @@ class arbitroModel extends Model{
         parent::__construct();
     }
 
+    public function validarSolicitud($id_persona, $id_manuscrito, $codigo){
+        $arbitro = $this->_db->query("select * from arbitros_manuscrito where id_manuscrito = $id_manuscrito and id_persona = $id_persona and codigo = $codigo");
+        
+        return $arbitro = $arbitro->fetch();
+
+    }
+
     public function getRevistaManuscrito($id_manuscrito){
         $manuscrito = $this->_db->query("select * from manuscrito where id_manuscrito = $id_manuscrito");
         $result = $manuscrito->fetch();

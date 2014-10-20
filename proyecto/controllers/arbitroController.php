@@ -68,6 +68,56 @@ class arbitroController extends Controller{
         
     }
 
+    public function solicitud($id_persona = false, $id_manuscrito = false, $codigo = false){
+
+        $this->_view->setJs(array('js_solicitud'));
+
+        if($id_persona && $id_manuscrito && $codigo){
+
+            $result = arbitroController::validarSolicitud($id_persona, $id_manuscrito, $codigo);
+
+            if($result != false){
+                // var_dump("correcto");
+                // var_dump($result);
+                //titulo del manuscrito
+                $manuscrito = $this->_manuscrito->getManuscrito($id_manuscrito);
+                $this->_view->manuscrito = $manuscrito;
+
+                //nombre del arbitro
+                $persona = $this->_persona->getDatos($id_persona);
+                $this->_view->persona = $persona;
+
+                $this->_view->solicitud = $result;
+
+                $this->_view->id_manuscrito = $id_manuscrito;
+
+                $this->_view->id_persona = $id_persona;
+
+
+            }else{
+                var_dump("Incorrecto");
+            }
+
+        }
+
+        $this->_view->titulo = 'Solicitud de Arbitraje';
+        $this->_view->renderizar('solicitud', 'arbitro');
+    }
+
+    public function validarSolicitud($id_persona = false, $id_manuscrito = false, $codigo = false){
+        if($id_persona && $id_manuscrito && $codigo){
+            return $this->_arbitro->validarSolicitud($id_persona, $id_manuscrito, $codigo);
+        }
+
+        return false;
+    }
+
+    public function respSolicitud(){
+        if($this->getInt('id_manuscrito') && $this->getInt('id_persona')){
+            $this->_manuscrito->editarSolicitudArbitraje($this->getInt('id_persona'), $this->getInt('id_manuscrito'), $this->getInt('opcion'));
+        }
+    }
+
     public function evaluar($id_manuscrito = null){
         if(!Session::get('autenticado')){
             header('location:' . BASE_URL . 'error/access/5050');

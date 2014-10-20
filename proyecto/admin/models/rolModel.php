@@ -5,6 +5,13 @@ class rolModel extends Model{
     public function __construct(){
         parent::__construct();
     }
+
+    public function getRolByIdPersona($id_persona){
+        $id = $this->_db->query(
+                "SELECT id_rol from rol WHERE id_persona = $id_persona"
+                );
+        return $id->fetch();
+    }
     
     public function getIdRol($rol){
 
