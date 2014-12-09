@@ -16,7 +16,7 @@ class manuscritoModel extends Model{
     
     public function setObra($id_idioma, $issn, $id_area){
         $this->_db->prepare(
-                "insert into obra(tipo, id_idioma, issn, id_area) values(:tipo, :id_idioma, :issn, :id_area)"
+                "insert into obra(tipo, id_idioma, issn, id_area, fecha) values(:tipo, :id_idioma, :issn, :id_area, current_date)"
                 )
                 ->execute(
                     array(
@@ -29,7 +29,7 @@ class manuscritoModel extends Model{
     }
     
     public function setRevision($id_responsable, $id_estatus, $id_fisico){
-        $this->_db->query("INSERT INTO revision(id_responsable, id_estatus, id_fisico, fecha) VALUES($id_responsable, $id_estatus, $id_fisico, NOW())");
+        $this->_db->query("INSERT INTO revision(id_responsable, id_estatus, id_fisico, fecha) VALUES($id_responsable, $id_estatus, $id_fisico, current_date)");
     }
     
     public function setManuscrito($titulo, $resumen, $id_obra){
@@ -103,6 +103,29 @@ class manuscritoModel extends Model{
                                         "and revision.id_estatus = estatus.id_estatus ".
                                         "order by revision.fecha DESC");
         return $revisiones->fetchAll();
+    }
+
+    public function getRevisionById($id_revision){
+        $revision = $this->_db->query("SELECT * from revision where id_revision = $id_revision");
+        return $revision->fetch();
+    }
+
+
+    public function getEstatusById($id_estatus){
+        $id = $this->_db->query(
+                "SELECT * FROM estatus where id_estatus = $id_estatus"
+                );
+        return $id->fetch();
+    }
+
+    public function getEstatusByClave($clave){
+        $id = $this->_db->query("SELECT * FROM estatus where clave = '$clave'");
+        return $id->fetch();
+    }
+
+    public function getEstatusByTipo($tipo){
+        $id = $this->_db->query("SELECT * FROM estatus where tipo = '$tipo'");
+        return $id->fetchAll();
     }
     
     
@@ -202,7 +225,6 @@ class manuscritoModel extends Model{
                                          "and responsable.id_manuscrito = manuscrito.id_manuscrito ".
                                          "order by manuscrito.id_manuscrito DESC");
 
-
         if($manuscrito != false)
             return $manuscrito->fetchAll();
         return false;
@@ -272,6 +294,11 @@ class manuscritoModel extends Model{
     public function getObraArea($id_obra){
         $area = $this->_db->query("select distinct id_area from obra where id_obra = $id_obra");
         return $area->fetch();
+    }
+
+    public function getEvaluacionesByRevision($id_revision = false){
+        $result = $this->_db->query("select * from evaluacion where id_revision = $id_revision");
+        return $result->fetchAll();
     }
     
 }

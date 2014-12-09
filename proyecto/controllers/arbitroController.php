@@ -129,7 +129,7 @@ class arbitroController extends Controller{
                 $this->_view->setJsPublic(array('jquery-ui.min'));
                 $this->_view->setJs(array('js_evaluar'));
 
-                var_dump($_SESSION['id_persona']);
+                // var_dump($_SESSION['id_persona']);
 
 
 
@@ -138,7 +138,7 @@ class arbitroController extends Controller{
 
                 $responsable = $this->_persona->getPersonaResponsable($_SESSION['id_persona'], $this->filtrarInt($id_manuscrito));
 
-                var_dump($responsable);
+                // var_dump($responsable);
 
                 if($responsable['permiso'] == 0)
                     $this->redireccionar('arbitro');
@@ -151,7 +151,7 @@ class arbitroController extends Controller{
 
                 //obtener las secciones de la plantilla
                 $plantilla_seccion = $this->_arbitro->getPlantillaSeccion($plantilla['id_plantilla']);
-                var_dump($plantilla_seccion);
+                // var_dump($plantilla_seccion);
 
                 $secciones = '';
 
@@ -165,20 +165,20 @@ class arbitroController extends Controller{
                 //secciones
                 $seccion = $this->_arbitro->getSecciones($secciones);
                 $this->_view->_seccion = $seccion;
-                var_dump($seccion);
+                // var_dump($seccion);
 
                 //obtener pregunstas dado una plantilla y seccion
                 $pregunstas_seccion_2 = $this->_arbitro->getPreguntas($plantilla['id_plantilla'], 2);
                 $this->_view->_pregunstas_seccion_2 = $pregunstas_seccion_2;
 
-                var_dump("=========================================");
-                var_dump($pregunstas_seccion_2);
-                var_dump("=========================================");
+                // var_dump("=========================================");
+                // var_dump($pregunstas_seccion_2);
+                // var_dump("=========================================");
 
                 $pregunstas_seccion_3 = $this->_arbitro->getPreguntas($plantilla['id_plantilla'], 3);
                 $this->_view->_pregunstas_seccion_3 = $pregunstas_seccion_3;
 
-                var_dump($pregunstas_seccion_3);
+                // var_dump($pregunstas_seccion_3);
 
                 //obtener las opciones de cada pregunta
                 $opciones_seccion_2 = $this->_arbitro->getOpciones(2);
@@ -187,14 +187,14 @@ class arbitroController extends Controller{
                 $opciones_seccion_3 = $this->_arbitro->getOpciones(3);
                 $this->_view->_opciones_seccion_3 = $opciones_seccion_3;
 
-                var_dump($opciones_seccion_2);
-                var_dump($opciones_seccion_3);
+                // var_dump($opciones_seccion_2);
+                // var_dump($opciones_seccion_3);
 
                 $responsable = $this->_manuscrito->getResponsable($this->filtrarInt($id_manuscrito));
-                var_dump($responsable);
+                // var_dump($responsable);
 
                 $primeraRevision = $this->_manuscrito->getPrimeraRevision($responsable['id_responsable']);
-                var_dump($primeraRevision);
+                // var_dump($primeraRevision);
                 $this->_view->_datos_revision = $primeraRevision;
 
                 $datos_manuscrito = $this->_manuscrito->getManuscrito($this->filtrarInt($id_manuscrito));

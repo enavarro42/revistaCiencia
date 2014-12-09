@@ -330,7 +330,7 @@ class registroController extends Controller{
         
          $this->_view->_mensaje_activacion = "Su cuenta ha sido activada";
          $this->_view->_mensaje_class = 'class="alert alert-success"';
-         $this->_view->renderizar('activar/' , 'registro');
+         $this->_view->renderizar('activar' , 'registro');
     }
     
 }

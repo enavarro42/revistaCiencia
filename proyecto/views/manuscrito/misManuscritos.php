@@ -18,6 +18,7 @@
         <th>Por</th>
         <th>Estatus</th>
         <th>Fecha</th>
+        <th>Detalles</th>
       </thead>
       
        
@@ -43,6 +44,7 @@
               <!-- <td><?php echo $this->manuscritos[$i]['rol']; ?></td> -->
               <td><?php echo $this->manuscritos[$i]['estatus']; ?></td>
               <td><?php echo $this->manuscritos[$i]['fecha']; ?></td>
+              <td><a href="<?php echo $this->enlaceDetalles . $this->manuscritos[$i]['id_revision'] . '/' . $this->id_manuscrito; ?>" class="btn btn-info">Detalles</a></td>
           </tr>
           
           <?php endfor; ?>

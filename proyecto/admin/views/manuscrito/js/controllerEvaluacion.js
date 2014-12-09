@@ -81,20 +81,51 @@ $(document).on("ready", function(){
 			param = arreglo.join();
 			if(param != ""){
 
-				  $.post(URL_BASE + "manuscrito/enviarEvaluacion",
-				  {
-				  	id_manuscrito: $("#id_manuscrito").val(),
-				    ids: param
-				  },
+
+				$.post(URL_BASE + "manuscrito/getEstatus",
 				  function(data,status){
-				  	//recargar
+
+				  	$("#desicion").html(data);
+
+						$('#modalEnviar').modal({
+						  keyboard: false
+						});
 				  });
 
+
+
 			}else{
-				alert("ebe seleccionar por lo menos una evaluación");
+				alert("Debe seleccionar por lo menos una evaluación");
 			}
 		}else{
 			alert("Debe seleccionar por lo menos una evaluación");
+		}
+
+	});
+
+
+	$("#aceptar").on("click", function(){
+
+		var arreglo = [];
+		var param = "";
+
+		$("input:checkbox[name=id]:checked").each(function(){
+		    arreglo.push($(this).val());
+		});
+		
+		param = arreglo.join();
+		
+		if(param != ""){
+
+			$.post(URL_BASE + "manuscrito/enviarEvaluacion",
+			{
+				id_manuscrito: $("#id_manuscrito").val(),
+			    ids: param,
+			    id_estatus: $("#desicion").val()
+			},
+			function(data,status){
+			  	//recargar
+			});
 		}
 
 	});

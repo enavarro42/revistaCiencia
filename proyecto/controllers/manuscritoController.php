@@ -47,7 +47,7 @@ class manuscritoController extends Controller{
     
     //Modificar este metodo para que solo muestre el historial de un manuscrit en particular
     
-    public function misManuscritos($pagina = false, $id_manuscrito = false){
+    public function misManuscritos($id_manuscrito = false, $pagina = false){
         
         Session::accesoEstricto(array('Autor'));
         if($id_manuscrito != false && $this->filtrarInt($id_manuscrito) != 0){
@@ -64,9 +64,9 @@ class manuscritoController extends Controller{
                 $paginador = new Paginador();
 
 
-                $id_persona = Session::get('id_persona');
+                // $id_persona = Session::get('id_persona');
 
-                $obras = $this->_manuscrito->getObraManuscrito($id_persona);
+                //$obras = $this->_manuscrito->getObraManuscrito($id_persona);
 
                 //$autores = array();
                 $this->_view->autores = array();
@@ -86,6 +86,7 @@ class manuscritoController extends Controller{
                         $iter++;
                     }
                     $this->_view->autores[$manusc['id_manuscrito']] = $array_autor;
+                    $this->_view->id_manuscrito = (int)$id_manuscrito;
                     //$autores[$manusc['id_manuscrito']] = $array_autor;
                 }else{
                     header('location:' . BASE_URL . 'error/access/404');
@@ -100,14 +101,16 @@ class manuscritoController extends Controller{
 
                 //$this->_view->revisiones = $this->_manuscrito->getRevisiones($autor['id_autor']);
 
+
+
                 $this->_view->manuscritos = $paginador->paginar($this->_manuscrito->getRevisiones($manusc['id_manuscrito']), $pagina);
 
-
+                $this->_view->enlaceDetalles = $this->getUrl("manuscrito/detallesManuscrito");
                 //print_r($this->_view->revisiones);
 
                 //exit;
 
-                $this->_view->paginacion = $paginador->getView('prueba', 'manuscrito/misManuscritos');
+                $this->_view->paginacion = $paginador->getView('prueba', 'manuscrito/misManuscritos/'.$id_manuscrito);
 
                 $this->_view->enlaceCorreccion = $this->getUrl("manuscrito/correccion/". $manusc['id_manuscrito']);
                 $this->_view->titulo = 'Mis manuscritos';
@@ -117,6 +120,67 @@ class manuscritoController extends Controller{
             }
         }
         
+    }
+
+    public function detallesManuscrito($id_revision = false, $id_manuscrito = false){
+
+        $revision = $this->_manuscrito->getRevisionById($id_revision);
+
+        if($revision && $id_revision){
+
+            $this->_view->revision = $revision;
+
+            $manuscrito = $this->_manuscrito->getManuscrito($id_manuscrito);
+
+            $estatusPorEditor = $this->_manuscrito->getEstatusByClave('corregirFormato');
+
+            $estatusPorArbitro = $this->_manuscrito->getEstatusByTipo('evaluacionArbitro');
+
+            $estatus = $this->_manuscrito->getEstatus($revision['id_estatus']);
+
+            if($revision['id_estatus'] == $estatusPorEditor['id_estatus']){
+                $this->_view->estatusEvaluacionEditor = true;
+            }else{
+                $this->_view->estatusEvaluacionEditor = false;
+            }
+
+            $this->_view->estatusEvaluacionArbitro = false;
+
+            $detallesEvaluacion = null;
+
+            for($i = 0; $i<count($estatusPorArbitro); $i++){
+                if($estatusPorArbitro[$i]['id_estatus'] == $revision['id_estatus']){
+                    $this->_view->estatusEvaluacionArbitro = true;
+                    $detallesEvaluacion = $this->_manuscrito->getEvaluacionesByRevision($id_revision);
+                    break;
+                }
+            }
+
+            $data = array();
+            $data['titulo'] = $manuscrito['titulo'];
+            $data['estatus'] = $estatus['estatus'];
+            $data['fecha'] = $revision['fecha'];
+
+            if($this->getInt($revision['id_fisico'])){
+                $fisico = $this->_manuscrito->getFisico($this->getInt($revision['id_fisico']));
+                $data['link_archivo'] = $fisico['carpeta'] . '/' . $fisico['nombre'];
+            }
+
+            for($i = 0; $i<count($detallesEvaluacion); $i++){
+
+                $id_fisico = $detallesEvaluacion[$i]['id_fisico'];
+                $fisico = $this->_manuscrito->getFisico($id_fisico);
+                $data['evaluacion'][] = array('sugerencia' => $detallesEvaluacion[$i]['sugerencia'], 'cambios' => $detallesEvaluacion[$i]['cambios'],
+                    'link_archivo' => $fisico['carpeta'] . '/' . $fisico['nombre']);
+            }
+
+            $this->_view->data = $data;
+
+            $this->_view->titulo = 'Detalles del Manuscrito';
+            $this->_view->renderizar('detallesManuscrito', 'manuscrito');
+        }else{
+            $this->redireccionar('manuscrito');
+        }
     }
     
     public function insertar(){
@@ -579,6 +643,7 @@ class manuscritoController extends Controller{
         $this->_view->titulo = 'Nuevo Manuscrito';
         $this->_view->renderizar('nuevo', 'manuscrito');
     }
+
     
 }
 

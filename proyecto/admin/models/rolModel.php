@@ -8,7 +8,7 @@ class rolModel extends Model{
 
     public function getRolByIdPersona($id_persona){
         $id = $this->_db->query(
-                "SELECT id_rol from rol WHERE id_persona = $id_persona"
+                "SELECT id_rol from persona_rol WHERE id_persona = $id_persona"
                 );
         return $id->fetch();
     }

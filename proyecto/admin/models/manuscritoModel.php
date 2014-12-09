@@ -7,6 +7,10 @@ class manuscritoModel extends Model{
         parent::__construct();
     }
 
+    public function editarEvaluacionById($id_evaluacion, $id_revision){
+        $this->_db->query("UPDATE evaluacion SET id_revision=$id_revision WHERE id_evaluacion = $id_evaluacion;");
+    }
+
     public function validarResponsable($id_manuscrito, $id_persona, $id_rol){
         $persona = $this->_db->query(
                 "SELECT * FROM responsable WHERE id_manuscrito = $id_manuscrito and id_persona = $id_persona and id_rol = $id_rol"
@@ -92,7 +96,14 @@ class manuscritoModel extends Model{
     }
     
     public function setRevision($id_responsable, $id_estatus, $id_fisico){
-        $this->_db->query("INSERT INTO revision(id_responsable, id_estatus, id_fisico, fecha) VALUES($id_responsable, $id_estatus, $id_fisico, NOW())");
+        $this->_db->prepare("INSERT INTO revision(id_responsable, id_estatus, id_fisico, fecha) VALUES(:id_responsable, :id_estatus, :id_fisico, current_date)")
+                ->execute(
+                        array(
+                            ":id_responsable" => $id_responsable,
+                            ":id_estatus" => $id_estatus,
+                            ":id_fisico" => $id_fisico
+                        )
+                 );
     }
     
     public function setManuscrito($titulo, $resumen, $id_obra){
@@ -127,6 +138,19 @@ class manuscritoModel extends Model{
                         ));
     }
 
+
+    public function setObservaciones($id_revision = false, $id_manuscrito = false, $observaciones = false){
+        if($id_revision && $id_manuscrito && $observaciones){
+            $this->_db->prepare("INSERT INTO observaciones(id_revision, id_manuscrito, observaciones) VALUES(:id_revision, :id_manuscrito, :observaciones)")
+                ->execute(
+                        array(
+                            ":id_revision" => $id_revision,
+                            ":id_manuscrito" => $id_manuscrito,
+                            ":observaciones" => $observaciones
+                        ));
+        }
+    }
+
     public function getEstatusById($id_estatus){
         $id = $this->_db->query(
                 "SELECT * FROM estatus where id_estatus = $id_estatus"
@@ -137,6 +161,11 @@ class manuscritoModel extends Model{
     public function getEstatusByClave($clave){
         $id = $this->_db->query("SELECT * FROM estatus where clave = '$clave'");
         return $id->fetch();
+    }
+
+    public function getEstatusByTipo($tipo){
+        $id = $this->_db->query("SELECT * FROM estatus where tipo = '$tipo'");
+        return $id->fetchAll();
     }
     
     public function getCountFisico(){
@@ -179,6 +208,11 @@ class manuscritoModel extends Model{
                                         "order by revision.fecha DESC");
         return $revisiones->fetchAll();
     }
+
+    public function getUltimaRevisionByResponsable($id_responsable){
+        $revision = $this->_db->query("SELECT MAX(id_revision) as id_revision FROM revision WHERE id_responsable = $id_responsable");
+        return $revision->fetch();
+    }
     
     
      public function getPersona($id_persona){
@@ -214,6 +248,15 @@ class manuscritoModel extends Model{
 
     // ============================================
 
+    public function getResponsableByFiltro($id_persona = false, $id_manuscrito = false, $id_rol = false){
+        if($id_persona && $id_manuscrito && $id_rol){
+            $responsable = $this->_db->query("select * from responsable where id_persona = $id_persona and id_manuscrito = $id_manuscrito and id_rol = $id_rol");
+            return $responsable->fetch();
+        }
+
+        return false;
+    }
+
     public function getResponsableManuscrito($id_manuscrito = false, $id_rol = false){
         $responsable = $this->_db->query("select * from responsable where id_manuscrito = $id_manuscrito and id_rol = $id_rol");
         return $responsable->fetchAll();
@@ -245,6 +288,8 @@ class manuscritoModel extends Model{
 
         return $result->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    
 
     /*
 //query 1
@@ -375,7 +420,6 @@ where ed.id_evaluacion = 12 and ed.id_pregunta = p.id_pregunta and p.id_seccion 
     }
 
     public function getManuscritoActual($responsable){
-        
         $revision = $this->_db->query("select * from revision where id_responsable = $responsable order by fecha DESC LIMIT 1");
         return $revision->fetch();
         

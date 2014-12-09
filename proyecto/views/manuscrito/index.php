@@ -21,7 +21,7 @@
           
           <tr>
               <td><?php echo $this->manuscritos[$i]['id_manuscrito']; ?></td>
-              <td><a href="<?php echo BASE_URL . 'manuscrito/misManuscritos/'. 1 .'/'. $this->manuscritos[$i]['id_manuscrito'];?>"><?php echo $this->manuscritos[$i]['titulo']; ?></a></td>
+              <td><a href="<?php echo BASE_URL . 'manuscrito/misManuscritos/'. $this->manuscritos[$i]['id_manuscrito'] . '/1';?>"><?php echo $this->manuscritos[$i]['titulo']; ?></a></td>
           </tr>
           
           <?php } ?>

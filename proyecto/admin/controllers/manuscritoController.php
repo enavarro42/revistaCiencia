@@ -198,6 +198,19 @@ class manuscritoController extends Controller{
         echo json_encode($json);
     }
 
+
+    public function getEstatus(){
+
+        $estatus = $this->_manuscrito->getEstatusByTipo("evaluacionArbitro");
+
+        $data = '';
+        for($i = 0; $i<count($estatus); $i++){
+            $data .= "<option value='".$estatus[$i]["id_estatus"]."'>".$estatus[$i]["estatus"]."</option>";
+        }
+
+        echo $data;
+    }
+
     public function evaluaciones($pagina = false){
 
         if(!$this->filtrarInt($pagina)){
@@ -222,25 +235,42 @@ class manuscritoController extends Controller{
         }
 
 
+        $this->_view->enlaceCrearEvaluacionEditor = $this->getUrl() . 'manuscrito/crearEvaluacionEditor/';
+        $this->_view->enlaceDetalleEvaluacionEditor = $this->getUrl() . 'manuscrito/detalleEvaluacionEditor/';
+
+
         $this->_view->titulo = 'Evaluaci&oacute;n del Manuscrito';
         $this->_view->renderizar('evaluaciones', 'manuscrito');
     }
 
     //enviar evaluacion de los arbitros
     public function enviarEvaluacion(){
-        $id_perosna = Session::get('id_persona');
-        $id_rol = $this->_rol->getRolByIdPersona($id_perosna);
+        $id_persona = Session::get('id_persona');
+        //esto no creo que este bien, porq si esa persona tiene mas roles
+        $rol = $this->_rol->getRolByIdPersona($id_persona);
 
         $id_manuscrito = $this->getInt('id_manuscrito');
 
-        $this->_manuscrito->setResponsable($id_manuscrito, $id_perosna, $id_rol, 0, 0);
+        $this->_manuscrito->setResponsable($id_manuscrito, $id_persona, $rol['id_rol'], 0, 0);
 
-        $id_resposnable = $this->_manuscrito->getUltimoResponsable();
+        $responsable = $this->_manuscrito->getUltimoResponsable();
 
         //get id_estatus pamatro clave
-        $estatus = $this->_manuscrito->getEstatusByClave('evaluacionArbitro');
+        $estatus = $this->getInt('id_estatus');
 
-        $this->_manuscrito->setRevision($id_resposnable, $estatus['id_estatus'], null);
+        $this->_manuscrito->setRevision($responsable["id_responsable"], $estatus, null);
+
+        $revision = $this->_manuscrito->getUltimaRevisionByResponsable($responsable["id_responsable"]);
+
+        $ids = $this->getPostParam('ids');
+
+        $evaluacion = explode(",", $ids);
+
+        for($i = 0; $i<count($evaluacion); $i++){
+            $this->_manuscrito->editarEvaluacionById($evaluacion[$i], $revision['id_revision']);
+        }
+
+        //recordar ocultar el checkbox y cambiar el estatus de pendiente a enviado
     }
 
     public function detallesEvaluacionArbitro($id_manuscrito = false){
@@ -257,7 +287,7 @@ class manuscritoController extends Controller{
             $ids = '';
             for($i = 0; $i<count($responsables); $i++){
                 if($i > 0){
-                    $ids .= $responsables[$i]['id_responsable'] . ', ';
+                    $ids .= ', ' . $responsables[$i]['id_responsable'] ;
                 }else{
                     $ids = $responsables[$i]['id_responsable']  . '';
                 }
@@ -304,6 +334,17 @@ class manuscritoController extends Controller{
                 $ids .= $arbitrosPostulados[$i]['id_persona']; 
             }
 
+            $autores = $this->_manuscrito->getAutoresManuscrito($id_manuscrito);
+            $this->_view->autores = $autores;
+
+
+            for($i = 0; $i<count($autores); $i++){
+                if($ids == "")
+                    $ids = $autores[$i]['id_persona'];
+                else
+                    $ids .= ", " . $autores[$i]['id_persona'];
+            }
+
 
             $this->_view->arbitrosPostulados = $arbitrosPostulados;
 
@@ -328,6 +369,14 @@ class manuscritoController extends Controller{
         if($this->getInt('id_persona') && $this->getInt('id_manuscrito')){
             $this->_manuscrito->editarEstatusArbitro($this->getInt('id_persona'), $this->getInt('id_manuscrito'), 1);
             $this->_manuscrito->asignarArbitroManuscrito($this->getInt('id_persona'), $this->getInt('id_manuscrito'), $id_arbitro[0]);
+
+            //asignamos en la latabla revision que ya se esta comenzando a evaluar
+            $rol = $this->_rol->getRolByIdPersona($this->getInt('id_persona'));
+            $r = $this->_manuscrito->getResponsableByFiltro($this->getInt('id_persona'), $this->getInt('id_manuscrito'), $rol['id_rol']); 
+            
+            $estatus = $this->_manuscrito->getEstatusByClave("manuscritoEnArbitraje");
+            $this->_manuscrito->setRevision($r['id_responsable'], $estatus['id_estatus'], null);
+
             $resp['resp'] = 1;
         }
 
@@ -372,7 +421,7 @@ class manuscritoController extends Controller{
             $mail->From = 'www.fecRevistasCientificas.com';
             $mail->FromName = 'Revistas Cient&iacute;ficas';
             $mail->Subject = 'Revistas FEC';
-            $url = $this->getUrlPagina('arbitro/' . $this->getInt('id_persona') . "/" . $this->getInt('id_manuscrito') . "/" . $postulado['codigo']);
+            $url = $this->getUrlPagina('arbitro/solicitud/' . $this->getInt('id_persona') . "/" . $this->getInt('id_manuscrito') . "/" . $postulado['codigo']);
             $mail->Body = '<p>Ciudadano (a) <strong>' . $persona['primerNombre'] . " " . $persona['apellido'] . '</strong></p>'.
                     '<p>La Revista CIENCIA adscrita a la Facultad de Ciencias de la Universidad del Zulia, '.
                     'Maracaibo Venezuela se complace en invitarle a participar como árbitro de nuestra revista '.
@@ -475,12 +524,186 @@ class manuscritoController extends Controller{
     }
 
 
+    public function crearEvaluacionEditor($id_manuscrito = false){
+        
+        $this->_view->setJs(array('controllerEvaluacionEditorCrear'));
+
+        if($this->filtrarInt($id_manuscrito)){
+            $this->_view->manuscrito = $this->_manuscrito->getManuscrito($this->filtrarInt($id_manuscrito));
+        }
+
+
+        $this->_view->titulo = 'Crear Evaluacion';
+        $this->_view->renderizar('crearEvaluacionEditor', 'manuscrito');
+    }
+
+
+    public function enviarEvaluacionEditor(){
+        $observaciones = $this->getSql('observaciones');
+        $id_manuscrito = $this->getInt('manuscrito');
+
+        $arreglo["status"] = 1;
+
+        $url = ROOT;
+
+        $url = explode("admin", $url);
+
+        if(isset($_FILES["archivo"])){
+
+            $responsable = $this->_manuscrito->getResponsable($id_manuscrito);
+
+            $datos_persona = $this->_persona->getDatos($responsable['id_persona']);
+
+            $apellido = explode(" ", $datos_persona['apellido']);
+            
+            $ruta = $url[0] . "manuscritos";
+
+            $ruta .= '/' . $apellido[0] . "_" .$responsable['id_persona'];
+
+            $ruta .= "/manuscrito_". $_POST['manuscrito'];
+
+            $count_fisico = $this->_manuscrito->getCountFisico();
+
+            $control_arch = 0;
+                
+            if((int)$count_fisico['count_fisico'] == 0){
+                $control_arch = 1;
+            }else{
+                $control_arch = (int)$count_fisico['count_fisico'] + 1;
+            }
+
+            //upload file
+            $fileName = $control_arch . "_" . $_FILES["archivo"]["name"]; 
+
+            // The file name 
+            $fileTmpLoc = $_FILES["archivo"]["tmp_name"]; // File in the PHP tmp folder 
+            $fileType = $_FILES["archivo"]["type"]; // The type of file it is 
+            $fileSize = $_FILES["archivo"]["size"]; // File size in bytes 
+            $fileErrorMsg = $_FILES["archivo"]["error"]; // 0 for false... and 1 for true 
+            if (!$fileTmpLoc) { 
+
+                $arreglo["msj_file"] = "Error: Debe seleccionar un archivo";
+                $arreglo["status"] = 0;
+                exit(); 
+
+            } 
+            if(move_uploaded_file($fileTmpLoc, $ruta."/".$fileName)){ 
+                
+                $arreglo["msj_file"] = "$fileName Subida completada";
+                
+                $this->_manuscrito->setFisico($ruta, $fileName);
+
+                $fisico = $this->_manuscrito->getUltimoFisico();
+
+                $rol = $this->_rol->getRolByIdPersona($_SESSION['id_persona']);
+
+                $responsable = $this->_manuscrito->getResponsableByFiltro($_SESSION['id_persona'], $_POST['manuscrito'], $rol['id_rol']);
+
+                if($responsable == false){
+
+                    $this->_manuscrito->setResponsable($id_manuscrito, $_SESSION['id_persona'], $rol['id_rol'], 0, 0);
+
+                    $responsable = $this->_manuscrito->getUltimoResponsable();
+
+                }
+
+                
+                
+                $estatus = $this->_manuscrito->getEstatusByClave($_POST['estatus']);
+                $this->_manuscrito->setRevision($responsable['id_responsable'], $estatus['id_estatus'], $fisico['id_fisico']);
+
+                $ultima_revision = $this->_manuscrito->getUltimaRevisionByResponsable($responsable['id_responsable']);
+
+                $this->_manuscrito->setObservaciones($ultima_revision['id_revision'], $id_manuscrito, $observaciones);
+                
+                
+            } else { 
+
+                $arreglo["msj_file"] = "Error al subir el archivo";
+                $arreglo["status"] = 0;
+            }
+        }else{
+                $rol = $this->_rol->getRolByIdPersona($_SESSION['id_persona']);
+
+                $responsable = $this->_manuscrito->getResponsableByFiltro($_SESSION['id_persona'], $_POST['manuscrito'], $rol['id_rol']);
+
+                if($responsable == false){
+
+                    $this->_manuscrito->setResponsable($id_manuscrito, $_SESSION['id_persona'], $rol['id_rol'], 0, 0);
+
+                    $responsable = $this->_manuscrito->getUltimoResponsable();
+
+                }
+
+                
+                
+                $estatus = $this->_manuscrito->getEstatusByClave($_POST['estatus']);
+                $this->_manuscrito->setRevision($responsable['id_responsable'], $estatus['id_estatus'], null);
+
+                $ultima_revision = $this->_manuscrito->getUltimaRevisionByResponsable($responsable['id_responsable']);
+
+                $this->_manuscrito->setObservaciones($ultima_revision['id_revision'], $id_manuscrito, $observaciones);
+        }
+
+        echo json_encode($arreglo);
+             // echo $url[0];
+    }
+
+
+    public function historico($id_manuscrito = false,  $pagina = false){
+        if($id_manuscrito != false && $this->filtrarInt($id_manuscrito) != 0){
+            
+                if(!$this->filtrarInt($pagina)){
+                    $pagina = false;
+                }else{
+                    $pagina = (int) $pagina;
+                }
+
+                $this->getLibrary('paginador');
+                $paginador = new Paginador();
+
+                $this->_view->autores = array();
+                    
+                $manusc = $this->_manuscrito->getManuscrito($id_manuscrito); // obtenemos el manuscrito
+                if($manusc){     
+                    $autorManuscrito = $this->_manuscrito->getAutorManuscrito($manusc['id_manuscrito']); //obtenemos el id_persona
+                    $iter = 0;
+                    while($fila = $autorManuscrito->fetch()){//obtenemos el id_persona
+                        $id = $fila['id_persona']; //lo asignamos
+                        $datos_persona = $this->_manuscrito->getPersona($id);
+                        $array_autor['persona_'.$iter] = $datos_persona['primerNombre'] . " " . $datos_persona['apellido']; //almaceno los autores
+                        $array_autor['id_persona_'.$iter] = $datos_persona['id_persona'];
+
+                        $iter++;
+                    }
+                    $this->_view->autores[$manusc['id_manuscrito']] = $array_autor;
+                    $this->_view->id_manuscrito = (int)$id_manuscrito;
+                    
+                }else{
+                    header('location:' . BASE_URL . 'error/access/404');
+                    exit;
+                }
+
+
+                $this->_view->manuscritos = $paginador->paginar($this->_manuscrito->getRevisiones($manusc['id_manuscrito']), false, $pagina);
+
+                $this->_view->enlaceDetalles = $this->getUrl("manuscrito/detallesManuscrito");
+
+
+                $this->_view->paginacion = $paginador->getView('prueba', 'manuscrito/misManuscritos/'.$id_manuscrito);
+
+                $this->_view->enlaceCorreccion = $this->getUrl("manuscrito/correccion/". $manusc['id_manuscrito']);
+                $this->_view->titulo = 'Historico';
+                $this->_view->renderizar('historico', 'manuscrito');
+            }
+        
+    }
 
 
 
 
 
-
+// -----------------------------------------------------borrar lo de abajo
 
 
 

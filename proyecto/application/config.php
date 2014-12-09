@@ -1,6 +1,6 @@
 <?php
 //define('BASE_URL', 'http://localhost/revistaciencia/');
-define('BASE_URL', '/revista/proyecto/');
+define('BASE_URL', 'http://localhost/revista/proyecto/');
 //define('BASE_URL', 'http://e-navarro.com.ve/');
 
 //controlador por defecto

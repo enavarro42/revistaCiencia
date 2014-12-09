@@ -21,7 +21,7 @@
                             <td><?php echo $this->manuscritos[$i]['id_manuscrito']; ?></td>
                             <td><?php echo $this->manuscritos[$i]['titulo']; ?></td>
             				<td><a href="<?php echo $this->enlace . "/" . $this->manuscritos[$i]['id_manuscrito']; ?>" class="btn btn-primary">Ver Evaluaci&oacute;n</a></td>
-            			    <td><a href="" class="btn btn-default">Ver Evaluaci&oacute;n</a></td>
+            			    <td><a href="<?php echo $this->enlaceCrearEvaluacionEditor . $this->manuscritos[$i]['id_manuscrito']; ?>" class="btn btn-success">Crear</a> <a href="<?php echo $this->enlaceDetalleEvaluacionEditor . $this->manuscritos[$i]['id_manuscrito']; ?>" class="btn btn-default">Ver Evaluaci&oacute;n</a></td>
                         </tr>
                     <?php } ?>
         		</tbody>
