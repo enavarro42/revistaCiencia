@@ -47,6 +47,11 @@
 					 <div class="form-group col-md-3 col-lg-3">
 					    <label for="tipoUsuario">Tipo de Usuario</label>
 					    <select name="tipoUsuario" class="form-control">
+					    	<?php if(isset($this->tipoUsuario_selected) && $this->tipoUsuario_selected == '0'){ ?>
+					    		<option value="0" selected>Todos</option>
+					    	<?php }else{ ?>
+					    		<option value="0">Todos</option>
+					    	<?php } ?>
 					    	<?php for($i = 0; $i<count($this->roles); $i++){ ?>
 					    		<?php if(isset($this->tipoUsuario_selected) && $this->tipoUsuario_selected == $this->roles[$i]['id_rol']){ ?>
 					    			<option value="<?php echo $this->roles[$i]['id_rol']; ?>" selected><?php echo $this->roles[$i]['rol']; ?></option>
@@ -58,8 +63,29 @@
 					    <label class="error" for="tipoBusqueda"></label>
 					 </div>
 
-					 <div class="form-group pull-right">
-					 	<button type="submit" class="btn btn-default btn-filtro">Filtrar</button>
+					 <div class="form-group col-md-3 col-lg-3">
+					 	<label for="area">&Aacute;rea</label>
+					    <select name="area" class="form-control">
+					    	<?php if(isset($this->area_selected) && $this->area_selected == '0'){ ?>
+					    		<option value="0" selected>Todos</option>
+					    	<?php }else{ ?>
+					    		<option value="0">Todos</option>
+					    	<?php } ?>
+					    	<?php for($i = 0; $i<count($this->areas); $i++){ ?>
+					    		<?php if(isset($this->area_selected) && $this->area_selected == $this->areas[$i]['id_area']){ ?>
+					    			<option value="<?php echo $this->areas[$i]['id_area']; ?>" selected><?php echo $this->areas[$i]['nombre']; ?></option>
+					    		<?php }else{ ?>
+					    			<option value="<?php echo $this->areas[$i]['id_area']; ?>"><?php echo $this->areas[$i]['nombre']; ?></option>
+					    		<?php } ?>
+					    	<?php } ?>
+					    	
+					    </select>
+					    <label class="error" for="error_area"></label>
+					 </div>
+
+					 <div class="form-group col-md-3 col-lg-3">
+					 	<button type="submit" class="btn btn-primary btn-filtro"><i class="fa fa-filter"></i>
+ Filtrar</button>
 					 </div>
 	        	</form>
 
@@ -98,6 +124,10 @@
         				</div>
 		        	<?php } ?>
 				</div>
+
+				<ul class="pagination">
+                	<?php if(isset($this->resultado) && isset($this->paginacion)) echo $this->paginacion;?>
+            	</ul>
             
         </div>
         <!-- /.col-lg-12 -->

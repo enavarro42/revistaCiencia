@@ -8,6 +8,7 @@
 
     <title><?php if(isset($this->titulo)) echo $this->titulo; ?></title>
 <!--CSS-->
+    <link href='http://fonts.googleapis.com/css?family=Fugaz+One' rel='stylesheet' type='text/css'>
     <link href='<?php echo $_layoutParams['ruta_css'];?>bootstrap.min.css' rel='stylesheet' type='text/css'>
     <link href="<?php echo $_layoutParams['ruta_css'];?>font-awesome.min.css" rel="stylesheet"  type="text/css" />
     <link href="<?php echo $_layoutParams['ruta_css'];?>estilo-admin.css" rel="stylesheet"  type="text/css" />
@@ -54,7 +55,7 @@
 
     <div id="wrapper">
 
-        <nav class="navbar navbar-default navbar-fixed-top" role="navigation" style="margin-bottom: 0">
+        <nav class="navbar navbar-default navbar-fixed-top" role="navigation" style="background-color: #488AC4; margin-bottom: 0">
             <div class="navbar-header">
                 <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".sidebar-collapse">
                     <span class="sr-only">Toggle navigation</span>
@@ -62,7 +63,10 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a class="navbar-brand" href="index.html">REVISTAS ARBITRADAS</a>
+                <img src="<?php echo $_layoutParams['ruta_img']; ?>logo_min.png" alt="" style="float: left; margin: 2px 0px 0px 5px;">
+                <a class="navbar-brand" href="index.html">Revistas Arbitradas</a>
+
+
             </div>
             <!-- /.navbar-header -->
 
@@ -77,8 +81,10 @@
 <!--                         <li><a href="#"><i class="fa fa-user fa-fw"></i> <?php echo $_SESSION['user']; ?></a>
                         </li>
                         <li class="divider"></li> -->
+                        <li><a href="<?php echo BASE_URL . 'usuario/perfil' ?>"><i class="fa fa-pencil-square-o"></i> Perfil</a></li>
                         <li><a href="<?php echo BASE_URL . 'login/cerrar' ?>"><i class="fa fa-sign-out fa-fw"></i> Cerrar sesi&oacute;n</a>
                         </li>
+
                     </ul>
                     <!-- /.dropdown-user -->
                 </li>

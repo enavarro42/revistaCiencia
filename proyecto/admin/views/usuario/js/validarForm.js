@@ -1,5 +1,17 @@
 var mostrar = 0;
 $(document).ready(function(){
+
+  $(".my_input").hide();
+
+  $("input[name=optionsRadios]").on('change', function(){
+    valor = $(this).val();
+     if(valor == 'option1'){
+       $(".my_input").hide();
+     }else{
+       $(".my_input").show();
+     }
+
+  });
     
     var URL_BASE = "/revista/proyecto/admin/";
     //var URL_BASE = "";

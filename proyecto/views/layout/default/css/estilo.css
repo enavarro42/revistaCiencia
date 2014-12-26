@@ -21,6 +21,14 @@ h1, h2, h3, h4, h5, h6{
     color: #115599;
 }
 
+.show_msj{
+    display: block;
+}
+
+.hide_msj{
+    display: none;
+}
+
 .margin-top5{
     margin-top: 5px;
 }
@@ -180,6 +188,12 @@ ul.navTop li a:hover{
     float: right;
     padding: 30px 5px 0;
     width: 40%;
+}
+
+.caja_scroll {
+    width: auto;
+    height: 225px;
+    overflow: scroll;
 }
 
 

@@ -22,7 +22,7 @@
 	        	<div class="col-lg-6">
 
 		        	<input type="hidden" name="enviar" value="1">
-
+		        	<?php if($this->tipoAccion != 'editar'){ ?>
 		        	<div class="form-group">
 				  		<label for="exampleInputEmail1">Roles *</label>
 						<ul class="list-group caja_scroll">
@@ -31,9 +31,9 @@
 
 						  <li class="list-group-item">
 						  	<?php if(isset($this->roles_seleccionados) && in_array($this->roles[$i]['id_rol'], $this->roles_seleccionados)){ ?>
-						  		<input type="checkbox" name="check_rol[]" value="<?php echo $this->roles[$i]['id_rol']; ?>" checked> 
+						  		<input type="checkbox" name="check_rol[]" value="<?php echo $this->roles[$i]['id_rol']; ?>" checked > 
 						  	<?php }else{ ?>
-						  		<input type="checkbox" name="check_rol[]" value="<?php echo $this->roles[$i]['id_rol']; ?>">
+						  		<input type="checkbox" name="check_rol[]" value="<?php echo $this->roles[$i]['id_rol']; ?>" >
 						  	<?php } ?>
 
 						  	<span class="sp_left"><?php echo $this->roles[$i]['rol']; ?></span>
@@ -44,9 +44,11 @@
 						</ul>
 						<label class="error"><?php if(isset($this->_error_rol)) echo $this->_error_rol; ?></label>
 				  	</div>
+				  	
 
 				  	<!-- <div class="clearfix visible-xs-block visible-sm-block visible-md-block visible-lg-block"></div> -->
 				  	<hr>
+				  	<?php } ?>
 
 					<div>
 						<?php if(isset($this->tipoAccion) && $this->tipoAccion == 'editar'){ ?>
@@ -55,7 +57,7 @@
 					      
 				      <div class="form-group control_input">
 				        <label for="usuario">Usuario *</label>
-				        <input type="text" name="usuario" id="usuario" class="form-control" value="<?php if(isset($this->datos)) echo $this->datos['usuario']; ?>" />
+				        <input type="text" name="usuario" id="usuario" class="form-control" value="<?php if(isset($this->datos)) echo $this->datos['usuario']; ?>" <?php if($this->tipoAccion == 'editar') echo 'readonly'; ?> />
 				        <label class="error" id="error_usuario"><?php if(isset($this->_error_usuario)) echo $this->_error_usuario; ?></label>
 				      </div>
 
@@ -139,7 +141,7 @@
 
 	 			    <div class="form-group">
 				      <label for="email">Correo *</label>
-				      <input type="text" name="email" id="email" class="form-control" value="<?php if(isset($this->datos)) echo $this->datos['email']; ?>" />
+				      <input type="text" name="email" id="email" class="form-control" value="<?php if(isset($this->datos)) echo $this->datos['email']; ?>" <?php if($this->tipoAccion == 'editar') echo 'readonly'; ?> />
 				      <label class="error" id="error_email"><?php if(isset($this->_error_email)) echo $this->_error_email; ?></label>
 				    </div>
 

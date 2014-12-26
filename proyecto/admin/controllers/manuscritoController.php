@@ -367,7 +367,7 @@ class manuscritoController extends Controller{
         $id_arbitro = $this->_rol->getIdRol('Arbitro');
 
         if($this->getInt('id_persona') && $this->getInt('id_manuscrito')){
-            $this->_manuscrito->editarEstatusArbitro($this->getInt('id_persona'), $this->getInt('id_manuscrito'), 1);
+            $this->_manuscrito->editarEstatusArbitro($this->getInt('id_persona'), $this->getInt('id_manuscrito'), 2);
             $this->_manuscrito->asignarArbitroManuscrito($this->getInt('id_persona'), $this->getInt('id_manuscrito'), $id_arbitro[0]);
 
             //asignamos en la latabla revision que ya se esta comenzando a evaluar
@@ -415,6 +415,15 @@ class manuscritoController extends Controller{
             $manuscrito = $this->_manuscrito->getInfoManuscrito($this->getInt('id_manuscrito'));
             $postulado = $this->_manuscrito->getArbitroPostulado($this->getInt('id_persona'), $this->getInt('id_manuscrito'));
             $this->_manuscrito->editarEstatusArbitro($this->getInt('id_persona'), $this->getInt('id_manuscrito'), -1);
+            $estatus = $this->_manuscrito->getEstatusPostulado($this->getInt('id_persona'), $this->getInt('id_manuscrito'));
+
+            $usuario = $this->_usuario->getUsuario($this->getInt('id_persona'));
+
+            $pass = substr( md5(microtime()), 1, 8);
+
+            $this->_usuario->setClave($this->getInt('id_persona'), $pass);
+
+            $arreglo['estatus'] = $estatus['estatus'];
 
             $this->getLibrary('class.phpmailer');
             $mail = new PHPMailer();
@@ -423,15 +432,20 @@ class manuscritoController extends Controller{
             $mail->Subject = 'Revistas FEC';
             $url = $this->getUrlPagina('arbitro/solicitud/' . $this->getInt('id_persona') . "/" . $this->getInt('id_manuscrito') . "/" . $postulado['codigo']);
             $mail->Body = '<p>Ciudadano (a) <strong>' . $persona['primerNombre'] . " " . $persona['apellido'] . '</strong></p>'.
-                    '<p>La Revista CIENCIA adscrita a la Facultad de Ciencias de la Universidad del Zulia, '.
+                    '<p>La Revista CIENCIA adscrita a la Facultad Experimental de Ciencias de la Universidad del Zulia, '.
                     'Maracaibo Venezuela se complace en invitarle a participar como árbitro de nuestra revista '.
                     'y de ser su gusto, solicitarle la revisión del manuscrito titulado: </p>'.
                     '<p><strong>'. $manuscrito['titulo'] .'</strong></p>'.
-                    '<p>Para responder sobre su desici&oacute;n de arbitraje pulsar en el enlace:</p> '.
-                    '<a href="'. $url .'">'.$url.'</a>';
+                    '<p>Para responder sobre su decisi&oacute;n de arbitraje pulsar en el enlace:</p> '.
+                    '<a href="'. $url .'">'.$url.'</a>'.
+                    '<br /><p>Puede ingresar con su usuario y contrase&ntilde;a:</p>'.
+                    '<p>Usuario: '.$usuario['usuario'].'</p>'.
+                    '<p>Clave: '.$pass.'</p>';
             $mail->AltBody = "Su servidor de correo no soporta html";
             $mail->addAddress($persona['email']);
             $mail->Send();
+
+            echo json_encode($arreglo);
         }
     }
 
@@ -440,6 +454,7 @@ class manuscritoController extends Controller{
         echo $this->_manuscrito->getArbitrosPostulados();
 
     }
+
 
     public function getResponsable(){
         $responsable = false;

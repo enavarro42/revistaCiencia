@@ -20,7 +20,7 @@ class usuarioModel extends Model{
 
     public function setUsuario($datos){
 
-        var_dump($datos);
+        // var_dump($datos);
 
         $random = rand(1782598471, 9999999999);
 
@@ -55,6 +55,14 @@ class usuarioModel extends Model{
                        ':id_rol' => $datos['check_rol'][$i]
                     ));
         }
+
+        for($i = 0; $i < count($datos['check_areas']); $i++){
+            $this->_db->prepare("insert into persona_area(id_persona, id_area) VALUES (:id_persona, :id_area)")
+                    ->execute(array(
+                       ':id_persona' => $persona['id_persona'],
+                       ':id_area' => $datos['check_areas'][$i]
+                    ));
+        }
         
         $this->_db->prepare(
                 "insert into usuario(usuario, pass, id_persona, fecha, estado, codigo) VALUES (:usuario, :pass, :id_persona, now(), 0, :codigo)"
@@ -83,6 +91,16 @@ class usuarioModel extends Model{
                     ));
         }
 
+        $this->_db->query("DELETE FROM persona_area WHERE id_persona = $id_persona;");
+
+        for($i = 0; $i < count($datos['check_areas']); $i++){
+            $this->_db->prepare("insert into persona_area (id_persona, id_area) VALUES (:id_persona, :id_area)")
+                    ->execute(array(
+                       ':id_persona' => $id_persona,
+                       ':id_area' => $datos['check_areas'][$i]
+                    ));
+        }
+
         if(isset($datos['pass'])){
 
             if($datos['pass'] != ''){
@@ -96,6 +114,36 @@ class usuarioModel extends Model{
 
     }
 
+    public function editarPerfil($id_persona, $datos){
+        $this->_db->query("UPDATE persona SET \"primerNombre\"='".$datos['primerNombre']."', apellido='".$datos['apellido']."', genero='".$datos['genero']."', ".
+            "email='".$datos['email']."', telefono='".$datos['telefono']."', pais=".$datos['pais'].", \"resumenBiografico\"='".$datos['resumenBiografico']."', din='".$datos['din']."', filiacion='".$datos['filiacion']."', \"segundoNombre\"='".$datos['segundoNombre']."' ".
+            "WHERE id_persona = $id_persona;");
+
+
+        $this->_db->query("DELETE FROM persona_area WHERE id_persona = $id_persona;");
+
+        for($i = 0; $i < count($datos['check_areas']); $i++){
+            $this->_db->prepare("insert into persona_area (id_persona, id_area) VALUES (:id_persona, :id_area)")
+                    ->execute(array(
+                       ':id_persona' => $id_persona,
+                       ':id_area' => $datos['check_areas'][$i]
+                    ));
+        }
+
+        if(isset($datos['pass'])){
+
+            if($datos['pass'] != ''){
+                $this->_db->query("UPDATE usuario SET usuario='".$datos['usuario']."', pass='".Hash::getHash('md5', $datos['pass'], HASH_KEY)."' WHERE id_persona = $id_persona;");
+            }else{
+                $this->_db->query("UPDATE usuario SET usuario='".$datos['usuario']."' WHERE id_persona = $id_persona;");
+            }
+        }
+    }
+
+    public function setClave($id_persona, $clave){
+        $this->_db->query("UPDATE usuario SET pass = '".Hash::getHash('md5', $clave, HASH_KEY)."' WHERE id_persona = $id_persona");
+    }
+
     public function getPersona($id_persona){
         $persona = $this->_db->query(
                 "select * from persona where id_persona=$id_persona"
@@ -105,6 +153,16 @@ class usuarioModel extends Model{
         $persona = $persona->fetch();
 
         return $persona;
+    }
+
+    public function getAllAreas(){
+        $area = $this->_db->query("select * from area");
+        return $area->fetchAll();
+    }
+
+    public function getAreaByPersona($id_persona){
+        $area = $this->_db->query("select * from persona_area where id_persona = $id_persona");
+        return $area->fetchAll();
     }
 
     public function getPersonaRol($id_persona){
@@ -134,30 +192,42 @@ class usuarioModel extends Model{
 
 
     public function getUsuariosByFiltro($filtro = false){
-    	$sql = "SELECT p.id_persona, (p.\"primerNombre\" || ' ' || p.apellido) AS nombreCompleto, p.email FROM persona p, persona_rol pr ";
-
+    	// $sql = "SELECT p.id_persona, (p.\"primerNombre\" || ' ' || p.apellido) AS nombreCompleto, p.email FROM persona p, persona_rol pr persona_area pa ";
+        $sql = "SELECT DISTINCT p.id_persona, (p.\"primerNombre\" || ' ' || p.apellido) AS nombreCompleto, p.email FROM persona p, persona_rol pr, persona_area pa ";
+        $bandera = 0;
     	if($filtro){
             $sql .= "WHERE ";
             if(isset($filtro['tipoBusqueda']) && $filtro['tipoBusqueda'] == 'nombre'){
                 $nombre = $filtro['busqueda'];
-                $sql .= "p.\"primerNombre\" ILIKE '%$nombre%' and ";
+                $sql .= "p.\"primerNombre\" ILIKE '%$nombre%'";
+                $bandera = 1;
             }
 
             if(isset($filtro['tipoBusqueda']) && $filtro['tipoBusqueda'] == 'apellido'){
+
+                if($bandera > 0 ) $sql .= " and ";
                 $apellido = $filtro['busqueda'];
-                $sql .= "p.apellido ILIKE '%$apellido%' and ";
+                $sql .= "p.apellido ILIKE '%$apellido%'";
             }
 
             if(isset($filtro['tipoUsuario']) && $filtro['tipoUsuario']){
+                if($bandera > 0 ) $sql .= " and ";
                 $id_rol = $filtro['tipoUsuario'];
-                $sql .= "p.id_persona = pr.id_persona and pr.id_rol = $id_rol ";
+                $sql .= "p.id_persona = pr.id_persona and pr.id_rol = $id_rol";
+            }
+
+            if(isset($filtro['area']) && $filtro['area']){
+                if($bandera > 0 ) $sql .= " and ";
+                $id_area = $filtro['area'];
+                $sql .= "p.id_persona = pa.id_persona and pa.id_area = $id_area ";
             }
     		
     	}else{
-            $sql .= "where p.id_persona = pr.id_persona and pr.id_rol = 1 ";
+            //$sql .= "where p.id_persona = pr.id_persona and pr.id_rol = 1 ";
+            $sql .= "where p.id_persona = pr.id_persona and p.id_persona = pa.id_persona ";
         }
 
-        $sql .= "ORDER BY p.\"primerNombre\" ";
+        $sql .= "ORDER BY \"nombrecompleto\" ";
 
         // var_dump($sql);
 

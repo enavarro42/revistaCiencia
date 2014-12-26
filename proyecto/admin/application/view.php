@@ -40,7 +40,14 @@ class View{
                 'enlace' => '',
                 'flecha' => true,
                 'class' => "fa fa-users fa-fw"
-            )
+            ),
+            array(
+                'id' => 'reportes',
+                'titulo' => 'Reportes',
+                'enlace' => '',
+                'flecha' => true,
+                'class' => "fa fa-line-chart fa-fw"
+                )
         );
 
         $sub_menu_manuscrito = array(
@@ -66,6 +73,19 @@ class View{
                 'id' => 'acl',
                 'titulo' => 'Grupo de Usuario',
                 'enlace' => BASE_URL . 'acl'
+            )
+        );
+
+        $sub_menu_reportes = array(
+            array(
+                'id' => 'reporteUsuario',
+                'titulo' => 'Reportes de usuarios',
+                'enlace' => BASE_URL . 'reportes/usuario'
+            ),
+            array(
+                'id' => 'reporteManuscrito',
+                'titulo' => 'Reportes de manuscrito',
+                'enlace' => BASE_URL . 'reportes/Manuscritos'
             )
         );
         
@@ -226,6 +246,7 @@ class View{
             'menu_principal' => $menu_principal,
             'sub_menu_acl' => $sub_menu_acl,
             'sub_menu_manuscrito' => $sub_menu_manuscrito,
+            'sub_menu_reportes' => $sub_menu_reportes,
             'menu_top' => $menu_top,
             'menu_left' => $menu_left,
             'menu_right' => $menu_right,

@@ -24,6 +24,11 @@ class registroModel extends Model{
         return false;
     }
 
+    public function getAllAreas(){
+        $area = $this->_db->query("select * from area");
+        return $area->fetchAll();
+    }
+
     public function verificarDin($din){
         $id = $this->_db->query(
                 "SELECT din from persona WHERE din = '$din'"
@@ -68,7 +73,7 @@ class registroModel extends Model{
         return $id->fetch();
     }
     
-    public function registrarUsuario($primerNombre, $apellido, $din, $genero, $telefono, $pais, $resumenBiografico = "", $filiacion = "", $segundoNombre, $usuario, $password, $email, $cuenta){
+    public function registrarUsuario($primerNombre, $apellido, $din, $genero, $telefono, $pais, $resumenBiografico = "", $filiacion = "", $segundoNombre, $areas, $usuario, $password, $email, $cuenta){
        
         $random = rand(1782598471, 9999999999);
 
@@ -101,6 +106,14 @@ class registroModel extends Model{
                     ->execute(array(
                        ':id_persona' => $persona['id_persona'],
                        ':id_rol' => $cuenta[$i]
+                    ));
+        }
+
+        for($i = 0; $i < count($areas); $i++){
+            $this->_db->prepare("insert into persona_area(id_persona, id_area) VALUES (:id_persona, :id_area)")
+                    ->execute(array(
+                       ':id_persona' => $persona['id_persona'],
+                       ':id_area' => $areas[$i]
                     ));
         }
         

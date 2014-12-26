@@ -24,11 +24,13 @@ class registroController extends Controller{
         $arregloCuentas = array();
 
 
-        $rol= $this->_rol->getIdRol('Arbitro');
-        $arregloCuentas[] = $rol[0];
+        // $rol= $this->_rol->getIdRol('Arbitro');
+        // $arregloCuentas[] = $rol[0];
 
         $rol = $this->_rol->getIdRol('Autor');
         $arregloCuentas[] = $rol[0];
+
+        $this->_view->areas = $this->_registro->getAllAreas();
 
         $this->_view->cuentas = $arregloCuentas;
             
@@ -179,6 +181,12 @@ class registroController extends Controller{
 
             }
 
+            //areas_seleccionados
+            if(!$this->validarParam('check_areas')){
+                $this->_view->_error_areas = "Debe seleccionar al menos un &aacute;rea.";
+                $validado = false; 
+            }
+
             if(!$this->getSql('din')){
                 $this->_view->_error_din = 'Debe introducir su DIN';
                 $validado = false;
@@ -187,6 +195,11 @@ class registroController extends Controller{
             if($this->_registro->verificarDin($this->getSql('din'))){
                 $this->_view->_error_din = 'El usuario con el DIN: '. $this->getSql('din') .' ya se ha registado';
                 $validado = false;
+            }
+
+            if($this->validarParam('check_areas')){
+                $areas_seleccionados = $_POST['check_areas'];
+                $this->_view->areas_seleccionados = $areas_seleccionados;
             }
             
             if($validado){
@@ -204,6 +217,7 @@ class registroController extends Controller{
                         $this->getSql('resumenBiografico'),
                         $this->getSql('filiacion'),
                         $this->getSql('segundoNombre'),
+                        $this->getPostParam('check_areas'),
                         $this->getAlphaNum('usuario'),
                         $this->getSql('pass'),
                         $this->getPostParam('email'),

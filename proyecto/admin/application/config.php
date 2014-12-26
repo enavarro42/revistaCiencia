@@ -13,6 +13,8 @@ define('APP_COMPANY', 'Universidad del Zulia');
 define('SESSION_TIME', 60);
 define('HASH_KEY', '52c1bf355efed');
 
+define('ROOT_IMAGE', BASE_URL. 'image/');
+
 //servidor local mysql
 // define('DB_HOST', 'localhost');
 // define('DB_USER', 'root');

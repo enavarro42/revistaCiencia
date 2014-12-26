@@ -31,7 +31,7 @@ class manuscritoModel extends Model{
 
     public function asignarArbitroManuscrito($id_persona, $id_manuscrito, $rol){
         $this->_db->query("INSERT INTO responsable(id_manuscrito, id_persona, id_rol, permiso, correspondencia) ".
-                        "VALUES ($id_manuscrito, $id_persona, $rol, 0, 0);");
+                        "VALUES ($id_manuscrito, $id_persona, $rol, 1, 0);");
     }
 
     public function editarEstatusArbitro($id_persona, $id_manuscrito, $estatus){
@@ -40,12 +40,29 @@ class manuscritoModel extends Model{
 
     public function quitarArbitro($id_persona, $id_manuscrito){
         $this->_db->query("DELETE FROM arbitros_manuscrito WHERE id_persona = $id_persona and id_manuscrito = $id_manuscrito;");
-        $this->_db->query("DELETE FROM responsable WHERE id_persona = $id_persona and id_manuscrito = $id_manuscrito;");
+    
+        
+        $rol = $this->_db->query("SELECT id_rol from rol WHERE rol = 'Arbitro'");
+        $rol = $rol->fetch();
+
+
+        $responsable = $this->_db->query("select * from responsable where id_persona = $id_persona and id_manuscrito = $id_manuscrito and id_rol = " . $rol['id_rol']);
+        $responsable = $responsable->fetch();
+
+        $this->_db->query("DELETE FROM revision WHERE id_responsable = " . $responsable['id_responsable']);
+
+         $this->_db->query("DELETE FROM responsable WHERE id_persona = $id_persona and id_manuscrito = $id_manuscrito;");
     }
 
     public function setArbitroPostulado($id_persona, $id_manuscrito){
         $random = rand(1718, 9999999999);
         $this->_db->query("INSERT INTO arbitros_manuscrito(id_persona, id_manuscrito, codigo) VALUES ($id_persona, $id_manuscrito, $random);");
+    }
+
+    public function getEstatusPostulado($id_persona, $id_manuscrito){
+        $estatus = $this->_db->query("SELECT estatus from arbitros_manuscrito where id_persona = $id_persona and id_manuscrito = $id_manuscrito");
+
+        return $estatus->fetch();
     }
 
     public function getArbitrosPostulados($id_manuscrito){
@@ -487,6 +504,7 @@ where ed.id_evaluacion = 12 and ed.id_pregunta = p.id_pregunta and p.id_seccion 
         $area = $this->_db->query("select nombre from area where id_area = $id_area");
         return $area->fetch();
     }
+
     
     public function getObraArea($id_obra){
         $area = $this->_db->query("select distinct id_area from obra where id_obra = $id_obra");
