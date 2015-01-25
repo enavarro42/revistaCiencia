@@ -37,29 +37,38 @@ class manuscritoController extends Controller{
         
         $manuscritos = $this->_manuscrito->getManuscritosParaAdmin();
 
+
+         // var_dump($manuscritos);
+
         if($manuscritos){
 
             for($i=0; $i<count($manuscritos); $i++){
                 $responsable =  $this->_manuscrito->getResponsable($manuscritos[$i]['id_manuscrito']);
-
+                // var_dump($responsable);
+                //para saber el estatus actual del manuscrito
                 $manuscritoActual = $this->_manuscrito->getManuscritoActual($responsable['id_responsable']);
 
                 $id_estatus = $manuscritoActual['id_estatus'];
 
                 $estatus = $this->_manuscrito->getEstatus($id_estatus);
 
-                $manuscritos[0]['estatus'] = $estatus['estatus'];
+                // var_dump($estatus);
+
+                $manuscritos[$i]['estatus'] = $estatus['estatus'];
 
                 $autores = $this->_manuscrito->getAutoresByManuscrito($manuscritos[$i]['id_manuscrito']);
 
+                // var_dump($autores);
 
                 $lista_autores = array();
 
                  for($j = 0; $j < count($autores); $j++){
                     $lista_autores[] = $autores[$j]['nombrecompleto'];
                  }
-                $manuscritos[0]['autores'] = $lista_autores;
+                $manuscritos[$i]['autores'] = $lista_autores;
             }
+
+             // exit;
 
             $this->_view->manuscritos = $paginador->paginar($manuscritos, false, $pagina);
         }
@@ -76,10 +85,10 @@ class manuscritoController extends Controller{
 
     public function crear(){
 
-        $this->_view->setCssPublic(array('jquery-ui'));
+        // $this->_view->setCssPublic(array('jquery-ui'));
 
-        $this->_view->setJsPublic(array('jquery-ui'));
-        $this->_view->setJs(array('controllerTabs'));
+        // $this->_view->setJsPublic(array('jquery-ui'));
+        $this->_view->setJs(array('controllerCrear'));
 
         $this->_view->titulo = 'Crear Manuscrito';
         $this->_view->renderizar('crear', 'manuscrito');
@@ -538,6 +547,30 @@ class manuscritoController extends Controller{
         echo $resp['resp'];
     }
 
+    public function getEmail(){
+        $data = array();
+        // $data['email'] = $this->getPostParam('email');
+        // $data['test'] = $this->validarEmail($this->getPostParam('email'));
+
+
+        $exp = '/^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.([a-zA-Z]{2,4})+$/';
+        if(isset($_POST['email']) && !empty($_POST['email'])){
+            $data['preg'] = preg_match($exp, $_POST['email']);
+            if(!preg_match($exp, $_POST['email'])){
+                $data['status'] = 1;
+                $data['error'] = 'La direcci&oacute;n de correo es inv&aacute;lida';
+            }
+        }
+
+        if($result = $this->_usuario->getEmail($this->getPostParam('email'))){
+            $data['status'] = 2;
+            $data['datos'] = $result;
+            $data['error'] = 'La direcci&oacute;n de correo ya esta en uso';
+        }
+
+        echo json_encode($data);
+    }
+
 
     public function crearEvaluacionEditor($id_manuscrito = false){
         
@@ -711,6 +744,477 @@ class manuscritoController extends Controller{
                 $this->_view->titulo = 'Historico';
                 $this->_view->renderizar('historico', 'manuscrito');
             }
+        
+    }
+
+
+    //insert manuscrito admin
+    //--------------------------------arreglar este metodo-----------enero 06/15---------------------
+
+    public function insertarManuscrito(){
+        
+        //validar
+        $arreglo = array();
+        $arreglo["status"] = 1;
+
+        $rolAutor = $this->_rol->getIdRol("Autor");
+        $rolCoAutor = $this->_rol->getIdRol("Co-Autor");
+
+        //validar datos del autor responsable
+
+        if(!$this->getSql('responsableNombre')){
+            $datos["responsableNombre"] = 'Debe introducir su nombre';
+            $arreglo["status"] = 0;
+        }
+
+        if(!(strlen($this->getSql('responsableNombre')) > 2)){
+            $datos["responsableNombre"] = 'Por favor introduzca como m&iacute;nimo 3 car&aacute;cteres';
+            $arreglo["status"] = 0;
+        }
+
+        $exp = '/^[a-zA-ZÀ-ÖØ-öø-ÿ]+\.?((|\-)[a-zA-ZÀ-ÖØ-öø-ÿ]+\.?)*$/';
+
+        if(!preg_match($exp, $this->getPostParam('responsableNombre'))){
+            $datos["responsableNombre"] = 'Nombre inv&aacute;lido';
+            $arreglo["status"] = 0;
+        }
+        
+        //Apellido 
+        
+        if(!$this->getSql('responsableApellido')){
+            $datos["responsableApellido"] = 'Debe introducir su apellido';
+            $arreglo["status"] = 0;
+        }
+
+        if(!(strlen($this->getSql('responsableApellido')) > 2)){
+            $datos["responsableApellido"] = 'Por favor introduzca como m&iacute;nimo 3 car&aacute;cteres';
+            $arreglo["status"] = 0;
+        }
+
+        $test_apellido1 = true;
+        $test_apellido2 = true;
+
+        $exp = '/^[a-zA-ZÀ-ÖØ-öø-ÿ]+\.?((|\-)[a-zA-ZÀ-ÖØ-öø-ÿ]+\.?)*$/';
+
+        if(!preg_match($exp, $this->getPostParam('responsableApellido'))){
+            // $datos["apellido"] = 'Apellido inv&aacute;lido';
+            $test_apellido1 = false;
+        }
+
+
+        $exp = '/^[a-zA-ZÀ-ÖØ-öø-ÿ]+\.?(( |\-)[a-zA-ZÀ-ÖØ-öø-ÿ]+\.?)*$/';
+        
+        
+        if(!preg_match($exp, $this->getPostParam('responsableApellido'))){
+            // $this->_view->_error_apellido = 'Apellido inv&aacute;lido';
+            // $validado = false;
+            $test_apellido2 = false;
+        }
+
+        if($test_apellido1 == false && $test_apellido2 == false){
+            $datos["responsableApellido"] = 'Apellido inv&aacute;lido';
+            $validado = false;
+            $arreglo["status"] = 0;
+        }
+
+
+        $id_persona_responsable = "";
+        //email 
+        if(!$this->validarEmail($this->getPostParam('responsableEmail'))){
+            $datos["email"] = 'La direccion de email es inv&aacute;lida';
+            $arreglo["status"] = 0;
+        }
+//ver*ificar si ya esta registrado si es asi obtener su id_persona y establecer el reponsable y todo
+
+        else if($temp = $this->_usuario->getEmail($this->getPostParam('responsableEmail'))){
+            $id_persona_responsable = $temp['id_persona'];
+        }
+
+
+
+
+        // if($this->_registro->verificarEmail($this->getPostParam('email'))){
+        //     $datos["email"] = 'Esta direcci&oacute;n de email ya est&aacute; registrada';
+        //     $arreglo["status"] = 0;
+        // }
+
+
+        //validar datos del co-autor
+        for($i = 0; $i < $_POST["iter"]; $i++){
+            
+                $datos["nombre"] = "";
+                $datos["apellido"] = "";
+                $datos["idx"] = $i;
+                
+                //Nombre
+                
+                if(!$this->getSql('nombre'.$i)){
+                    $datos["nombre"] = 'Debe introducir su nombre';
+                    $arreglo["status"] = 0;
+                }
+
+                if(!(strlen($this->getSql('nombre'.$i)) > 2)){
+                    $datos["nombre"] = 'Por favor introduzca como m&iacute;nimo 3 car&aacute;cteres';
+                    $arreglo["status"] = 0;
+                }
+
+                $exp = '/^[a-zA-ZÀ-ÖØ-öø-ÿ]+\.?((|\-)[a-zA-ZÀ-ÖØ-öø-ÿ]+\.?)*$/';
+
+                if(!preg_match($exp, $this->getPostParam('nombre'.$i))){
+                    $datos["nombre"] = 'Nombre inv&aacute;lido';
+                    $arreglo["status"] = 0;
+                }
+                
+                //Apellido 
+                
+                if(!$this->getSql('apellido'.$i)){
+                    $datos["apellido"] = 'Debe introducir su apellido';
+                    $arreglo["status"] = 0;
+                }
+
+                if(!(strlen($this->getSql('apellido'.$i)) > 2)){
+                    $datos["apellido"] = 'Por favor introduzca como m&iacute;nimo 3 car&aacute;cteres';
+                    $arreglo["status"] = 0;
+                }
+
+                $test_apellido1 = true;
+                $test_apellido2 = true;
+
+                $exp = '/^[a-zA-ZÀ-ÖØ-öø-ÿ]+\.?((|\-)[a-zA-ZÀ-ÖØ-öø-ÿ]+\.?)*$/';
+
+                if(!preg_match($exp, $this->getPostParam('apellido'.$i))){
+                    // $datos["apellido"] = 'Apellido inv&aacute;lido';
+                    $test_apellido1 = false;
+                }
+
+
+                $exp = '/^[a-zA-ZÀ-ÖØ-öø-ÿ]+\.?(( |\-)[a-zA-ZÀ-ÖØ-öø-ÿ]+\.?)*$/';
+                
+                
+                if(!preg_match($exp, $this->getPostParam('apellido'.$i))){
+                    // $this->_view->_error_apellido = 'Apellido inv&aacute;lido';
+                    // $validado = false;
+                    $test_apellido2 = false;
+                }
+
+                if($test_apellido1 == false && $test_apellido2 == false){
+                    $datos["apellido"] = 'Apellido inv&aacute;lido';
+                    $validado = false;
+                    $arreglo["status"] = 0;
+                }
+
+
+                
+                //email 
+                if(!$this->validarEmail($this->getPostParam('email'))){
+                    $datos["email"] = 'La direccion de email es inv&aacute;lida';
+                    $arreglo["status"] = 0;
+                }
+
+                // if($this->_registro->verificarEmail($this->getPostParam('email'))){
+                //     $datos["email"] = 'Esta direcci&oacute;n de email ya est&aacute; registrada';
+                //     $arreglo["status"] = 0;
+                // }
+
+                $arreglo["data"][] = $datos;
+                
+        }//end for    
+                
+                // //pais
+                // if($this->getInt('pais'.$i) == 0){
+                //     $datos["pais"] = 'Debe seleccionar un pais';
+                //     $arreglo["status"] = 0;
+                // }
+                
+                // //telefono
+                // $exp = '/^\\d{11,14}$/';
+            
+                // if(!preg_match($exp, $this->getPostParam('telefono'.$i))){
+                //     $datos["telefono"] = 'Debe proporcionar un n&uacute;mero de tel&eacute;fono v&aacute;lido';
+                //     $arreglo["status"] = 0;
+                // }
+                
+                //titulo
+                
+                $datos["titulo"] = "";
+                if(!$this->getSql('titulo')){
+                    $datos["titulo"] = 'Debe introducir el titulo';
+                    $arreglo["status"] = 0;
+                }
+                
+                //resumen
+                
+                $datos["resumen"] = "";
+                if(!$this->getSql('resumen')){
+                    $datos["resumen"] = 'Debe introducir el resumen';
+                    $arreglo["status"] = 0;
+                }
+                
+                //revista
+                
+                if($this->getPostParam('revista') == 0){
+                    $datos["revista"] = 'Debe seleccionar una revista';
+                    $arreglo["status"] = 0;
+                }
+                
+                //area
+                
+                if($this->getInt('area') == 0){
+                    $datos["area"] = 'Debe seleccionar un &aacute;rea';
+                    $arreglo["status"] = 0;
+                }
+                
+                //idioma
+                
+                if($this->getInt('idioma') == 0){
+                    $datos["idioma"] = 'Debe seleccionar un idioma';
+                    $arreglo["status"] = 0;
+                }
+                
+                //palabrasClave
+                
+                if(!$this->getSql('palabrasClave')){
+                    $datos["palabrasClave"] = 'Debe introducir palabras claves';
+                    $arreglo["status"] = 0; 
+                }
+                
+                $arreglo["data"][] = $datos;
+
+        
+        
+        if($arreglo['status']){ // si todo va bien entonces agregar
+
+            $arreglo["obra"] = $this->getInt('idioma') . " - " . $this->getSql('revista') ." - ". $this->getInt('area');
+            //al metodo setObra agregar campo tipo (manuscrito u obra)_
+            $this->_manuscrito->setObra($this->getInt('idioma'), $this->getSql('revista'), $this->getInt('area'));
+            $obra = $this->_manuscrito->getUltimaObra();
+            
+            //set manuscrito
+            $this->_manuscrito->setManuscrito($this->getSql('titulo'), $this->getSql('resumen'), $obra['id_obra']);
+            $manuscrito = $this->_manuscrito->getManuscritoObra($obra['id_obra']);
+
+
+            // si la persona ya estaba registrada asignar el manuscrito
+            if($id_persona_responsable != ""){
+                $arreglo["test_idpersona"] = $id_persona_responsable;
+
+                
+                $responsable = 0;
+
+                //agregar el autor responsable
+
+                $permiso = 0;
+
+                $this->_manuscrito->setResponsable($manuscrito['id_manuscrito'],$id_persona_responsable, $rolAutor[0], $permiso, 1);
+                $responsable = $this->_manuscrito->getUltimoResponsable();
+
+
+
+            }else{// sino entonces registrarla y asiganar el manuscrito
+
+                $this->_persona->setPersona($this->getSql('responsableNombre'), 
+                                $this->getSql('responsableApellido'), 
+                                "",
+                                "",
+                                $this->getPostParam('responsableEmail'), 
+                                "", 
+                                256,
+                                "",
+                                "",
+                                "");
+                        
+                $persona = $this->_persona->getUltimaPersona();
+                $id_persona_responsable = $persona['id_persona'];
+
+                $this->_persona->setPersonaRol($persona['id_persona'], $rolAutor[0]);
+                
+                $responsable = 0;
+
+                //agregar el autor responsable
+
+                $permiso = 0;
+
+                $this->_manuscrito->setResponsable($manuscrito['id_manuscrito'],$persona['id_persona'], $rolAutor[0], $permiso, 1);
+                $responsable = $this->_manuscrito->getUltimoResponsable();
+
+            }
+
+
+            // agregar los co-autores
+            for($i = 0; $i < $_POST["iter"]; $i++){
+
+                
+                $temp = $this->_usuario->getEmail($this->getPostParam($this->getPostParam('email'.$i)));
+
+                if($temp){
+
+                    //agregar el autor responsable
+
+                    $permiso = 0;
+
+                    $this->_manuscrito->setResponsable($manuscrito['id_manuscrito'],$temp['id_persona'], $rolCoAutor[0], $permiso, 0);
+                    // $this->_manuscrito->getUltimoResponsable();
+                }else{
+
+                    $this->_persona->setPersona($this->getSql('nombre'.$i), 
+                            $this->getSql('apellido'.$i), 
+                            "", 
+                            "",
+                            $this->getPostParam('email'.$i), 
+                            "", 
+                            256,
+                            "",
+                            "",
+                            "");
+
+                    $persona = $this->_persona->getUltimaPersona();
+
+                    $this->_persona->setPersonaRol($persona['id_persona'], $rolCoAutor[0]);
+                    
+
+                    $permiso = 0;
+
+                    $this->_manuscrito->setResponsable($manuscrito['id_manuscrito'],$persona['id_persona'], $rolCoAutor[0], $permiso, 0);
+
+                }
+
+            }
+                
+                // for($i = 0; $i < $_POST["iter"]; $i++){
+            
+                //     $permiso = 0;
+                //     //si son autores nuevos
+                //     if((int)$_POST["idx_autor"] != $i){
+                //         $this->_registro->setPersona($this->getSql('primerNombre'.$i), 
+                //                 $this->getSql('apellido'.$i), 
+                //                 $this->getPostParam('genero'.$i), 
+                //                 $this->getPostParam('email'.$i), 
+                //                 $this->getPostParam('telefono'.$i), 
+                //                 $this->getInt('pais'.$i),
+                //                 "",
+                //                 "",
+                //                 "",
+                //                 $this->getSql('segundoNombre'.$i));
+                        
+                //         $persona = $this->_registro->getUltimaPersona();
+                        
+                        
+                        
+                //         if((int)$_POST["autorPrincipal"] == $i){
+                //             $this->_registro->setPersonaRol($persona['id_persona'], $rolAutor[0]);
+
+                //             $this->_manuscrito->setResponsable($manuscrito['id_manuscrito'],$persona['id_persona'], $rolAutor[0], $permiso, 0);
+
+                //                 // $responsable = $this->_manuscrito->getUltimoResponsable();
+                //         }else{
+                //             $this->_registro->setPersonaRol($persona['id_persona'], $rolCoAutor[0]);
+                //             $this->_manuscrito->setResponsable($manuscrito['id_manuscrito'],$persona['id_persona'], $rolCoAutor[0], $permiso, 0);
+                //         }
+                        
+                //     }
+                    
+                //     //si es el autor de la cuenta
+                        
+                //     if((int)$_POST["idx_autor"] == $i){
+                        
+                //         $permiso = 0;
+                //         // $this->_persona->setCorrespondencia($_SESSION["id_persona"],$manuscrito['id_manuscrito'], $permiso);
+
+                //         if((int)$_POST["autorPrincipal"] == $i){
+                        
+                //             if(isset($_SESSION["id_persona"])){
+                //                 $this->_manuscrito->setResponsable($manuscrito['id_manuscrito'],$_SESSION["id_persona"], $rolAutor[0], $permiso, 1);
+                //                 $responsable = $this->_manuscrito->getUltimoResponsable();
+                //             }
+                //         }else{
+                //                 $this->_registro->setPersonaRol($persona['id_persona'], $rolCoAutor[0]);
+                //                 $this->_manuscrito->setResponsable($manuscrito['id_manuscrito'],$_SESSION["id_persona"], $rolCoAutor[0], $permiso, 1);
+                //                 //esta variabla responsable guarda el autor para la correspondencia
+                //                 $responsable = $this->_manuscrito->getUltimoResponsable();
+
+                //         }
+                            
+                //     }
+
+                // }
+                
+             
+            
+            
+            //---------------------------------------
+
+            $datos_persona = $this->_persona->getDatos($id_persona_responsable);
+
+            $apellido = explode(" ", $datos_persona['apellido']);
+            
+            $ruta = "manuscritos";
+            
+            if (!file_exists($ruta)) {
+                mkdir($ruta, 0777);
+            }
+            $ruta .= '/' . $apellido[0] . "_" .$id_persona_responsable;
+
+            if(!file_exists($ruta)){
+                mkdir($ruta, 0777);
+            }
+
+            if(file_exists($ruta)){
+                $ruta.= "/manuscrito_". $manuscrito["id_manuscrito"];
+                mkdir($ruta, 0777);
+            }
+            
+            $arreglo["id_manuscrito"] = $manuscrito["id_manuscrito"];
+            
+            $arreglo["ruta"] = $ruta;
+            
+            $count_fisico = $this->_manuscrito->getCountFisico();
+            //$count_fisico = 0;
+            $control_arch = 0;
+            
+            if((int)$count_fisico['count_fisico'] == 0){
+                $control_arch = 1;
+            }else{
+                $control_arch = (int)$count_fisico['count_fisico'] + 1;
+            }
+
+            //upload file
+            $fileName = $control_arch . "_" . $_FILES["archivo"]["name"]; 
+
+            // The file name 
+            $fileTmpLoc = $_FILES["archivo"]["tmp_name"]; // File in the PHP tmp folder 
+            $fileType = $_FILES["archivo"]["type"]; // The type of file it is 
+            $fileSize = $_FILES["archivo"]["size"]; // File size in bytes 
+            $fileErrorMsg = $_FILES["archivo"]["error"]; // 0 for false... and 1 for true 
+            if (!$fileTmpLoc) { 
+                    // if file not chosen 
+                    //echo "ERROR: Please browse for a file before clicking the upload button."; 
+                $arreglo["msj_file"] = "Error: Debe seleccionar un archivo";
+                $arreglo["status"] = 0;
+                exit(); 
+            } 
+            if(move_uploaded_file($fileTmpLoc, $ruta."/".$fileName)){ 
+                    //echo "$fileName upload is complete";
+                $arreglo["msj_file"] = "$fileName Subida completada";
+                
+                $this->_manuscrito->setFisico($ruta, $fileName);
+
+                $fisico = $this->_manuscrito->getUltimoFisico();
+                $estatus = $this->_manuscrito->getEstatusPorNombre("Enviado");
+
+                $this->_manuscrito->setRevision($responsable['id_responsable'], $estatus['id_estatus'], $fisico['id_fisico']);
+                
+                
+            } else { 
+            //echo "move_uploaded_file function failed"; 
+                $arreglo["msj_file"] = "Error al subir el archivo";
+                $arreglo["status"] = 0;
+            }
+            
+            
+            
+        }
+        
+        echo json_encode($arreglo);
         
     }
 
@@ -1094,6 +1598,8 @@ class manuscritoController extends Controller{
         
     }
 
+    
+
     public function correccion($id_manuscrito = false){
 
         Session::accesoEstricto(array('Autor'));
@@ -1243,28 +1749,6 @@ class manuscritoController extends Controller{
             echo '</p>';
         }
         
-    }
-    
-    public function nuevo(){
-        
-        Session::accesoEstricto(array('Autor'));
-        
-        $this->_view->setCssPublic(array('jquery-ui'));
-        
-        
-        //$this->_view->setJsPublic(array('jquery.ui.core'));
-        //$this->_view->setJsPublic(array('jquery.ui.tabs'));
-       // $this->_view->setJsPublic(array('jquery.ui.widget'));
-        $this->_view->setJsPublic(array('jquery-ui'));
-        
-        //$this->_view->setJsPublic(array('jquery.form.min'));
-        
-        $this->_view->setJs(array('js_tabs'));
-        
-        
-        
-        $this->_view->titulo = 'Nuevo Manuscrito';
-        $this->_view->renderizar('nuevo', 'manuscrito');
     }
     
 }

@@ -261,6 +261,17 @@ class usuarioModel extends Model{
         return false;
     }
 
+    public function getEmail($email){
+        $email = $this->_db->query(
+                "SELECT * from persona WHERE email = '$email'"
+                );
+
+        if($email)
+            return $email->fetch();
+
+        return false;
+    }
+
     public function verificarDin($din){
         $id = $this->_db->query(
                 "SELECT din from persona WHERE din = '$din'"

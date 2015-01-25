@@ -216,7 +216,8 @@ class View{
             'cssPublic' => $cssPublic,
             'js' => $js,
             'jsPublic' => $jsPublic,
-            'root' => BASE_URL
+            'root' => BASE_URL,
+            'imageRuta' => BASE_URL . "image/"
         );
 
        // var_dump(ROOT);

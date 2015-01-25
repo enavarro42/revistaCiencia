@@ -42,7 +42,7 @@ class registroModel extends Model{
     
     public function setPersona($primerNombre, $apellido, $din = "", $genero, $email, $telefono, $pais, $resumenBiografico = "", $filiacion = "", $segundoNombre = ""){
         $this->_db->prepare(
-         "insert into persona('primerNombre', apellido, genero, email, telefono, pais, 'resumenBiografico', din, filiacion, 'segundoNombre') VALUES(:primerNombre, :apellido, :genero, :email, :telefono, :pais, :resumenBiografico, :dni, :filiacion, :segundoNombre)"
+         "insert into persona(\"primerNombre\", apellido, genero, email, telefono, pais, \"resumenBiografico\", din, filiacion, \"segundoNombre\") VALUES(:primerNombre, :apellido, :genero, :email, :telefono, :pais, :resumenBiografico, :din, :filiacion, :segundoNombre)"
          )
          ->execute(
                  array(

@@ -118,26 +118,37 @@ class registroController extends Controller{
 
             }
                 
-            $exp = '/^[a-zA-ZÀ-ÖØ-öø-ÿ]+\.?(( |\-)[a-zA-ZÀ-ÖØ-öø-ÿ]+\.?)*$/';
-
             if(!$this->getSql('apellido')){
                 $this->_view->_error_apellido = 'Debe introducir su apellido';
-               // $this->_view->renderizar('index', 'registro');
                 $validado = false;
-
             }
-            
-            if(!(strlen($this->getSql('apellido')) > 3)){
-                $this->_view->_error_apellido = 'Por favor introduzca como m&iacute;nimo 4 car&aacute;cteres';
-                //$this->_view->renderizar('index', 'registro');
+
+            else if(!(strlen($this->getSql('apellido')) > 2)){
+                $this->_view->_error_apellido = 'Por favor introduzca como m&iacute;nimo 3 car&aacute;cteres';
                 $validado = false;
-
             }
+
+            $test_apellido1 = true;
+            $test_apellido2 = true;
+
+            $exp = '/^[a-zA-ZÀ-ÖØ-öø-ÿ]+\.?((|\-)[a-zA-ZÀ-ÖØ-öø-ÿ]+\.?)*$/';
+
+            if(!preg_match($exp, $this->getPostParam('apellido'))){
+                $test_apellido1 = false;
+            }
+
+
+            $exp = '/^[a-zA-ZÀ-ÖØ-öø-ÿ]+\.?(( |\-)[a-zA-ZÀ-ÖØ-öø-ÿ]+\.?)*$/';
             
             
             if(!preg_match($exp, $this->getPostParam('apellido'))){
+                // $this->_view->_error_apellido = 'Apellido inv&aacute;lido';
+                //$validado = false;
+                $test_apellido2 = false;
+            }
+
+            if($test_apellido1 == false && $test_apellido2 == false){
                 $this->_view->_error_apellido = 'Apellido inv&aacute;lido';
-               // $this->_view->renderizar('index', 'registro');
                 $validado = false;
             }
 

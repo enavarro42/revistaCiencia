@@ -170,8 +170,8 @@ function subirDatos(){
             }
 
             $("#progressBar").val(0);
-    },$("#progressBar")
-);
+        },$("#progressBar")
+    );
 			
 
 }
@@ -342,12 +342,16 @@ function agregar_campos(iter){
                               '<input type="radio" name="campo_autorPrincipal" id="campo_'+iter+'_autorPrincipal" value="'+iter+'">'+
                               'Autor principal'+
                             '</label>'+
-                        '</div>'+
+                        '</div>';
+
+            if(array_numeros.length){
                     
-                    '<div class="controls"><button id="btn_delete_'+iter+'" campo="'+iter+'" type="button" class="btn btn-danger">Borrar Autor</button></div>'+
+                 campos += '<div class="controls"><button id="btn_delete_'+iter+'" campo="'+iter+'" type="button" class="btn btn-danger">Borrar Autor</button></div>'+
                 '<hr></div>';
+            }
         
-        
+            campos += '<hr></div>';
+
         $("div#caja_campos_autor").append(campos);
         
        for(var i = 0; i < paises.length; i++){
@@ -439,9 +443,12 @@ function agregar_campos(iter){
      var valido = true;
      formdata = new FormData();
      var idx_autor = -1;
+
+    alert(array_numeros.join());
      //validando la parte de autores
      for(i = 0; i < iter; i++){
         var idx = array_numeros[i];
+
         
         if($('input:radio[name=campo_autorPrincipal]:checked').val() == idx){
             formdata.append("autorPrincipal", i);
@@ -481,14 +488,36 @@ function agregar_campos(iter){
             msj_nombre = "El nombre no es v&aacute;lido";
             valido = false;
         }
-        exp = /^[a-zA-ZÀ-ÖØ-öø-ÿ]+\.?(( |\-)[a-zA-ZÀ-ÖØ-öø-ÿ]+\.?)*$/;
+        
+        exp = /^[a-zA-ZÀ-ÖØ-öø-ÿ]+\.?((|\-)[a-zA-ZÀ-ÖØ-öø-ÿ]+\.?)*$/;
+
+        test_apellido1 = true;
+        test_apellido2 = true;
+
         if(apellido == ""){
             msj_apellido = "El campo apellido est&aacute; vac&iacute;o";
             valido = false;
         }
         else if(!exp.test(apellido)){
             msj_apellido = "El apellido no es v&aacute;lido";
+            //valido = false;
+            test_apellido1 = true;
+        }
+
+        exp = /^[a-zA-ZÀ-ÖØ-öø-ÿ]+\.?(( |\-)[a-zA-ZÀ-ÖØ-öø-ÿ]+\.?)*$/;
+
+        if(!exp.test(apellido)){
+            // msj_apellido = "El apellido no es v&aacute;lido";
+            //valido = false;
+            test_apellido2 = true;
+        }
+
+        if(test_apellido1 == false && test_apellido2 == false){
+            alert("no es valido");
+            msj_apellido = "El apellido no es v&aacute;lido";
             valido = false;
+        }else{
+            msj_apellido = "";
         }
 
         if(pais == 0) {

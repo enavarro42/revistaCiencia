@@ -51,10 +51,28 @@
 <body>
 
     <div class="container">
+                <nav class="navbar navbar-default navbar-fixed-top" role="navigation" style="background-color: #488AC4; margin-bottom: 0">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".sidebar-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <img src="<?php echo $_layoutParams['ruta_img']; ?>logo_min.png" alt="" style="float: left; margin: 2px 0px 0px 5px;">
+                <a class="navbar-brand" href="index.html">Revistas Arbitradas</a>
+
+
+            </div>
+        </nav>
+
         <div class="row">
+
             <div class="col-md-4 col-md-offset-4">
 
-                <div class="login-panel panel panel-default">
+                <img class="img-user-login center-block" src="<?php echo $_layoutParams['ruta_img']; ?>signin.png" alt="">
+
+                <div class="panel panel-default">
                     <div class="panel-heading">
                         <h3 class="panel-title"><i class="fa fa-sign-in fa-fw"></i> Iniciar sesi&oacute;n</h3>
                     </div>
@@ -70,7 +88,7 @@
                                     <input type="password" class="form-control"  name="pass" class="form-control" placeholder="Contrase&ntilde;a" required>
                                 </div>
                                 <!-- Change this to a button or input when using this as a form -->
-                                <button class="btn btn-lg btn-success btn-block" type="submit">Iniciar sesi&oacute;n</button>
+                                <button class="btn btn-lg btn-info btn-block" type="submit">Iniciar sesi&oacute;n</button>
                             </fieldset>
                         </form>
                     </div>

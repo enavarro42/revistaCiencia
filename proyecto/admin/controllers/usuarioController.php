@@ -283,47 +283,41 @@ class usuarioController extends Controller{
                 }
             }
 
-            //apellido solo
+                    //Apellido 
+        
+        if(!$this->getSql('apellido')){
+            $this->_view->_error_apellido = 'Debe introducir su apellido';
+            $validado = false;
+        }
 
-            $exp = '/^[a-zA-ZÀ-ÖØ-öø-ÿ]+\.?((|\-)[a-zA-ZÀ-ÖØ-öø-ÿ]+\.?)*$/';
+        if(!(strlen($this->getSql('apellido')) > 2)){
+            $this->_view->_error_apellido = 'Por favor introduzca como m&iacute;nimo 3 car&aacute;cteres';
+            $validado = false;
+        }
 
-            if(!$this->getSql('apellido')){
-                $this->_view->_error_apellido = 'Debe introducir su apellido';
-                $validado = false;
+        $test_apellido1 = true;
+        $test_apellido2 = true;
 
-            }
-            
-            if(!(strlen($this->getSql('apellido')) > 3)){
-                $this->_view->_error_apellido = 'Por favor introduzca como m&iacute;nimo 4 car&aacute;cteres';
-                $validado = false;
+        $exp = '/^[a-zA-ZÀ-ÖØ-öø-ÿ]+\.?((|\-)[a-zA-ZÀ-ÖØ-öø-ÿ]+\.?)*$/';
 
-            }
+        if(!preg_match($exp, $this->getPostParam('apellido'))){
+            $test_apellido1 = false;
+        }
 
-            $pivote = 0;
-            
-            
-            if(!preg_match($exp, $this->getPostParam('apellido'))){
-                $this->_view->_error_apellido = 'Apellido inv&aacute;lido';
-                // $validado = false;
-                $pivote = 1;
-            }
 
-            // dos apellidos
-                
-            $exp = '/^[a-zA-ZÀ-ÖØ-öø-ÿ]+\.?(( |\-)[a-zA-ZÀ-ÖØ-öø-ÿ]+\.?)*$/';
-            
-            
-            if(!preg_match($exp, $this->getPostParam('apellido'))){
-                $this->_view->_error_apellido = 'Apellido inv&aacute;lido';
-                // $validado = false;
-                $pivote = 1;
-            }else{
-                $pivote = 0;
-            }
+        $exp = '/^[a-zA-ZÀ-ÖØ-öø-ÿ]+\.?(( |\-)[a-zA-ZÀ-ÖØ-öø-ÿ]+\.?)*$/';
+        
+        
+        if(!preg_match($exp, $this->getPostParam('apellido'))){
+            // $this->_view->_error_apellido = 'Apellido inv&aacute;lido';
+            //$validado = false;
+            $test_apellido2 = false;
+        }
 
-            if($pivote){
-                $validado = false;
-            }
+        if($test_apellido1 == false && $test_apellido2 == false){
+            $this->_view->_error_apellido = 'Apellido inv&aacute;lido';
+            $validado = false;
+        }
 
             if(!$this->getPostParam('email')){
                 $this->_view->_error_email = 'Debe introducir su cuenta de correo electr&oacute;nico';
@@ -545,48 +539,39 @@ class usuarioController extends Controller{
                     }
                 }
 
-                //apellido solo
+        if(!$this->getSql('apellido')){
+            $this->_view->_error_apellido = 'Debe introducir su apellido';
+            $validado = false;
+        }
 
-                $exp = '/^[a-zA-ZÀ-ÖØ-öø-ÿ]+\.?((|\-)[a-zA-ZÀ-ÖØ-öø-ÿ]+\.?)*$/';
+        if(!(strlen($this->getSql('apellido')) > 2)){
+            $this->_view->_error_apellido  = 'Por favor introduzca como m&iacute;nimo 3 car&aacute;cteres';
+            $validado = false;
+        }
 
-                if(!$this->getSql('apellido')){
-                    $this->_view->_error_apellido = 'Debe introducir su apellido';
-                    $validado = false;
+        $test_apellido1 = true;
+        $test_apellido2 = true;
 
-                }
-                
-                if(!(strlen($this->getSql('apellido')) > 3)){
-                    $this->_view->_error_apellido = 'Por favor introduzca como m&iacute;nimo 4 car&aacute;cteres';
-                    $validado = false;
+        $exp = '/^[a-zA-ZÀ-ÖØ-öø-ÿ]+\.?((|\-)[a-zA-ZÀ-ÖØ-öø-ÿ]+\.?)*$/';
 
-                }
+        if(!preg_match($exp, $this->getPostParam('apellido'))){
+            $test_apellido1 = false;
+        }
 
-                $pivote = 0;
-                
-                
-                if(!preg_match($exp, $this->getPostParam('apellido'))){
-                    // $this->_view->_error_apellido = 'Apellido inv&aacute;lido';
-                    // $validado = false;
-                    $pivote = 1;
-                }
 
-                // dos apellidos
-                    
-                $exp = '/^[a-zA-ZÀ-ÖØ-öø-ÿ]+\.?(( |\-)[a-zA-ZÀ-ÖØ-öø-ÿ]+\.?)*$/';
-                
-                
-                if(!preg_match($exp, $this->getPostParam('apellido'))){
-                    // $this->_view->_error_apellido = 'Apellido inv&aacute;lido';
-                    // $validado = false;
-                    $pivote = 1;
-                }else{
-                    $pivote = 0;
-                }
+        $exp = '/^[a-zA-ZÀ-ÖØ-öø-ÿ]+\.?(( |\-)[a-zA-ZÀ-ÖØ-öø-ÿ]+\.?)*$/';
+        
+        
+        if(!preg_match($exp, $this->getPostParam('apellido'))){
+            // $this->_view->_error_apellido = 'Apellido inv&aacute;lido';
+            //$validado = false;
+            $test_apellido2 = false;
+        }
 
-                if($pivote){
-                    $this->_view->_error_apellido = 'Apellido inv&aacute;lido';
-                    $validado = false;
-                }
+        if($test_apellido1 == false && $test_apellido2 == false){
+            $this->_view->_error_apellido = 'Apellido inv&aacute;lido';
+            $validado = false;
+        }
 
                 if(!$this->getPostParam('email')){
                     $this->_view->_error_email = 'Debe introducir su cuenta de correo electr&oacute;nico';

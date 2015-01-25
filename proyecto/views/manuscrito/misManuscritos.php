@@ -2,7 +2,9 @@
 
 
 <h3>Mis Manuscritos</h3>
+<?php if(isset($this->enlaceCorreccion)){ ?>
 <a href="<?php echo $this->enlaceCorreccion; ?>" class="btn btn-info pull-right"><span class="glyphicon glyphicon-wrench icon_gly"></span>Corregir Manuscrito</a>
+<?php } ?>
 
 <div class="clearfix visible-lg-block"></div>
 
@@ -33,9 +35,9 @@
               <td><?php echo $this->manuscritos[$i]['titulo']; ?></td>
               <td>
                   <select id="autor" name="autor" class="form-control">
-                    <?php for($j = 0; $j <count($this->autores); $j++): ?>
-                      <option value="#<?php echo $this->autores[$this->manuscritos[$i]['id_manuscrito']]['id_persona_'.$j]; ?>">
-                          <?php  echo $this->autores[$this->manuscritos[$i]['id_manuscrito']]['persona_'.$j]; ?>
+                    <?php for($j = 0; $j <count($this->autores[$this->manuscritos[$i]['id_manuscrito']]); $j++): ?>
+                      <option value="">
+                          <?php  echo $this->autores[$this->manuscritos[$i]['id_manuscrito']][$j]['persona_'.$j]; ?>
                       </option>
                     <?php  endfor; ?>
                   </select>

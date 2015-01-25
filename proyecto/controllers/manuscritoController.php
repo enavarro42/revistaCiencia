@@ -29,9 +29,10 @@ class manuscritoController extends Controller{
         $this->getLibrary('paginador');
         $paginador = new Paginador();
         
-        $id_persona = Session::get('id_persona');
+        $id_persona = Session::get('id_person');
         
         $misManuscritos = $this->_manuscrito->getManuscritosPersona($id_persona);
+        var_dump($misManuscritos);
         if($misManuscritos)
             $this->_view->manuscritos = $paginador->paginar($misManuscritos, $pagina);
         else
@@ -80,8 +81,8 @@ class manuscritoController extends Controller{
                     while($fila = $autorManuscrito->fetch()){//obtenemos el id_persona
                         $id = $fila['id_persona']; //lo asignamos
                         $datos_persona = $this->_manuscrito->getPersona($id);
-                        $array_autor['persona_'.$iter] = $datos_persona['primerNombre'] . " " . $datos_persona['apellido']; //almaceno los autores
-                        $array_autor['id_persona_'.$iter] = $datos_persona['id_persona'];
+                        $array_autor[]['persona_'.$iter] = $datos_persona['primerNombre'] . " " . $datos_persona['apellido']; //almaceno los autores
+                        // $array_autor['id_persona_'.$iter] = $datos_persona['id_persona'];
 
                         $iter++;
                     }
@@ -105,14 +106,14 @@ class manuscritoController extends Controller{
 
                 $this->_view->manuscritos = $paginador->paginar($this->_manuscrito->getRevisiones($manusc['id_manuscrito']), $pagina);
 
-                $this->_view->enlaceDetalles = $this->getUrl("manuscrito/detallesManuscrito");
+                $this->_view->enlaceDetalles = $this->getUrl("manuscrito/detallesManuscrito/");
                 //print_r($this->_view->revisiones);
 
                 //exit;
 
                 $this->_view->paginacion = $paginador->getView('prueba', 'manuscrito/misManuscritos/'.$id_manuscrito);
-
-                $this->_view->enlaceCorreccion = $this->getUrl("manuscrito/correccion/". $manusc['id_manuscrito']);
+                if(in_array("Arbitro", $_SESSION["levels"]))
+                    $this->_view->enlaceCorreccion = $this->getUrl("manuscrito/correccion/". $manusc['id_manuscrito']);
                 $this->_view->titulo = 'Mis manuscritos';
                 $this->_view->renderizar('misManuscritos', 'manuscrito');
             }else{
@@ -189,6 +190,8 @@ class manuscritoController extends Controller{
         Session::accesoEstricto(array('Autor'));
         $arreglo = array();
         $arreglo["status"] = 1;
+        $arreglo["problema"] = "";
+        $arreglo["post"] = $_POST;
 
         $rolAutor = $this->_rol->getIdRol("Autor");
         $rolCoAutor = $this->_rol->getIdRol("Co-Autor");
@@ -209,11 +212,13 @@ class manuscritoController extends Controller{
                 if(!$this->getSql('primerNombre'.$i)){
                     $datos["nombre"] = 'Debe introducir su nombre';
                     $arreglo["status"] = 0;
+                    $arreglo["problema"] += $arreglo["problema"] . " 1 " ;
                 }
 
                 if(!(strlen($this->getSql('primerNombre'.$i)) > 2)){
                     $datos["nombre"] = 'Por favor introduzca como m&iacute;nimo 3 car&aacute;cteres';
                     $arreglo["status"] = 0;
+                    $arreglo["problema"] += $arreglo["problema"] . " 2 " ;
                 }
 
                 $exp = '/^[a-zA-ZÀ-ÖØ-öø-ÿ]+\.?((|\-)[a-zA-ZÀ-ÖØ-öø-ÿ]+\.?)*$/';
@@ -221,36 +226,61 @@ class manuscritoController extends Controller{
                 if(!preg_match($exp, $this->getPostParam('primerNombre'.$i))){
                     $datos["nombre"] = 'Nombre inv&aacute;lido';
                     $arreglo["status"] = 0;
+                    $arreglo["problema"] += $arreglo["problema"] . " 3 " ;
                 }
                 
                 //Apellido 
-                
+
                 if(!$this->getSql('apellido'.$i)){
-                    $datos[$i]["apellido"] = 'Debe introducir su apellido';
+                    $datos["apellido"] = 'Debe introducir su apellido';
                     $arreglo["status"] = 0;
+                    $arreglo["problema"] += $arreglo["problema"] . " 4 " ;
                 }
 
                 if(!(strlen($this->getSql('apellido'.$i)) > 2)){
                     $datos["apellido"] = 'Por favor introduzca como m&iacute;nimo 3 car&aacute;cteres';
                     $arreglo["status"] = 0;
+                    $arreglo["problema"] += $arreglo["problema"] . " 5 " ;
                 }
+
+                $test_apellido1 = true;
+                $test_apellido2 = true;
 
                 $exp = '/^[a-zA-ZÀ-ÖØ-öø-ÿ]+\.?((|\-)[a-zA-ZÀ-ÖØ-öø-ÿ]+\.?)*$/';
 
                 if(!preg_match($exp, $this->getPostParam('apellido'.$i))){
+                    // $datos["apellido"] = 'Apellido inv&aacute;lido';
+                    $test_apellido1 = false;
+                }
+
+
+                $exp = '/^[a-zA-ZÀ-ÖØ-öø-ÿ]+\.?(( |\-)[a-zA-ZÀ-ÖØ-öø-ÿ]+\.?)*$/';
+                
+                
+                if(!preg_match($exp, $this->getPostParam('apellido'.$i))){
+                    // $this->_view->_error_apellido = 'Apellido inv&aacute;lido';
+                    // $validado = false;
+                    $test_apellido2 = false;
+                }
+
+                if($test_apellido1 == false && $test_apellido2 == false){
                     $datos["apellido"] = 'Apellido inv&aacute;lido';
+                    $validado = false;
                     $arreglo["status"] = 0;
+                    $arreglo["problema"] += $arreglo["problema"] . " 6 " ;
                 }
                 
                 //email 
-                if(!$this->validarEmail($this->getPostParam('email'))){
+                if(!$this->validarEmail($this->getPostParam('email'.$i))){
                     $datos["email"] = 'La direccion de email es inv&aacute;lida';
                     $arreglo["status"] = 0;
+                    $arreglo["problema"] += $arreglo["problema"] . " 7 " ;
                 }
 
-                if($this->_registro->verificarEmail($this->getPostParam('email'))){
+                if($this->_registro->verificarEmail($this->getPostParam('email'.$i))){
                     $datos["email"] = 'Esta direcci&oacute;n de email ya est&aacute; registrada';
                     $arreglo["status"] = 0;
+                    $arreglo["problema"] += $arreglo["problema"] . " 8 " ;
                 }
                 
                 
@@ -259,6 +289,7 @@ class manuscritoController extends Controller{
                 if($this->getInt('pais'.$i) == 0){
                     $datos["pais"] = 'Debe seleccionar un pais';
                     $arreglo["status"] = 0;
+                    $arreglo["problema"] += $arreglo["problema"] . " 8 " ;
                 }
                 
                 //telefono
@@ -267,6 +298,7 @@ class manuscritoController extends Controller{
                 if(!preg_match($exp, $this->getPostParam('telefono'.$i))){
                     $datos["telefono"] = 'Debe proporcionar un n&uacute;mero de tel&eacute;fono v&aacute;lido';
                     $arreglo["status"] = 0;
+                    $arreglo["problema"] += $arreglo["problema"] . " 9 " ;
                 }
                 
                 //titulo
@@ -275,6 +307,7 @@ class manuscritoController extends Controller{
                 if(!$this->getSql('titulo')){
                     $datos["titulo"] = 'Debe introducir el titulo';
                     $arreglo["status"] = 0;
+                    $arreglo["problema"] += $arreglo["problema"] . " 10 " ;
                 }
                 
                 //resumen
@@ -283,13 +316,15 @@ class manuscritoController extends Controller{
                 if(!$this->getSql('resumen')){
                     $datos["resumen"] = 'Debe introducir el resumen';
                     $arreglo["status"] = 0;
+                    $arreglo["problema"] += $arreglo["problema"] . " 11 " ;
                 }
                 
                 //revista
                 
-                if($this->getInt('revista') == 0){
+                if($this->getPostParam('revista') == 0){
                     $datos["revista"] = 'Debe seleccionar una revista';
                     $arreglo["status"] = 0;
+                    $arreglo["problema"] += $arreglo["problema"] . " 12 " ;
                 }
                 
                 //area
@@ -297,6 +332,7 @@ class manuscritoController extends Controller{
                 if($this->getInt('area') == 0){
                     $datos["area"] = 'Debe seleccionar un &aacute;rea';
                     $arreglo["status"] = 0;
+                    $arreglo["problema"] += $arreglo["problema"] . " 13 " ;
                 }
                 
                 //idioma
@@ -304,6 +340,7 @@ class manuscritoController extends Controller{
                 if($this->getInt('idioma') == 0){
                     $datos["idioma"] = 'Debe seleccionar un idioma';
                     $arreglo["status"] = 0;
+                    $arreglo["problema"] += $arreglo["problema"] . " 14 " ;
                 }
                 
                 //palabrasClave
@@ -311,6 +348,7 @@ class manuscritoController extends Controller{
                 if(!$this->getSql('palabrasClave')){
                     $datos["palabrasClave"] = 'Debe introducir palabras claves';
                     $arreglo["status"] = 0; 
+                    $arreglo["problema"] += $arreglo["problema"] . " 15 " ;
                 }
                 
                 $arreglo["data"][] = $datos;
@@ -334,17 +372,25 @@ class manuscritoController extends Controller{
                 $persona = 0;
                 
                 for($i = 0; $i < $_POST["iter"]; $i++){
-            
+
+                    $arreglo["datos".$i] = $this->getSql('primerNombre'.$i) . " - ".
+                        $this->getSql('apellido'.$i). " - ".
+                        $this->getPostParam('genero'.$i). " - ".
+                        $this->getPostParam('email'.$i). " - ".
+                        $this->getPostParam('telefono'.$i). " - ".
+                        $this->getInt('pais'.$i). " - " .
+                        $this->getSql('segundoNombre'.$i);
+
                     $permiso = 0;
                     //si son autores nuevos
                     if((int)$_POST["idx_autor"] != $i){
                         $this->_registro->setPersona($this->getSql('primerNombre'.$i), 
-                                $this->getSql('apellido'.$i), 
+                                $this->getSql('apellido'.$i),
+                                "", 
                                 $this->getPostParam('genero'.$i), 
                                 $this->getPostParam('email'.$i), 
                                 $this->getPostParam('telefono'.$i), 
                                 $this->getInt('pais'.$i),
-                                "",
                                 "",
                                 "",
                                 $this->getSql('segundoNombre'.$i));
@@ -375,13 +421,13 @@ class manuscritoController extends Controller{
 
                         if((int)$_POST["autorPrincipal"] == $i){
                         
-                            if(isset($_SESSION["id_persona"])){
-                                $this->_manuscrito->setResponsable($manuscrito['id_manuscrito'],$_SESSION["id_persona"], $rolAutor[0], $permiso, 1);
+                            if(isset($_SESSION["id_person"])){
+                                $this->_manuscrito->setResponsable($manuscrito['id_manuscrito'],$_SESSION["id_person"], $rolAutor[0], $permiso, 1);
                                 $responsable = $this->_manuscrito->getUltimoResponsable();
                             }
                         }else{
                                 $this->_registro->setPersonaRol($persona['id_persona'], $rolCoAutor[0]);
-                                $this->_manuscrito->setResponsable($manuscrito['id_manuscrito'],$_SESSION["id_persona"], $rolCoAutor[0], $permiso, 1);
+                                $this->_manuscrito->setResponsable($manuscrito['id_manuscrito'],$_SESSION["id_person"], $rolCoAutor[0], $permiso, 1);
                                 //esta variabla responsable guarda el autor para la correspondencia
                                 $responsable = $this->_manuscrito->getUltimoResponsable();
 
@@ -396,7 +442,7 @@ class manuscritoController extends Controller{
             
             //---------------------------------------
 
-            $datos_persona = $this->_persona->getDatos($_SESSION["id_persona"]);
+            $datos_persona = $this->_persona->getDatos($_SESSION["id_person"]);
 
             $apellido = explode(" ", $datos_persona['apellido']);
             
@@ -405,7 +451,7 @@ class manuscritoController extends Controller{
             if (!file_exists($ruta)) {
                 mkdir($ruta, 0777);
             }
-            $ruta .= '/' . $apellido[0] . "_" .$_SESSION["id_persona"];
+            $ruta .= '/' . $apellido[0] . "_" .$_SESSION["id_person"];
 
             if(!file_exists($ruta)){
                 mkdir($ruta, 0777);
@@ -480,7 +526,7 @@ class manuscritoController extends Controller{
         if($id_manuscrito != false){
 
             $persona = null;
-            $persona = $this->_manuscrito->validarResponsable($this->filtrarInt($id_manuscrito), $_SESSION['id_persona'], $rolAutor[0]);
+            $persona = $this->_manuscrito->validarResponsable($this->filtrarInt($id_manuscrito), $_SESSION['id_person'], $rolAutor[0]);
 
             //comprobamos q ese manuscrito es de ese usuario, y q tiene permisos para corregir
             if($persona && $persona['permiso'] != 0){ 
@@ -503,10 +549,10 @@ class manuscritoController extends Controller{
 
             $arreglo["status"] = 1;
 
-            $datos_persona = $this->_persona->getDatos($_SESSION["id_persona"]);
+            $datos_persona = $this->_persona->getDatos($_SESSION["id_person"]);
             $apellido = explode(" ", $datos_persona['apellido']);
             $ruta = "manuscritos";
-            $ruta .= '/' . $apellido[0] . "_" .$_SESSION["id_persona"];
+            $ruta .= '/' . $apellido[0] . "_" .$_SESSION["id_person"];
             $ruta .= "/manuscrito_". $_POST['manuscrito'];
 
             $count_fisico = $this->_manuscrito->getCountFisico();

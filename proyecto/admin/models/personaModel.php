@@ -18,6 +18,42 @@ class personaModel extends Model{
     //              );
     // }
 
+    public function setPersonaRol($id_persona, $id_rol){
+        
+        $this->_db->query("INSERT INTO persona_rol(id_persana, id_rol) VALUES($id_persona, $id_rol)");
+
+    }
+
+    public function setPersona($primerNombre, $apellido, $din = '', $genero = '', $email, $telefono = "", $pais = 256, $resumenBiografico = "", $filiacion = "", $segundoNombre = ""){
+        $this->_db->prepare(
+         "insert into persona(\"primerNombre\", apellido, genero, email, telefono, pais, \"resumenBiografico\", din, filiacion, \"segundoNombre\") VALUES(:primerNombre, :apellido, :genero, :email, :telefono, :pais, :resumenBiografico, :din, :filiacion, :segundoNombre)"
+         )
+         ->execute(
+                 array(
+                     ':primerNombre' => $primerNombre,
+                     ':apellido' => $apellido,
+                     ':genero' => $genero,
+                     ':email' => $email,
+                     ':telefono' => $telefono,
+                     ':pais' => $pais,
+                     ':resumenBiografico' => $resumenBiografico,
+                     ':din' => $din,
+                     ':filiacion' => $filiacion,
+                     ':segundoNombre' => $segundoNombre
+                 )
+         );
+        // var_dump("INSERT INTO persona(\"primerNombre\", apellido, genero, email, telefono, pais, \"resumenBiografico\", din, filiacion, \"segundoNombre\") VALUES('$primerNombre', '$apellido', '$genero', '$email', '$telefono', $pais, '$resumenBiografico', '$din', '$filiacion', '$segundoNombre')");
+
+        // $this->_db->query("INSERT INTO persona(\"primerNombre\", apellido, genero, email, telefono, pais, \"resumenBiografico\", din, filiacion, \"segundoNombre\") VALUES('$primerNombre', '$apellido', '$genero', '$email', '$telefono', $pais, '$resumenBiografico', '$din', '$filiacion', '$segundoNombre')");
+    }
+
+    public function getUltimaPersona(){
+         $id = $this->_db->query(
+                "SELECT MAX(id_persona) as id_persona from persona"
+                );
+        return $id->fetch();
+    }
+
     public function setPermisoResponsable($id_responsable, $permiso){
         $this->_db->query(
                  "UPDATE responsable SET permiso=$permiso WHERE id_responsable = $id_responsable"

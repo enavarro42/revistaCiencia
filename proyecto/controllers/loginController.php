@@ -60,7 +60,7 @@ class loginController extends Controller{
 
                 Session::set('usuario', $row['usuario']);
                 Session::set('id_usuario', $row['id_usuario']);
-                Session::set('id_persona', $row['id_persona']);
+                Session::set('id_person', $row['id_persona']);
                 Session::set('tiempo', time());
 
 

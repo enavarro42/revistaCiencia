@@ -36,7 +36,9 @@ class loginController extends Controller{
                         $this->getSql('pass')
                         );
 
-                if(!$row){
+                //var_dump($row);
+
+                if(empty($row)){
                     $this->_view->_error = 'Usuario y/o Contrase&ntilde;a incorrectos';
                     $this->_view->renderizar('index', 'login');
                     exit;
@@ -48,27 +50,27 @@ class loginController extends Controller{
                 for($i = 0; $i < count($row_persona_rol); $i++)
                     $levels[] = trim($this->_login->getRol($row_persona_rol[$i][1]));
 
-                var_dump($levels);
+                //var_dump($levels);
 
                 $valido = false;
 
                 if(in_array('Admin', $levels)){
                     $valido = true;
                     Session::set('level', 'Admin');
-                    var_dump("entro1");
+                    //var_dump("entro1");
                 }
                 else if(in_array('Editor', $levels)){
                     $valido = true;
                     Session::set('level', 'Editor');
-                    var_dump("entro2");
+                    //var_dump("entro2");
                 }
                 else if(in_array('Secretaria', $levels)){
                     $valido = true;
                     Session::set('level', 'Secretaria');
-                    var_dump("entro2");
+                    //var_dump("entro2");
                 }
 
-                var_dump($valido);
+               // var_dump($valido);
 
                 if(!$valido){
                     $this->_view->_error = 'Usuario y/o Contrase&ntilde;a incorrectos';

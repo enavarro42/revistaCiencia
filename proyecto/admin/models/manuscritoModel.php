@@ -100,7 +100,7 @@ class manuscritoModel extends Model{
     
     public function setObra($id_idioma, $issn, $id_area){
         $this->_db->prepare(
-                "insert into obra(tipo, id_idioma, issn, id_area) values(:tipo, :id_idioma, :issn, :id_area)"
+                "insert into obra(tipo, id_idioma, issn, id_area, fecha) values(:tipo, :id_idioma, :issn, :id_area, current_date)"
                 )
                 ->execute(
                     array(
@@ -437,6 +437,7 @@ where ed.id_evaluacion = 12 and ed.id_pregunta = p.id_pregunta and p.id_seccion 
     }
 
     public function getManuscritoActual($responsable){
+        // var_dump("select * from revision where id_responsable = $responsable order by fecha DESC LIMIT 1");
         $revision = $this->_db->query("select * from revision where id_responsable = $responsable order by fecha DESC LIMIT 1");
         return $revision->fetch();
         

@@ -18,6 +18,8 @@ class arbitroController extends Controller{
             exit;
         }else{
 
+            $this->_view->setJs(array('js_index'));
+
             //temporalmenta hasta pensarlo bien...!
             Session::set('level', 'Arbitro');
 
@@ -32,7 +34,7 @@ class arbitroController extends Controller{
             $this->getLibrary('paginador');
             $paginador = new Paginador();
             
-            $id_persona = Session::get('id_persona');
+            $id_persona = Session::get('id_person');
 
             $rolArbitro = $this->_rol->getIdRol("Arbitro");
             $manuscritos = $this->_manuscrito->getManuscritoEvaluar($id_persona, $rolArbitro[0]);
@@ -136,7 +138,7 @@ class arbitroController extends Controller{
 
                 $this->_view->id_manuscrito = $this->filtrarInt($id_manuscrito);
 
-                $responsable = $this->_persona->getPersonaResponsable($_SESSION['id_persona'], $this->filtrarInt($id_manuscrito));
+                $responsable = $this->_persona->getPersonaResponsable($_SESSION['id_person'], $this->filtrarInt($id_manuscrito));
 
                 // var_dump($responsable);
 
@@ -259,7 +261,7 @@ class arbitroController extends Controller{
 
             $fisico = $this->_manuscrito->getUltimoFisico();
 
-            $responsable = $this->_persona->getPersonaResponsable($_SESSION['id_persona'], $this->filtrarInt($_POST['manuscrito']));
+            $responsable = $this->_persona->getPersonaResponsable($_SESSION['id_person'], $this->filtrarInt($_POST['manuscrito']));
 
             $num_evaluaciones = $this->_arbitro->getNumEvaluaciones($responsable['id_responsable']);
             $evaluaciones = 0;
