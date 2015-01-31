@@ -290,6 +290,15 @@ class manuscritoModel extends Model{
         return $evaluaciones->fetchAll();
     }
 
+    public function getDetallesEvaluacionEditor($ids = false){
+        $evaluaciones = $this->_db->query("select r.id_estatus, e.estatus, o.observaciones, r.fecha, m.titulo ".
+                                        "from revision r, observaciones o, estatus e, responsable resp, manuscrito m ".
+                                        "where resp.id_responsable IN ($ids) and r.id_responsable = resp.id_responsable ".
+                                        "and  o.id_revision = r.id_revision and r.id_estatus = e.id_estatus ORDER BY r.fecha DESC");
+
+        return $evaluaciones->fetchAll();
+    }
+
     public function getEvaluacionById($id_evaluacion){
         $evaluacion = $this->_db->query("SELECT e.sugerencia, e.cambios, e.evaluar_nuevamente ".
                                     "FROM evaluacion e ".

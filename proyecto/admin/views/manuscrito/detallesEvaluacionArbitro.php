@@ -53,6 +53,8 @@
 	        		Evaluaciones del &Aacute;rbitro
 	        	</h2>
         	</div>
+
+          <?php if(isset($this->detalleEvaluacion) && $this->detalleEvaluacion){ ?>
         	
         	<button type="button" class="btn btn-success pull-right btn-margin" id="enviarEvaluacion">Enviar Evaluaci&oacute;n</button>
 
@@ -87,6 +89,11 @@
                     <?php } ?>
         		</tbody>
         	</table>
+          <?php }else{ ?>
+            <h3>
+              No se encontraron resultados.
+            </h3>
+          <?php } ?>
         </div>
     </div>
 </div>

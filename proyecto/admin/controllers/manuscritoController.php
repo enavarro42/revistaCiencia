@@ -19,6 +19,20 @@ class manuscritoController extends Controller{
     
     public function index($pagina = false){
 
+        $view_key = "ver_manuscrito";
+
+        if(!Session::get('autenticado_admin')){
+            $this->redireccionar('login');
+        }
+
+        $_acl = $this->_view->getAcl();
+
+        $this->_view->acl = $_acl->getPermisoRol();
+
+        if(array_key_exists($view_key, $this->_view->acl) == false && $this->_view->acl[$view_key]["estado"] == false){
+            $this->redireccionar('acceso');
+        }
+
         if(!isset($_SESSION['id_user'])){
             $this->redireccionar();
         }
@@ -245,7 +259,7 @@ class manuscritoController extends Controller{
 
 
         $this->_view->enlaceCrearEvaluacionEditor = $this->getUrl() . 'manuscrito/crearEvaluacionEditor/';
-        $this->_view->enlaceDetalleEvaluacionEditor = $this->getUrl() . 'manuscrito/detalleEvaluacionEditor/';
+        $this->_view->enlaceDetalleEvaluacionEditor = $this->getUrl() . 'manuscrito/detallesEvaluacionEditor/';
 
 
         $this->_view->titulo = 'Evaluaci&oacute;n del Manuscrito';
@@ -259,17 +273,25 @@ class manuscritoController extends Controller{
         $rol = $this->_rol->getRolByIdPersona($id_persona);
 
         $id_manuscrito = $this->getInt('id_manuscrito');
+        //verificar si existe el responsable con el rol del usuario conectado
+        $resp = $this->_manuscrito->getResponsableByFiltro($id_persona, $id_manuscrito, $rol['id_rol']);
+        //var_dump($resp);
 
-        $this->_manuscrito->setResponsable($id_manuscrito, $id_persona, $rol['id_rol'], 0, 0);
+        if(empty($resp)){
+            $this->_manuscrito->setResponsable($id_manuscrito, $id_persona, $rol['id_rol'], 0, 0);
 
-        $responsable = $this->_manuscrito->getUltimoResponsable();
+            $responsable = $this->_manuscrito->getUltimoResponsable();
+            $responsable = $responsable["id_responsable"];
+        }else{
+            $responsable = $resp["id_responsable"];
+        }
 
         //get id_estatus pamatro clave
         $estatus = $this->getInt('id_estatus');
 
-        $this->_manuscrito->setRevision($responsable["id_responsable"], $estatus, null);
+        $this->_manuscrito->setRevision($responsable, $estatus, null);
 
-        $revision = $this->_manuscrito->getUltimaRevisionByResponsable($responsable["id_responsable"]);
+        $revision = $this->_manuscrito->getUltimaRevisionByResponsable($responsable);
 
         $ids = $this->getPostParam('ids');
 
@@ -279,7 +301,75 @@ class manuscritoController extends Controller{
             $this->_manuscrito->editarEvaluacionById($evaluacion[$i], $revision['id_revision']);
         }
 
+        // $this->getLibrary('class.phpmailer');
+        // $mail = new PHPMailer();
+        // $mail->From = 'www.fecRevistasCientificas.com';
+        // $mail->FromName = 'Revistas Arbitradas FEC';
+        // $mail->Subject = 'Revistas FEC';
+        // $url = $this->getUrlPagina('arbitro/solicitud/' . $this->getInt('id_persona') . "/" . $this->getInt('id_manuscrito') . "/" . $postulado['codigo']);
+        // $mail->Body = '<p>Ciudadano (a) <strong>' . $persona['primerNombre'] . " " . $persona['apellido'] . '</strong></p>'.
+        //         '<p>La Revista CIENCIA adscrita a la Facultad Experimental de Ciencias de la Universidad del Zulia, '.
+        //         'Maracaibo Venezuela se complace en invitarle a participar como árbitro de nuestra revista '.
+        //         'y de ser su gusto, solicitarle la revisión del manuscrito titulado: </p>'.
+        //         '<p><strong>'. $manuscrito['titulo'] .'</strong></p>'.
+        //         '<p>Para responder sobre su decisi&oacute;n de arbitraje pulsar en el enlace:</p> '.
+        //         '<a href="'. $url .'">'.$url.'</a>'.
+        //         '<br /><p>Puede ingresar con su usuario y contrase&ntilde;a:</p>'.
+        //         '<p>Usuario: '.$usuario['usuario'].'</p>'.
+        //         '<p>Clave: '.$pass.'</p>';
+        // $mail->AltBody = "Su servidor de correo no soporta html";
+        // $mail->addAddress($persona['email']);
+        // $mail->Send();
+
         //recordar ocultar el checkbox y cambiar el estatus de pendiente a enviado
+    }
+
+    public function detallesEvaluacionEditor($id_manuscrito = false, $pagina = false){
+
+        if(!$this->filtrarInt($pagina)){
+           $pagina = false;
+           $this->_view->pagina = 1;
+        }else{
+           $pagina = (int) $pagina;
+           $this->_view->pagina = $pagina;
+        }
+        
+        $this->getLibrary('paginador');
+        $paginador = new Paginador();
+
+        //metodo para validar la existencia del id
+        if($id_manuscrito){
+
+            $id_editor = $this->_rol->getIdRol('Editor');
+
+            $responsables = $this->_manuscrito->getResponsableManuscrito($id_manuscrito, $id_editor[0]);
+
+            if($responsables){
+                $ids = '';
+                for($i = 0; $i<count($responsables); $i++){
+                    if($i > 0){
+                        $ids .= ', ' . $responsables[$i]['id_responsable'] ;
+                    }else{
+                        $ids = $responsables[$i]['id_responsable']  . '';
+                    }
+                }
+
+                $detalleEvaluacion = $this->_manuscrito->getDetallesEvaluacionEditor($ids);
+                $this->_view->detalleEvaluacion = $paginador->paginar($detalleEvaluacion, false, $pagina);
+
+            }else{
+                $detalleEvaluacion = false;
+            }            
+
+            
+            $this->_view->paginacion = $paginador->getView('prueba', 'manuscrito/detallesEvaluacionEditor/'. $id_manuscrito);
+
+            $this->_view->responsable = $responsables;
+            $this->_view->id_manuscrito = $id_manuscrito;
+
+            $this->_view->titulo = 'Evaluaciones del Editor';
+            $this->_view->renderizar('detallesEvaluacionEditor', 'manuscrito');
+        }
     }
 
     public function detallesEvaluacionArbitro($id_manuscrito = false){
@@ -293,16 +383,23 @@ class manuscritoController extends Controller{
 
             $responsables = $this->_manuscrito->getResponsableManuscrito($id_manuscrito, $id_arbitro[0]);
 
-            $ids = '';
-            for($i = 0; $i<count($responsables); $i++){
-                if($i > 0){
-                    $ids .= ', ' . $responsables[$i]['id_responsable'] ;
-                }else{
-                    $ids = $responsables[$i]['id_responsable']  . '';
+            if($responsables){
+                $ids = '';
+                for($i = 0; $i<count($responsables); $i++){
+                    if($i > 0){
+                        $ids .= ', ' . $responsables[$i]['id_responsable'] ;
+                    }else{
+                        $ids = $responsables[$i]['id_responsable']  . '';
+                    }
                 }
+
+                $detalleEvaluacion = $this->_manuscrito->getDetallesEvaluacionArbitro($ids);
+
+            }else{
+                $detalleEvaluacion = false;
             }
 
-            $detalleEvaluacion = $this->_manuscrito->getDetallesEvaluacionArbitro($ids);
+            
 
             $this->_view->detalleEvaluacion = $detalleEvaluacion;
             $this->_view->responsable = $responsables;
@@ -314,6 +411,20 @@ class manuscritoController extends Controller{
     }
 
     public function arbitros($id_manuscrito = false, $pagina = false){
+
+        $view_key = "arbitro_manuscrito";
+
+        if(!Session::get('autenticado_admin')){
+            $this->redireccionar('login');
+        }
+
+        $_acl = $this->_view->getAcl();
+
+        $this->_view->acl = $_acl->getPermisoRol();
+
+        if(array_key_exists($view_key, $this->_view->acl) == false && $this->_view->acl[$view_key]["estado"] == false){
+            $this->redireccionar('acceso');
+        }
 
         $this->_view->setJs(array('controllerArbitro'));
 
@@ -437,7 +548,7 @@ class manuscritoController extends Controller{
             $this->getLibrary('class.phpmailer');
             $mail = new PHPMailer();
             $mail->From = 'www.fecRevistasCientificas.com';
-            $mail->FromName = 'Revistas Cient&iacute;ficas';
+            $mail->FromName = 'Revistas Arbitradas FEC';
             $mail->Subject = 'Revistas FEC';
             $url = $this->getUrlPagina('arbitro/solicitud/' . $this->getInt('id_persona') . "/" . $this->getInt('id_manuscrito') . "/" . $postulado['codigo']);
             $mail->Body = '<p>Ciudadano (a) <strong>' . $persona['primerNombre'] . " " . $persona['apellido'] . '</strong></p>'.

@@ -74,8 +74,8 @@ class Acl {
 				$estado = false;
 			}
 
-			$data[$clave] = array(
-				"clave" => $clave,
+			$data[trim($clave)] = array(
+				"clave" => trim($clave),
 				"permiso" => $this->getPermisoNombre($permisos[$i]['id_permiso']),
 				"estado" => $estado,
 				"heredado" => true,

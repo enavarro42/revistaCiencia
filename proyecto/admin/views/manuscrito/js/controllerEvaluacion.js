@@ -117,6 +117,7 @@ $(document).on("ready", function(){
 		
 		if(param != ""){
 
+
 			$.post(URL_BASE + "manuscrito/enviarEvaluacion",
 			{
 				id_manuscrito: $("#id_manuscrito").val(),
@@ -125,6 +126,8 @@ $(document).on("ready", function(){
 			},
 			function(data,status){
 			  	//recargar
+			  	$('#modalEnviar').modal("hide");
+			  	location.reload();
 			});
 		}
 
