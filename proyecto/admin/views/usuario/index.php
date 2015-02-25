@@ -7,7 +7,9 @@
 	        	</div>
 
 	        	<div class="caja_acciones col-xs-6 col-sm-6 col-md-6 col-lg-6">
-	        		<a href="<?php echo BASE_URL; ?>usuario" class="btn btn-danger btn_accion">Eliminar</a>
+	        		<?php if($this->eliminar){ ?>
+	        			<a href="" id="eliminar" class="btn btn-danger btn_accion">Eliminar</a>
+	        		<?php } ?>
 	        		<a href="<?php echo BASE_URL; ?>usuario/insertar" class="btn btn-success btn_accion">Insertar</a>
 	        	</div>
 

@@ -9,6 +9,7 @@ class usuarioModel extends Model{
     public function eliminar($ids = false){
 
         if($ids){
+            $this->_db->query("DELETE FROM persona_area WHERE id_persona IN($ids)");
             $this->_db->query("DELETE FROM persona_rol WHERE id_persona IN($ids)");
             $this->_db->query("DELETE FROM usuario WHERE id_persona IN($ids)");
             $this->_db->query("DELETE FROM responsable WHERE id_persona IN($ids)");
@@ -114,6 +115,8 @@ class usuarioModel extends Model{
 
     }
 
+
+
     public function editarPerfil($id_persona, $datos){
         $this->_db->query("UPDATE persona SET \"primerNombre\"='".$datos['primerNombre']."', apellido='".$datos['apellido']."', genero='".$datos['genero']."', ".
             "email='".$datos['email']."', telefono='".$datos['telefono']."', pais=".$datos['pais'].", \"resumenBiografico\"='".$datos['resumenBiografico']."', din='".$datos['din']."', filiacion='".$datos['filiacion']."', \"segundoNombre\"='".$datos['segundoNombre']."' ".
@@ -189,6 +192,17 @@ class usuarioModel extends Model{
         return $usuario;
     }
 
+    public function getUsuarios(){
+        $usuario = $this->_db->query(
+                "select * from usuario"
+                );
+        if($usuario === false) return false;
+
+        $usuario = $usuario->fetch();
+
+        return $usuario;
+    }
+
 
 
     public function getUsuariosByFiltro($filtro = false){
@@ -227,7 +241,11 @@ class usuarioModel extends Model{
             $sql .= "where p.id_persona = pr.id_persona and p.id_persona = pa.id_persona ";
         }
 
-        $sql .= "ORDER BY \"nombrecompleto\" ";
+        if(trim($_SESSION["level"]) != "Admin"){
+            $sql .= "and p.id_persona <> ".$_SESSION["id_persona"]." ORDER BY \"nombrecompleto\" ";
+        }else{
+            $sql .= "ORDER BY \"nombrecompleto\" ";
+        }
 
         // var_dump($sql);
 

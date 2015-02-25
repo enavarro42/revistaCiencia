@@ -32,7 +32,7 @@ class manuscritoController extends Controller{
         $id_persona = Session::get('id_person');
         
         $misManuscritos = $this->_manuscrito->getManuscritosPersona($id_persona);
-        var_dump($misManuscritos);
+        //var_dump($misManuscritos);
         if($misManuscritos)
             $this->_view->manuscritos = $paginador->paginar($misManuscritos, $pagina);
         else
@@ -102,9 +102,9 @@ class manuscritoController extends Controller{
 
                 //$this->_view->revisiones = $this->_manuscrito->getRevisiones($autor['id_autor']);
 
+                $result = $this->_manuscrito->getRevisiones($manusc['id_manuscrito']);
 
-
-                $this->_view->manuscritos = $paginador->paginar($this->_manuscrito->getRevisiones($manusc['id_manuscrito']), $pagina);
+                $this->_view->manuscritos = $paginador->paginar($result, $pagina);
 
                 $this->_view->enlaceDetalles = $this->getUrl("manuscrito/detallesManuscrito/");
                 //print_r($this->_view->revisiones);
@@ -112,8 +112,26 @@ class manuscritoController extends Controller{
                 //exit;
 
                 $this->_view->paginacion = $paginador->getView('prueba', 'manuscrito/misManuscritos/'.$id_manuscrito);
-                if(in_array("Arbitro", $_SESSION["levels"]))
-                    $this->_view->enlaceCorreccion = $this->getUrl("manuscrito/correccion/". $manusc['id_manuscrito']);
+
+                //estatus para activar el boton de correccion
+                $array_claves = array('modificacionesSustanciales', 'ligerasModificaciones', 'corregirFormato');
+
+                //estatus actual
+                $estatus_actual = $result[0]["id_estatus"];
+
+                //detalles del estatus actual
+                $detalles_estatus = $this->_manuscrito->getEstatusById($estatus_actual);
+
+                //var_dump(trim($detalles_estatus["clave"]));
+
+
+                if(in_array(trim($detalles_estatus["clave"]) , $array_claves)){
+                    $this->_view->enlaceCorreccion = $this->getUrl("manuscrito/correccion/");
+                    $this->_view->id_manuscrito = $manusc['id_manuscrito'];
+                    $this->_view->id_estatus = $estatus_actual;
+                    $this->_view->id_revision = $result[0]["id_revision"];
+                }
+
                 $this->_view->titulo = 'Mis manuscritos';
                 $this->_view->renderizar('misManuscritos', 'manuscrito');
             }else{
@@ -171,7 +189,7 @@ class manuscritoController extends Controller{
 
                 $id_fisico = $detallesEvaluacion[$i]['id_fisico'];
                 $fisico = $this->_manuscrito->getFisico($id_fisico);
-                $data['evaluacion'][] = array('sugerencia' => $detallesEvaluacion[$i]['sugerencia'], 'cambios' => $detallesEvaluacion[$i]['cambios'],
+                $data['evaluacion'][] = array('sugerencia' => $detallesEvaluacion[$i]['sugerencia'],
                     'link_archivo' => $fisico['carpeta'] . '/' . $fisico['nombre']);
             }
 
@@ -517,30 +535,75 @@ class manuscritoController extends Controller{
         
     }
 
-    public function correccion($id_manuscrito = false){
+    public function correccion(){
 
-        Session::accesoEstricto(array('Autor'));
-        $this->_view->setJs(array('js_correccion'));
+        // if(isset($_POST["enviado"])){
+        //     $ids = $_POST["ids"];
+        //     $texto = $_POST["texto"];
+        //     for($i = 0; $i<count($ids); $i++){
+        //         //var_dump("id -> " . $ids[$i]);
+        //         //var_dump("texto-> " . $texto[$i]);
+        //     }
+        // }
 
-        $rolAutor = $this->_rol->getIdRol("Autor");
-        if($id_manuscrito != false){
+        $id_manuscrito = $this->getInt("id_manuscrito");
+        $id_revision = $this->getInt("id_revision");
+        $id_estatus = $this->getInt("id_estatus");
 
-            $persona = null;
-            $persona = $this->_manuscrito->validarResponsable($this->filtrarInt($id_manuscrito), $_SESSION['id_person'], $rolAutor[0]);
+        //var_dump($id_revision);
 
-            //comprobamos q ese manuscrito es de ese usuario, y q tiene permisos para corregir
-            if($persona && $persona['permiso'] != 0){ 
+        if($id_manuscrito && $id_estatus && $id_estatus){
 
-                $this->_view->id_manuscrito = $id_manuscrito;
-                $this->_view->titulo = 'Correcci&oacute;n';
-                $this->_view->renderizar('correccion', 'manuscrito');
+            Session::accesoEstricto(array('Autor'));
+            $this->_view->setJs(array('js_correccion'));
+
+            $rolAutor = $this->_rol->getIdRol("Autor");
+            if($id_manuscrito != false){
+
+                $persona = null;
+                $persona = $this->_manuscrito->validarResponsable($this->filtrarInt($id_manuscrito), $_SESSION['id_person'], $rolAutor[0]);
+
+                //comprobamos q ese manuscrito es de ese usuario, y q tiene permisos para corregir
+                if($persona && $persona['permiso'] != 0){ 
+
+                    $this->_view->id_manuscrito = $id_manuscrito;
+
+
+                    $estatus = $this->_manuscrito->getEstatusById($id_estatus);
+
+                    $tipo = 0;
+                    if(trim($estatus["clave"]) == "corregirFormato"){
+                        $tipo = 1;
+
+                        // si es este tipo seguir sin hacer mas nada
+
+                    }else if(trim($estatus["clave"]) == "ligerasModificaciones" || trim($estatus["clave"]) == "modificacionesSustanciales"){
+                        $tipo = 2;
+
+                        $evaluaciones = $this->_manuscrito->getEvaluacionesByRevision($id_revision);
+
+                        $this->_view->evaluaciones = $evaluaciones;
+
+                        //var_dump($evaluaciones);
+                    }else{
+                        $this->redireccionar('manuscrito');
+                    }
+
+                    $this->_view->tipo = $tipo;
+
+
+                    $this->_view->titulo = 'Correcci&oacute;n';
+                    $this->_view->renderizar('correccion', 'manuscrito');
+
+
+
+                }else{
+                    $this->redireccionar('manuscrito');
+                }
 
             }else{
                 $this->redireccionar('manuscrito');
             }
-
-        }else{
-            $this->redireccionar('manuscrito');
         }
 
     }
@@ -580,7 +643,22 @@ class manuscritoController extends Controller{
                 $arreglo["status"] = 0;
                 exit(); 
             } 
-            if(move_uploaded_file($fileTmpLoc, $ruta."/".$fileName)){ 
+            if(move_uploaded_file($fileTmpLoc, $ruta."/".$fileName)){
+
+                //si es la correccion del arbitro establecer las respuestas a cada carreccion
+                if((int)$_POST["tipo"] == 2){
+
+                    $id_manuscrito = $_POST["manuscrito"];
+                    $cont = $_POST["contador"];
+
+                    $resp = $this->_manuscrito->getResponsable($id_manuscrito);
+
+                    for($i=0; $i<count($cont); $i++){
+                        $this->_manuscrito->setRespuestaEvaluacion($_POST["id_".$i], $resp["id_responsable"], $_POST["resp_".$i]);
+                    }
+
+                }
+
                     //echo "$fileName upload is complete";
                 $arreglo["msj_file"] = "$fileName Subida completada";
                 
@@ -590,10 +668,19 @@ class manuscritoController extends Controller{
 
                 $responsable = $this->_persona->getAutorCorrespondencia($_POST['manuscrito']);
                 
-                $estatus = $this->_manuscrito->getEstatusPorNombre("Correccion");
+                $estatus = $this->_manuscrito->getEstatusByClave("correccionManuscrito");
                 $this->_manuscrito->setRevision($responsable['id_responsable'], $estatus['id_estatus'], $fisico['id_fisico']);
                 
                 $this->_persona->setPermisoResponsable($responsable['id_responsable'], 0);
+
+                //--------------------------------------------
+                $rolArbitro = $this->_rol->getIdRol("Arbitro");
+
+                $resp = $this->_manuscrito->getArbitrosByManuscrito($_POST['manuscrito'], $rolArbitro[0]);
+
+                for($i = 0; $i<count($resp); $i++){
+                    $this->_persona->setPermisoResponsable($resp['id_responsable'], 1);
+                }
                 
                 
             } else { 
@@ -603,6 +690,7 @@ class manuscritoController extends Controller{
             }
 
             echo json_encode($arreglo);
+
     }
     
     

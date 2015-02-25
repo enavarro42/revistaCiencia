@@ -13,10 +13,21 @@ class manuscritoModel extends Model{
                 );
         return $persona->fetch();
     }
+
+    public function updateEstatusManuscrito($id_manuscrito = false, $id_estatus = false){
+            $this->_db->query(
+                "UPDATE manuscrito ".
+                "SET id_estatus = $id_estatus WHERE id_manuscrito = " . $id_manuscrito
+                );
+    }
+    public function getResponsableById($id_responsable){
+        $result = $this->_db->query("SELECT * FROM responsable where id_responsable = $id_responsable");
+        return $result->fetch();
+    }
     
     public function setObra($id_idioma, $issn, $id_area){
         $this->_db->prepare(
-                "insert into obra(tipo, id_idioma, issn, id_area, fecha) values(:tipo, :id_idioma, :issn, :id_area, current_date)"
+                "insert into obra(tipo, id_idioma, issn, id_area, fecha) values(:tipo, :id_idioma, :issn, :id_area, current_timestamp)"
                 )
                 ->execute(
                     array(
@@ -29,7 +40,13 @@ class manuscritoModel extends Model{
     }
     
     public function setRevision($id_responsable, $id_estatus, $id_fisico){
-        $this->_db->query("INSERT INTO revision(id_responsable, id_estatus, id_fisico, fecha) VALUES($id_responsable, $id_estatus, $id_fisico, current_date)");
+        $this->_db->query("INSERT INTO revision(id_responsable, id_estatus, id_fisico, fecha) VALUES($id_responsable, $id_estatus, $id_fisico, LOCALTIMESTAMP)");
+
+        $responsable = manuscritoModel::getResponsableById($id_responsable);
+
+        if($responsable)
+            manuscritoModel::updateEstatusManuscrito($responsable["id_manuscrito"], $id_estatus);
+
     }
     
     public function setManuscrito($titulo, $resumen, $id_obra){
@@ -63,6 +80,16 @@ class manuscritoModel extends Model{
                             ":nombre_arch" => $nombre_arch
                         ));
     }
+
+    public function setRespuestaEvaluacion($id_evaluacion, $id_responsable, $cambios){
+        $this->_db->prepare("INSERT INTO respuesta_evaluacion(id_evaluacion, id_responsable, cambios_realizados) VALUES(:id_evaluacion, :id_responsable, :cambios_realizados)")
+                ->execute(
+                        array(
+                            ":id_evaluacion" => $id_evaluacion,
+                            ":id_responsable" => $id_responsable,
+                            ":cambios_realizados" => $cambios
+                        ));
+    }
     
     public function getCountFisico(){
        $id = $this->_db->query(
@@ -91,7 +118,7 @@ class manuscritoModel extends Model{
     }
     
     public function getRevisiones($id_manuscrito){ //obra, autor, autor_obra,
-        $revisiones = $this->_db->query("SELECT DISTINCT manuscrito.id_manuscrito, manuscrito.titulo, revista.nombre, rol.rol, estatus.estatus, revision.fecha, revision.id_revision ".
+        $revisiones = $this->_db->query("SELECT DISTINCT manuscrito.id_manuscrito, manuscrito.titulo, revista.nombre, rol.rol, estatus.id_estatus, estatus.estatus, revision.fecha, revision.id_revision ".
                                         "FROM manuscrito, obra, revista, responsable, rol, persona_rol, revision, estatus ".
                                         "WHERE manuscrito.id_manuscrito = $id_manuscrito ".
                                         "and manuscrito.id_obra = obra.id_obra ".
@@ -104,6 +131,7 @@ class manuscritoModel extends Model{
                                         "order by revision.fecha DESC");
         return $revisiones->fetchAll();
     }
+
 
     public function getRevisionById($id_revision){
         $revision = $this->_db->query("SELECT * from revision where id_revision = $id_revision");
@@ -121,6 +149,11 @@ class manuscritoModel extends Model{
     public function getEstatusByClave($clave){
         $id = $this->_db->query("SELECT * FROM estatus where clave = '$clave'");
         return $id->fetch();
+    }
+
+    public function getEstatusByClaves($clave){
+        $id = $this->_db->query("SELECT * FROM estatus where clave in ($clave) ");
+        return $id->fetchAll();
     }
 
     public function getEstatusByTipo($tipo){
@@ -297,8 +330,13 @@ class manuscritoModel extends Model{
     }
 
     public function getEvaluacionesByRevision($id_revision = false){
-        $result = $this->_db->query("select * from evaluacion where id_revision = $id_revision");
+        $result = $this->_db->query("select * from evaluacion where id_revision = $id_revision order by id_evaluacion ASC");
         return $result->fetchAll();
+    }
+
+    public function getArbitrosByManuscrito($id_manuscrito, $id_rol){
+        $arbitro = $this->_db->query("SELECT re.id_responsable FROM responsable re, rol where rol.id_rol = re.id_rol and re.id_rol = $id_manuscrito and re.id_manuscrito = $id_rol");
+        return $arbitro->fetchAll();
     }
     
 }

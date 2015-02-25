@@ -18,6 +18,15 @@ class manuscritoModel extends Model{
         return $persona->fetch();
     }
 
+    public function getRespuestaAutor($id_evaluacion){
+        $persona = $this->_db->query(
+                "select  e.sugerencia, re.cambios_realizados from evaluacion e, respuesta_evaluacion re where e.id_evaluacion = re.id_evaluacion and e.id_evaluacion = $id_evaluacion order by e.id_evaluacion  asc"
+                );
+        return $persona->fetch();
+    }
+
+
+
     public function getArbitros($id_rol, $ids = false){
 
         if($ids != '' && $ids != false){
@@ -68,7 +77,7 @@ class manuscritoModel extends Model{
     public function getArbitrosPostulados($id_manuscrito){
 
         $arbitros = $this->_db->query("SELECT p.id_persona, p.\"primerNombre\" || ' ' || p.apellido as nombrecompleto, p.filiacion, p.\"resumenBiografico\", am.estatus FROM persona p, arbitros_manuscrito am WHERE am.id_persona = p.id_persona and am.id_manuscrito = $id_manuscrito order by p.\"primerNombre\"");
-
+        //var_dump($arbitros);
         return $arbitros->fetchAll();
     }
 
@@ -100,7 +109,7 @@ class manuscritoModel extends Model{
     
     public function setObra($id_idioma, $issn, $id_area){
         $this->_db->prepare(
-                "insert into obra(tipo, id_idioma, issn, id_area, fecha) values(:tipo, :id_idioma, :issn, :id_area, current_date)"
+                "insert into obra(tipo, id_idioma, issn, id_area, fecha) values(:tipo, :id_idioma, :issn, :id_area, current_timestamp)"
                 )
                 ->execute(
                     array(
@@ -113,7 +122,7 @@ class manuscritoModel extends Model{
     }
     
     public function setRevision($id_responsable, $id_estatus, $id_fisico){
-        $this->_db->prepare("INSERT INTO revision(id_responsable, id_estatus, id_fisico, fecha) VALUES(:id_responsable, :id_estatus, :id_fisico, current_date)")
+        $this->_db->prepare("INSERT INTO revision(id_responsable, id_estatus, id_fisico, fecha) VALUES(:id_responsable, :id_estatus, :id_fisico, current_timestamp)")
                 ->execute(
                         array(
                             ":id_responsable" => $id_responsable,
@@ -121,6 +130,20 @@ class manuscritoModel extends Model{
                             ":id_fisico" => $id_fisico
                         )
                  );
+
+
+        $responsable = manuscritoModel::getResponsableById($id_responsable);
+
+        if($responsable)
+            manuscritoModel::updateEstatusManuscrito($responsable["id_manuscrito"], $id_estatus);
+
+    }
+
+    public function updateEstatusManuscrito($id_manuscrito = false, $id_estatus = false){
+            $this->_db->query(
+                "UPDATE manuscrito ".
+                "SET id_estatus = $id_estatus WHERE id_manuscrito = " . $id_manuscrito
+                );
     }
     
     public function setManuscrito($titulo, $resumen, $id_obra){
@@ -166,6 +189,11 @@ class manuscritoModel extends Model{
                             ":observaciones" => $observaciones
                         ));
         }
+    }
+
+    public function getResponsableById($id_responsable){
+        $result = $this->_db->query("SELECT * FROM responsable where id_responsable = $id_responsable");
+        return $result->fetch();
     }
 
     public function getEstatusById($id_estatus){
@@ -300,7 +328,7 @@ class manuscritoModel extends Model{
     }
 
     public function getEvaluacionById($id_evaluacion){
-        $evaluacion = $this->_db->query("SELECT e.sugerencia, e.cambios, e.evaluar_nuevamente ".
+        $evaluacion = $this->_db->query("SELECT e.sugerencia, e.evaluar_nuevamente ".
                                     "FROM evaluacion e ".
                                     "WHERE e.id_evaluacion = $id_evaluacion");
 
@@ -431,6 +459,10 @@ where ed.id_evaluacion = 12 and ed.id_pregunta = p.id_pregunta and p.id_seccion 
         if($manuscrito != false)
             return $manuscrito->fetchAll();
         return false;
+    }
+
+    public function updatePermisoResponsable($id_responsable, $id_permiso){
+        $this->_db->query("UPDATE responsable SET permiso=$id_permiso WHERE id_responsable = $id_responsable");
     }
 
     

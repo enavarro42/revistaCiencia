@@ -262,7 +262,7 @@ class View{
         
         $rutaView = ROOT . 'views' . DS . $this->_controlador . DS . $vista . '.php';
 
-        if($this->_controlador == 'login'){
+        if($this->_controlador == 'login' || $this->_controlador == 'registro'){
             include_once $rutaView;
         }else{
         

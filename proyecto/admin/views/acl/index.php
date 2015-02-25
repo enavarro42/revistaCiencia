@@ -6,7 +6,9 @@
         	</div>
 
         	<div class="caja_acciones col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                <?php if($this->eliminar){ ?>
         		<button class="btn btn-danger btn_accion" id="eliminar">Eliminar</button>
+                <?php } ?>
         		<a href="<?php echo BASE_URL; ?>acl/crear" class="btn btn-success btn_accion">Insertar</a>
         	</div>
 

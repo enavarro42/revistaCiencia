@@ -2,7 +2,9 @@
     <div class="row">
         <div class="col-lg-12">
             <h2 class="page-header"><?php echo $this->titulo; ?>
+              <?php if(isset($this->eliminar) && $this->eliminar){ ?>
               <a href="" class="btn btn-danger pull-right sp_left">Eliminar</a>
+              <?php } ?>
               <a href="<?php echo BASE_URL ?>manuscrito/crear" class="btn btn-success pull-right sp_left">Crear</a>
             </h2>
 

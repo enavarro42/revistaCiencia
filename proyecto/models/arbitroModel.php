@@ -54,8 +54,8 @@ class arbitroModel extends Model{
         return $evaluaciones->fetch();
     }
 
-    public function setEvaluacion($id_responsable, $num_evaluaciones, $evaluar,  $id_fisico, $sugerencia, $cambios, $comentario){
-         $this->_db->prepare("INSERT INTO evaluacion(id_responsable, id_revision, evaluacion, fecha, evaluar_nuevamente, id_fisico, sugerencia, cambios, comentario) VALUES(:id_responsable, :id_revision, :num_evaluaciones, current_date, :evaluar,  :id_fisico, :sugerencia, :cambios, :comentario )")
+    public function setEvaluacion($id_responsable, $num_evaluaciones, $evaluar,  $id_fisico, $sugerencia, $comentario){
+         $this->_db->prepare("INSERT INTO evaluacion(id_responsable, id_revision, evaluacion, fecha, evaluar_nuevamente, id_fisico, sugerencia, comentario) VALUES(:id_responsable, :id_revision, :num_evaluaciones, current_timestamp, :evaluar,  :id_fisico, :sugerencia, :comentario )")
          ->execute(
                  array(
                      ":id_responsable" => $id_responsable,
@@ -64,7 +64,6 @@ class arbitroModel extends Model{
                      ":evaluar" => $evaluar,
                      ":id_fisico" => $id_fisico,
                      ":sugerencia" => $sugerencia,
-                     ":cambios" => $cambios,
                      ":comentario" => $comentario
                  ));
     }

@@ -13,6 +13,34 @@ class usuarioController extends Controller{
 
     public function index($tipoBusqueda = false, $busqueda = false, $tipoUsuario = false, $area = false, $pagina = false){
 
+        $view_key = "ver_usuario";
+
+        if(!Session::get('autenticado_admin')){
+            $this->redireccionar('login');
+        }
+
+        $_acl = $this->_view->getAcl();
+
+        $this->_view->acl = $_acl->getPermisoRol();
+
+
+        if(array_key_exists($view_key, $this->_view->acl) == false && $this->_view->acl[$view_key]["estado"] == false){
+            $this->redireccionar('acceso');
+        }
+
+        //verificar si tiene permisos para eliminar
+
+        $eliminar = 1;
+
+        $view_key = "eliminar_usuario";
+
+        if(array_key_exists($view_key, $this->_view->acl) == false){
+            $eliminar = 0;
+        }
+
+        $this->_view->eliminar = $eliminar;
+        
+
         $this->_view->setJs(array('usuario'));
 
         $this->_view->roles = $this->acl->getRoles();
@@ -141,6 +169,21 @@ class usuarioController extends Controller{
     }
 
     public function insertar(){
+
+        $view_key = "insertar_usuario";
+
+        if(!Session::get('autenticado_admin')){
+            $this->redireccionar('login');
+        }
+
+        $_acl = $this->_view->getAcl();
+
+        $this->_view->acl = $_acl->getPermisoRol();
+
+
+        if(array_key_exists($view_key, $this->_view->acl) == false && $this->_view->acl[$view_key]["estado"] == false){
+            $this->redireccionar('acceso');
+        }
 
         $this->_view->tipoAccion = 'insertar';
 
@@ -396,6 +439,21 @@ class usuarioController extends Controller{
     }  
 
     public function editar($id_persona = false){
+
+        $view_key = "editar_usuario";
+
+        if(!Session::get('autenticado_admin')){
+            $this->redireccionar('login');
+        }
+
+        $_acl = $this->_view->getAcl();
+
+        $this->_view->acl = $_acl->getPermisoRol();
+
+
+        if(array_key_exists($view_key, $this->_view->acl) == false && $this->_view->acl[$view_key]["estado"] == false){
+            $this->redireccionar('acceso');
+        }
 
         $this->_view->tipoAccion = 'editar';
 

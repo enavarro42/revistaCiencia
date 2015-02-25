@@ -11,6 +11,34 @@ class aclController extends Controller{
     }
 
     public function index(){
+        $view_key = "ver_grupo_usuario";
+
+        if(!Session::get('autenticado_admin')){
+            $this->redireccionar('login');
+        }
+
+        $_acl = $this->_view->getAcl();
+
+        $this->_view->acl = $_acl->getPermisoRol();
+
+
+        if(array_key_exists($view_key, $this->_view->acl) == false && $this->_view->acl[$view_key]["estado"] == false){
+            $this->redireccionar('acceso');
+        }
+
+
+        //verificar si tiene permisos para eliminar
+
+        $eliminar = 1;
+
+        $view_key = "eliminar_grupo_usuario";
+
+        if(array_key_exists($view_key, $this->_view->acl) == false){
+            $eliminar = 0;
+        }
+
+        $this->_view->eliminar = $eliminar;
+
     	$roles = $this->acl->getRoles();
 
     	$this->_view->setJs(array("js_acl"));
@@ -22,6 +50,22 @@ class aclController extends Controller{
     }
 
     public function crear(){
+
+
+        $view_key = "crear_grupo_usuario";
+
+        if(!Session::get('autenticado_admin')){
+            $this->redireccionar('login');
+        }
+
+        $_acl = $this->_view->getAcl();
+
+        $this->_view->acl = $_acl->getPermisoRol();
+
+
+        if(array_key_exists($view_key, $this->_view->acl) == false && $this->_view->acl[$view_key]["estado"] == false){
+            $this->redireccionar('acceso');
+        }
     	
     	$this->_view->permisos = $this->acl->getPermisos();
 
@@ -57,6 +101,21 @@ class aclController extends Controller{
 
     public function editar($id_rol = false){
 
+        $view_key = "editar_grupo_usuario";
+
+        if(!Session::get('autenticado_admin')){
+            $this->redireccionar('login');
+        }
+
+        $_acl = $this->_view->getAcl();
+
+        $this->_view->acl = $_acl->getPermisoRol();
+
+
+        if(array_key_exists($view_key, $this->_view->acl) == false && $this->_view->acl[$view_key]["estado"] == false){
+            $this->redireccionar('acceso');
+        }
+
         $rol = $this->acl->getRol($this->filtrarInt($id_rol));
 
         $permisos_seleccionados = array();
@@ -78,19 +137,22 @@ class aclController extends Controller{
                 $permisos_seleccionados[] = $permisos[$i]['id_permiso'];
             }
 
-
             //si se preciono guardar
             if($this->getInt("enviar") == 1){
-                //tomar el valos del campo rol
+                //tomar el valor del campo rol
                 $this->_view->data['value_rol'] = $_POST['rol'];
 
                 //obtener los permisos seleccionados
                 $permisos_selected = $_POST['check_permiso'];
 
+                var_dump($permisos_selected);
+
                 //si es valido
                 if(aclController::validarRol()){
                     //entonces edita el rol
                     $this->acl->editarRol($this->filtrarInt($id_rol), $this->getSql('rol'));
+
+                    $this->acl->eliminarPermisoRol($this->filtrarInt($id_rol));
 
                     //editar los permisos de ese rol
                     for($i = 0; $i < count($_POST['check_permiso']); $i++){
@@ -110,7 +172,7 @@ class aclController extends Controller{
         }else{
 
             $this->_view->data['value_rol'] = "";
-             $this->redireccionar('acl');
+            $this->redireccionar('acl');
         }
 
 

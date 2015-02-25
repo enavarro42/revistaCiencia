@@ -158,10 +158,10 @@
 
 <body>
 
-<div class="visible-lg">lg</div>
+<!-- <div class="visible-lg">lg</div>
 <div class="visible-md">md</div>
 <div class="visible-sm">sm</div>
-<div class="visible-xs">xs</div>
+<div class="visible-xs">xs</div> -->
     
 <div id="bar-top">
     <div id="usuario">

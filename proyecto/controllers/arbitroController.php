@@ -97,6 +97,7 @@ class arbitroController extends Controller{
 
 
             }else{
+                //arreglar esto
                 var_dump("Incorrecto");
             }
 
@@ -115,9 +116,13 @@ class arbitroController extends Controller{
     }
 
     public function respSolicitud(){
+        $json = array();
+        $json["estatus"] = 0;
         if($this->getInt('id_manuscrito') && $this->getInt('id_persona')){
             $this->_manuscrito->editarSolicitudArbitraje($this->getInt('id_persona'), $this->getInt('id_manuscrito'), $this->getInt('opcion'));
+            $json["estatus"] = 1;
         }
+        echo json_encode($json);
     }
 
     public function evaluar($id_manuscrito = null){
@@ -215,7 +220,7 @@ class arbitroController extends Controller{
 
         $comentario = $this->getSql('comentario');
         $sugerencia = $this->getSql('sugerencia');
-        $cambios = $this->getSql('cambios');
+        //$cambios = $this->getSql('cambios');
         $evaluar = $this->getInt('evaluar');
 
 
@@ -270,7 +275,7 @@ class arbitroController extends Controller{
             else if($num_evaluaciones)
                 $evaluaciones += $num_evaluaciones['evaluacion'] + 1;
 
-            $this->_arbitro->setEvaluacion($responsable['id_responsable'], $evaluaciones, $evaluar,  $fisico['id_fisico'], $sugerencia, $cambios, $comentario);
+            $this->_arbitro->setEvaluacion($responsable['id_responsable'], $evaluaciones, $evaluar,  $fisico['id_fisico'], $sugerencia, $comentario);
 
             $lastEvaluacion = $this->_arbitro->getLastEvaluacion();
 

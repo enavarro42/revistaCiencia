@@ -2,8 +2,10 @@
     <div class="row">
         <div class="col-lg-12">
             <h2 class="page-header">Bienvenido [ <?php echo $_SESSION["user"]; ?> ]</h2>
+            <div id="cargando"><img src="<?php echo $_layoutParams['root'] . "/image/loading.gif"; ?>" width="16px" height="16px"></img> Cargando...</div>
             <div id="grafica1" class="col-lg-6"></div>
             <div id="grafica2" class="col-lg-6"></div>
+            <div id="grafica3" class="col-lg-12"></div>
         </div>
         <!-- /.col-lg-12 -->
     </div>
@@ -28,13 +30,13 @@
         var data = new google.visualization.DataTable();
         data.addColumn('string', 'Topping');
         data.addColumn('number', 'Slices');
-        data.addRows([<?php echo $this->usuario_area; ?>]);
+        data.addRows([<?php if(isset($this->usuario_area)) echo $this->usuario_area; ?>]);
 
         // Set chart options
-        var options = {'title':'<?php echo $this->titulo_g1; ?>',
-        				'is3D':true,
-                       'width':500,
-                       'height':500};
+        var options = {title:'<?php if(isset($this->usuario_area)) echo $this->titulo_g1; ?>',
+        				is3D:true,
+                       width:500,
+                       height:300};
  
         // Instantiate and draw our chart, passing in some options.
         var chart = new google.visualization.PieChart(document.getElementById('grafica1'));
@@ -50,19 +52,49 @@
         var data = new google.visualization.DataTable();
         data.addColumn('string', 'Topping');
         data.addColumn('number', 'Slices');
-        data.addRows([<?php echo $this->persona_rol; ?>]);
+        data.addRows([<?php if(isset($this->persona_rol)) echo $this->persona_rol; ?>]);
 
         // Set chart options
-        var options = {title:'<?php echo $this->titulo_g2; ?>',
+        var options = {title:'<?php if(isset($this->persona_rol)) echo $this->titulo_g2; ?>',
                 pieHole: 0.4,
                        width:500,
-                       height:500};
+                       height:300};
  
         // Instantiate and draw our chart, passing in some options.
         var chart = new google.visualization.PieChart(document.getElementById('grafica2'));
  
         chart.draw(data, options);
       }
+
+      google.setOnLoadCallback(drawChart3);
+
+      function drawChart3() {
+
+            var data = google.visualization.arrayToDataTable([<?php if(isset($this->manuscrito_estatus)) echo $this->manuscrito_estatus; ?>]);
+
+            var view = new google.visualization.DataView(data);
+            view.setColumns([0, 1,
+                             { calc: "stringify",
+                               sourceColumn: 1,
+                               type: "string",
+                               role: "annotation" },
+                             2]);
+
+            var options = {
+              title: "<?php if(isset($this->manuscrito_estatus)) echo $this->titulo_g3; ?>",
+              width: 800,
+              height: 600,
+              bar: {groupWidth: "95%"},
+              legend: { position: "none" },
+            };
+            var chart = new google.visualization.ColumnChart(document.getElementById("grafica3"));
+            chart.draw(view, options);
+            $("#cargando").html("");
+      }
+
+
+
+
 
     </script>
 

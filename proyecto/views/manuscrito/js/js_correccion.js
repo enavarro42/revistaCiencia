@@ -12,6 +12,14 @@ $(document).on("ready", function(){
     }
   });
 
+  $("#btn_test").click(function(){
+      cont = $("#contador").val();
+      alert(cont);
+      for(i = 0; i<cont; i++){
+        alert($("#resp_"+i).val());
+      }
+  });
+
 });
 
 
@@ -103,10 +111,13 @@ function subirDatos(){
 
 }
 
+
 function validarEnvio(){
     var valido = true;
     var archivo = $("#archivo").val();
+    var tipo = $("#tipo").val();
     var msj_archivo = "";
+    var msj_evaluacion = "";
 
     extensiones_permitidas = new Array(".doc", ".docx"); 
    
@@ -131,14 +142,38 @@ function validarEnvio(){
        }
    }
 
+   if(parseInt(tipo) == 2){
+
+      cont = parseInt($("#contador").val());
+
+
+      for(i = 0; i<cont; i++){
+        if($("#resp_"+i).val() == ""){
+          valido = false;
+          msj_evaluacion = "Debe llenar el campo de cambios realizados.";
+        }
+      }
+    }
+
    if(valido){
         var file = document.getElementById("archivo").files[0];
         
         formdata.append("archivo", file);
         formdata.append("manuscrito", $("#manuscrito").val());
+        formdata.append("contador", cont);
+        formdata.append("tipo", parseInt(tipo));
+
+        if(tipo == 2){
+
+          for(i = 0; i<cont; i++){
+            formdata.append("id_"+i, $("#id_"+i).val());
+            formdata.append("resp_"+i, $("#resp_"+i).val());
+          }
+        }
    }
 
    $("#error_archivo").html(msj_archivo);
+   $("#error_evaluacion").html(msj_evaluacion);
 
    return valido;
 }

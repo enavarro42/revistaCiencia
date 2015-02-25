@@ -28,29 +28,51 @@ class indexController extends Controller{
 
         $result = $this->_reporte->getUsuarioPorArea();
 
-        $usuario_area = "";
+        if($result){
+            $usuario_area = "";
 
-        for($i = 0; $i<count($result); $i++){
-            if($i > 0) $usuario_area .= ",";
-            $usuario_area .= "['" . trim($result[$i]["nombre"]) . "', ". $result[$i]["cantidad"]. "]";
+            for($i = 0; $i<count($result); $i++){
+                if($i > 0) $usuario_area .= ",";
+                $usuario_area .= "['" . trim($result[$i]["nombre"]) . "', ". $result[$i]["cantidad"]. "]";
+            }
+
+            $this->_view->usuario_area = $usuario_area;
+            $this->_view->titulo_g1 = "Cantidad de Usuarios por Área";
         }
-
-        $this->_view->usuario_area = $usuario_area;
-        $this->_view->titulo_g1 = "Cantidad de Usuarios por Área";
 
         //Grafica 2
 
         $result = $this->_reporte->getRolPorPersona();
 
-        $persona_rol = "";
+        if($result){
+            $persona_rol = "";
 
-        for($i = 0; $i<count($result); $i++){
-            if($i > 0) $persona_rol .= ",";
-            $persona_rol .= "['" . trim($result[$i]["rol"]) . "', ". $result[$i]["cantidad"]. "]";
+            for($i = 0; $i<count($result); $i++){
+                if($i > 0) $persona_rol .= ",";
+                $persona_rol .= "['" . trim($result[$i]["rol"]) . "', ". $result[$i]["cantidad"]. "]";
+            }
+
+            $this->_view->persona_rol = $persona_rol;
+            $this->_view->titulo_g2 = "Cantidad de Personas por Roles";
         }
 
-        $this->_view->persona_rol = $persona_rol;
-        $this->_view->titulo_g2 = "Cantidad de Personas por Roles";
+        //grafica 3
+
+        $result = $this->_reporte->getManuscritoPorEstatus();
+
+        if($result){
+
+            $manuscrito_estatus = "['Estatus', 'Manuscritos', { role: 'style' }],";
+
+            for($i = 0; $i<count($result); $i++){
+                if($i > 0) $manuscrito_estatus .= ",";
+                $manuscrito_estatus .= "['" . trim($result[$i]["estatus"]) . "', ". $result[$i]["cantidad"]. ", '#3366CC']";
+            }
+            $this->_view->manuscrito_estatus = $manuscrito_estatus;
+            $this->_view->titulo_g3 = "Cantidad de Manuscrito por Estatus";
+        }
+
+
 
 
         $this->_view->setJs(array('controlCarousel'));
@@ -58,5 +80,6 @@ class indexController extends Controller{
         $this->_view->titulo = 'Revistas Arbitradas';
         $this->_view->renderizar('index', 'inicio');
     }
+
 }
 ?>

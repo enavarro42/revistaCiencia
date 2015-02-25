@@ -16,23 +16,14 @@
 	<?php if(isset($this->data['evaluacion'])){ ?>
 		<?php for($i = 0; $i<count($this->data['evaluacion']); $i++){ ?>
 			<h4 class="page-header">&Aacute;rbitro #<?php echo ($i + 1); ?></h4>
-			<table class="table">
-				<thead>
-					<tr>
-						<th>Sugerencias</th>
-						<th>Cambios Realizados</th>
-					</tr>
-				</thead>
-				<tbody>
-					<tr>
-						<td><?php echo $this->data['evaluacion'][$i]['sugerencia']; ?></td>
-						<td><?php echo $this->data['evaluacion'][$i]['cambios']; ?></td>
-					</tr>
-				</tbody>
-			</table>
+
+
+			<h4>Sugerencias</h4>
+			<pre><?php echo $this->data['evaluacion'][$i]['sugerencia']; ?></pre>
+
 
 			<?php if(isset($this->data['evaluacion'][$i]['link_archivo'])){ ?> 
-				<a href="<?php echo BASE_URL . $this->data['evaluacion'][$i]['link_archivo']; ?>" class="btn btn-success"><span class="glyphicon glyphicon-save"></span> Descargar</a>
+				<strong>Archivo Adjunto</strong> <a href="<?php echo BASE_URL . $this->data['evaluacion'][$i]['link_archivo']; ?>" class="btn btn-success"><span class="glyphicon glyphicon-save"></span> Descargar</a>
 			<?php } ?>
 		<?php } ?>
 	<?php } ?>

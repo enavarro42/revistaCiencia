@@ -48,6 +48,8 @@ Revista CIENCIA<br />
 	<button type="button" class="btn btn-primary" id="btn_aceptar">Aceptar</button>
 </div>
 
+<p><span class="error" id="error"></span></p>
+
 <?php } else if(isset($this->solicitud) && $this->solicitud['estatus'] == 0){ ?>
 
 	<p>La solicitud de arbitrar el manuscrito fu&eacute; Rechazada.</p>

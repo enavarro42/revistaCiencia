@@ -34,7 +34,7 @@ $("#form_user").validate({
 			  });
 
 		}else{
-			alert("Debe seleccionar un rol");
+			alert("Debe seleccionar un usuario");
 		}
 
 	});

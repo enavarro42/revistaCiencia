@@ -37,8 +37,11 @@ class aclModel extends Model{
     	$this->_db->query("INSERT INTO permiso_rol(id_permiso, id_rol, estado) VALUES ($id_permiso, $id_rol, $estado)");
     }
 
+    public function eliminarPermisoRol($id_rol){
+        $this->_db->query("DELETE FROM permiso_rol WHERE id_rol = $id_rol");
+    }
+
     public function editarPermisoRol($id_permiso, $id_rol, $estado){
-        $this->_db->query("DELETE FROM persona_rol WHERE id_rol = $id_rol");
         aclModel::setPermisoRol($id_permiso, $id_rol, $estado);
     }
 
@@ -51,7 +54,8 @@ class aclModel extends Model{
     }
 
     public function getRoles(){
-    	$roles = $this->_db->query("select * from rol order by rol");
+
+        $roles = $this->_db->query("select * from rol order by rol");
     	return $roles->fetchAll();
     }
 

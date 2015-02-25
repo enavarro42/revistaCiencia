@@ -3,7 +3,15 @@
 
 <h3>Mis Manuscritos</h3>
 <?php if(isset($this->enlaceCorreccion)){ ?>
-<a href="<?php echo $this->enlaceCorreccion; ?>" class="btn btn-info pull-right"><span class="glyphicon glyphicon-wrench icon_gly"></span>Corregir Manuscrito</a>
+  <form action="<?php echo $this->enlaceCorreccion; ?>" method="POST">
+
+    <input type="hidden" name="id_manuscrito" value="<?php echo $this->id_manuscrito; ?>">
+    <input type="hidden" name="id_revision" value="<?php echo $this->id_revision; ?>">
+    <input type="hidden" name="id_estatus" value="<?php echo $this->id_estatus; ?>">
+
+    <button type="submit" class="btn btn-info pull-right"><span class="glyphicon glyphicon-wrench icon_gly"></span> Corregir Manuscrito</button>
+
+  </form>
 <?php } ?>
 
 <div class="clearfix visible-lg-block"></div>

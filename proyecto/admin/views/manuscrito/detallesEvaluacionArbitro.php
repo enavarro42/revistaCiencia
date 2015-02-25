@@ -18,6 +18,25 @@
 </div>
 
 
+<!-- Modal -->
+<div class="modal fade" id="modalRespuesta" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-md">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+        <h4 class="modal-title" id="myModalLabel">Respuesta del Autor</h4>
+      </div>
+      <div class="modal-body" id="contentenidoRespuesta">
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
 
 <div class="modal fade" id="modalEnviar" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-md">
@@ -66,9 +85,10 @@
         				<th><input type="checkbox" name="checkAll" value="checkAll"></th>
         				<th>&Aacute;rbitro</th>
         				<th>Nro Evaluaci&oacute;n</th>
-                        <th>Estatus</th>
-                        <th>Fecha</th>
-                        <th>Ver Evaluaci&oacute;n</th>
+                <th>Estatus</th>
+                <th>Fecha</th>
+                <th>Ver Evaluaci&oacute;n</th>
+                <th>Respuesta del Autor</th>
         			</tr>
         		</thead>
         		<tbody>
@@ -85,6 +105,7 @@
                             <td><?php if($this->detalleEvaluacion[$i]['id_revision'] == null || $this->detalleEvaluacion[$i]['id_revision'] == '') echo 'Pendiente'; else echo 'Evaluaci&oacute;n enviada'; ?></td>
                             <td><?php echo $this->detalleEvaluacion[$i]['fecha']; ?></td>
                             <td><button type="button" class="btn btn-primary btn_detalles" id="<?php echo $this->detalleEvaluacion[$i]['id_evaluacion']; ?>">Ver Detalles</button></td>
+                            <td> <button type="button" class="btn btn-info btn_ver_resp" clave="<?php echo $this->detalleEvaluacion[$i]['id_evaluacion']; ?>">Respuesta del Autor</button> </td>
                         </tr>
                     <?php } ?>
         		</tbody>

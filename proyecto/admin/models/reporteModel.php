@@ -18,6 +18,14 @@ class reporteModel extends Model{
     }
 
 
+    public function getManuscritoPorEstatus(){
+        $datos = $this->_db->query(
+                "select e.estatus, count(m.id_manuscrito) as cantidad from estatus e, manuscrito m where m.id_estatus = e.id_estatus group by e.estatus order by e.estatus asc");
+       return $datos->fetchAll();
+    }
+
+
+
     
 }
 

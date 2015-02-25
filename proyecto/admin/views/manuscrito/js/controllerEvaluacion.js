@@ -2,6 +2,40 @@ var URL_BASE = "/revista/proyecto/admin/"
 
 $(document).on("ready", function(){
 
+	$(".btn_ver_resp").on("click", function(){
+		var id = $(this).attr("clave");
+
+
+		$.post(URL_BASE + "manuscrito/ajaxVerRespuesta",
+		{
+		  	id_evaluacion: id
+		},
+		 function(data,status){
+
+		 	var datos = JSON.parse(data);
+		 	var code = "";
+
+		 	if(datos['result']){
+
+				code += "<h3>Sugerencia del &Aacute;rbitro</h3>"+
+	        		"<p>"+datos['result'].sugerencia+"</p>";
+
+				code += "<h3>Respuesta del Autor</h3>"+
+					"<p>"+datos['result'].cambios_realizados+"</p>";
+			}else{
+				code += "<h3>No se encontraron resultados</h3>";
+			}
+
+			$("#contentenidoRespuesta").empty();
+			$("#contentenidoRespuesta").append(code);
+
+			$('#modalRespuesta').modal({
+			  keyboard: false
+			});
+
+		});
+	});
+
 	$(".btn_detalles").on("click", function(){	
 
 		var id = $(this).attr("id");
@@ -16,10 +50,7 @@ $(document).on("ready", function(){
 		 	var code = "";
 
 			code += "<h3>Sugerencias</h3>"+
-	        		"<p>"+datos['evaluacion'].sugerencia+"</p>"+
-
-	        		"<h3>Cambios Realizados</h3>"+
-	        		"<p>"+datos['evaluacion'].cambios+"</p>";
+	        		"<p>"+datos['evaluacion'].sugerencia+"</p>";
 
 			
 			var arreglo = [];

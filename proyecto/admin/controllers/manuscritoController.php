@@ -29,9 +29,23 @@ class manuscritoController extends Controller{
 
         $this->_view->acl = $_acl->getPermisoRol();
 
+
         if(array_key_exists($view_key, $this->_view->acl) == false && $this->_view->acl[$view_key]["estado"] == false){
             $this->redireccionar('acceso');
         }
+
+        //verificar si tiene permisos para eliminar
+
+        $eliminar = 1;
+
+        $view_key = "eliminar_manuscrito";
+
+        if(array_key_exists($view_key, $this->_view->acl) == false){
+            $eliminar = 0;
+        }
+
+        $this->_view->eliminar = $eliminar;
+
 
         if(!isset($_SESSION['id_user'])){
             $this->redireccionar();
@@ -99,6 +113,20 @@ class manuscritoController extends Controller{
 
     public function crear(){
 
+        $view_key = "crear_manuscrito";
+
+        if(!Session::get('autenticado_admin')){
+            $this->redireccionar('login');
+        }
+
+        $_acl = $this->_view->getAcl();
+
+        $this->_view->acl = $_acl->getPermisoRol();
+
+        if(array_key_exists($view_key, $this->_view->acl) == false && $this->_view->acl[$view_key]["estado"] == false){
+            $this->redireccionar('acceso');
+        }
+
         // $this->_view->setCssPublic(array('jquery-ui'));
 
         // $this->_view->setJsPublic(array('jquery-ui'));
@@ -110,6 +138,20 @@ class manuscritoController extends Controller{
     }
 
     public function editar($id_manuscrito = false){
+
+        $view_key = "editar_manuscrito";
+
+        if(!Session::get('autenticado_admin')){
+            $this->redireccionar('login');
+        }
+
+        $_acl = $this->_view->getAcl();
+
+        $this->_view->acl = $_acl->getPermisoRol();
+
+        if(array_key_exists($view_key, $this->_view->acl) == false && $this->_view->acl[$view_key]["estado"] == false){
+            $this->redireccionar('acceso');
+        }
 
         $this->_view->setJs(array('editarController'));
 
@@ -203,6 +245,23 @@ class manuscritoController extends Controller{
 
     }
 
+    // ajax respuesta del autor...
+    public function ajaxVerRespuesta(){
+         $json = array();
+
+        if($this->getInt("id_evaluacion")){
+            
+
+            $result = $this->_manuscrito->getRespuestaAutor($this->getInt("id_evaluacion"));
+
+             $json['result'] = $result;
+        }
+
+        echo json_encode($json);
+    }
+
+
+
     public function ajaxEvaluacionDetalles(){
          $json = array();
 
@@ -290,6 +349,12 @@ class manuscritoController extends Controller{
         $estatus = $this->getInt('id_estatus');
 
         $this->_manuscrito->setRevision($responsable, $estatus, null);
+
+        //obtenemos el responsable del manuscrito, el autor de correspondencia
+        $resp_manuscrito = $this->_manuscrito->getResponsable($id_manuscrito);
+
+        //actualiza el permiso del autor responsable del manuscrito
+        $this->_manuscrito->updatePermisoResponsable($resp_manuscrito["id_responsable"], 1);
 
         $revision = $this->_manuscrito->getUltimaRevisionByResponsable($responsable);
 
@@ -766,6 +831,12 @@ class manuscritoController extends Controller{
 
                 }
 
+                 //obtenemos el responsable del manuscrito, el autor de correspondencia
+                $resp_manuscrito = $this->_manuscrito->getResponsable($id_manuscrito);
+
+                //actualiza el permiso del autor responsable del manuscrito
+                $this->_manuscrito->updatePermisoResponsable($resp_manuscrito["id_responsable"], 1);
+
                 
                 
                 $estatus = $this->_manuscrito->getEstatusByClave($_POST['estatus']);
@@ -794,6 +865,12 @@ class manuscritoController extends Controller{
 
                 }
 
+                //obtenemos el responsable del manuscrito, el autor de correspondencia
+                $resp_manuscrito = $this->_manuscrito->getResponsable($id_manuscrito);
+
+                //actualiza el permiso del autor responsable del manuscrito
+                $this->_manuscrito->updatePermisoResponsable($resp_manuscrito["id_responsable"], 1);
+
                 
                 
                 $estatus = $this->_manuscrito->getEstatusByClave($_POST['estatus']);
@@ -810,6 +887,21 @@ class manuscritoController extends Controller{
 
 
     public function historico($id_manuscrito = false,  $pagina = false){
+
+        $view_key = "manuscrito_historico";
+
+        if(!Session::get('autenticado_admin')){
+            $this->redireccionar('login');
+        }
+
+        $_acl = $this->_view->getAcl();
+
+        $this->_view->acl = $_acl->getPermisoRol();
+
+        if(array_key_exists($view_key, $this->_view->acl) == false && $this->_view->acl[$view_key]["estado"] == false){
+            $this->redireccionar('acceso');
+        }
+
         if($id_manuscrito != false && $this->filtrarInt($id_manuscrito) != 0){
             
                 if(!$this->filtrarInt($pagina)){
@@ -849,10 +941,10 @@ class manuscritoController extends Controller{
                 $this->_view->enlaceDetalles = $this->getUrl("manuscrito/detallesManuscrito");
 
 
-                $this->_view->paginacion = $paginador->getView('prueba', 'manuscrito/misManuscritos/'.$id_manuscrito);
+                $this->_view->paginacion = $paginador->getView('prueba', 'manuscrito/historico/'.$id_manuscrito);
 
                 $this->_view->enlaceCorreccion = $this->getUrl("manuscrito/correccion/". $manusc['id_manuscrito']);
-                $this->_view->titulo = 'Historico';
+                $this->_view->titulo = 'Hist&oacute;rico';
                 $this->_view->renderizar('historico', 'manuscrito');
             }
         

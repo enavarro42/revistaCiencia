@@ -1,7 +1,7 @@
 <div id="page-wrapper">
     <div class="row">
         <div class="col-lg-12">
-        	<h3 class="page-header">Historico</h3>
+        	<h3 class="page-header"><?php echo $this->titulo; ?></h3>
 
 			  <div class="table-responsive margin-top5">
 			  <table class="table table-bordered">
