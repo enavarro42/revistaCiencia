@@ -7,18 +7,29 @@ $(document).on("ready", function(){
 
   $("#btn_enviar").click(function(){
     if(validarEnvio()){
+      $.blockUI({message: "Procesando...!", css: { 
+          border: 'none', 
+          padding: '15px', 
+          backgroundColor: '#000', 
+          '-webkit-border-radius': '10px', 
+          '-moz-border-radius': '10px', 
+          opacity: .5, 
+          color: '#fff' 
+      }});
       $("#progressBar").show();
       subirDatos();
     }
   });
 
-  $("#btn_test").click(function(){
-      cont = $("#contador").val();
-      alert(cont);
-      for(i = 0; i<cont; i++){
-        alert($("#resp_"+i).val());
-      }
-  });
+
+
+  // $("#btn_test").click(function(){
+  //     cont = $("#contador").val();
+  //     //alert(cont);
+  //     for(i = 0; i<cont; i++){
+  //       alert($("#resp_"+i).val());
+  //     }
+  // });
 
 });
 
@@ -91,7 +102,7 @@ function subirDatos(){
     $("#archivo").upload(URL_BASE + "manuscrito/enviarCorreccion", formdata
     ,function(data){
             console.log("done", data);
-
+            $.unblockUI();
 
             if(!parseInt(data.status)){
                 document.getElementById("status").innerHTML = "Ocurri&oacute; un error, al enviar el documento."; 
@@ -100,8 +111,8 @@ function subirDatos(){
             else{
                 document.getElementById("status").innerHTML = "Completado..!";
                 alert("Manuscrito enviado con éxito!");
-                url = URL_BASE + "manuscrito/misManuscritos/1/"+$("#manuscrito").val();
-                $(location).attr('href',url);
+                url = URL_BASE + "manuscrito/misManuscritos/"+$("#manuscrito").val()+"/1";
+                // $(location).attr('href',url);
             }
 
             $("#progressBar").val(0);
@@ -150,7 +161,7 @@ function validarEnvio(){
       for(i = 0; i<cont; i++){
         if($("#resp_"+i).val() == ""){
           valido = false;
-          msj_evaluacion = "Debe llenar el campo de cambios realizados.";
+          msj_evaluacion = "Debe llenar el campo de Respuesta al &aacute;rbitro.";
         }
       }
     }

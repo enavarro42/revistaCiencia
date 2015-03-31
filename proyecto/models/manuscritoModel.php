@@ -49,13 +49,14 @@ class manuscritoModel extends Model{
 
     }
     
-    public function setManuscrito($titulo, $resumen, $id_obra){
-        $this->_db->prepare("INSERT INTO manuscrito(titulo, resumen, id_obra) VALUES(:titulo, :resumen, :id_obra)")
+    public function setManuscrito($titulo, $resumen, $id_obra, $claves){
+        $this->_db->prepare("INSERT INTO manuscrito(titulo, resumen, id_obra, palabras_claves) VALUES(:titulo, :resumen, :id_obra, :claves)")
                 ->execute(
                         array(
                             ":titulo" => $titulo,
                             ":resumen" => $resumen,
-                            ":id_obra" => $id_obra
+                            ":id_obra" => $id_obra,
+                            ":claves" => $claves
                         )
                  );
     }
@@ -335,9 +336,10 @@ class manuscritoModel extends Model{
     }
 
     public function getArbitrosByManuscrito($id_manuscrito, $id_rol){
-        $arbitro = $this->_db->query("SELECT re.id_responsable FROM responsable re, rol where rol.id_rol = re.id_rol and re.id_rol = $id_manuscrito and re.id_manuscrito = $id_rol");
+        $arbitro = $this->_db->query("SELECT re.id_responsable FROM responsable re, rol r where r.id_rol = re.id_rol and re.id_rol = $id_rol and re.id_manuscrito = $id_manuscrito");
         return $arbitro->fetchAll();
     }
+
     
 }
 

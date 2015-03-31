@@ -1,8 +1,8 @@
 <h3>Correcciones de manuscrito</h3>
 
-<?php if($this->tipo == 1) var_dump("Correccion Editor"); ?>
+<?php //if($this->tipo == 1) var_dump("Correccion Editor"); ?>
 
-<?php if($this->tipo == 2) var_dump("Correccion Arbitro"); ?>
+<?php //if($this->tipo == 2) var_dump("Correccion Arbitro"); ?>
 
 <label for="archivo">Subir archivo</label>
 <input type="file" id="archivo" name="archivo" class="btn btn-default">
@@ -26,7 +26,7 @@
 
 <?php } ?>
 
-<button type="button" class="btn btn-info" name="btn_test" id="btn_test">test</button>
+<!-- <button type="button" class="btn btn-info" name="btn_test" id="btn_test">test</button> -->
 
 
 <a class="btn btn-default">

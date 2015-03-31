@@ -1,6 +1,6 @@
-<h3>Mensaje de activaci&oacute;n</h3>
+<h3>Bienvenido, tu registro ha sido completado satisfactoriamente.</h3>
 
-<p>Un email fu&eacute; enviado a su cuenta con los pasos para proceder a la activaci&oacute;n..!</p>
+<p>Un correo electr&oacute;nico fu&eacute; enviado a su cuenta con los pasos para proceder a la activaci&oacute;n..!</p>
 
 <a href='<?php echo BASE_URL; ?>'>Ir al inicio</a>
 

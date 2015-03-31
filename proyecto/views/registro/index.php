@@ -170,7 +170,7 @@
         <label class="error" id="error_cuenta"><?php if(isset($this->_error_cuenta)) echo $this->_error_cuenta; ?></label>
 
         <div class="caja_btn_submit">
-            <button class="btn btn-primary btn-block" type="submit">Crear cuenta</button>
+            <button class="btn btn-primary btn-block" type="submit" id="enviar">Crear cuenta</button>
         </div>
         
         

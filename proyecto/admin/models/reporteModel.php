@@ -24,7 +24,32 @@ class reporteModel extends Model{
        return $datos->fetchAll();
     }
 
+    public function getUsuarioByFiltro($filtro){
 
+        $sql = "SELECT DISTINCT p.\"primerNombre\", p.apellido, r.rol, a.nombre as \"area\" FROM persona p, persona_rol pr, persona_area pa, rol r, area a WHERE p.id_persona = pr.id_persona and p.id_persona = pa.id_persona and ";
+
+        if(isset($filtro["rol"])){
+            $sql .= "pr.id_rol = ". $filtro["rol"] . " and r.id_rol = ". $filtro["rol"] ." and ";
+        }else{
+            $sql .= "pr.id_rol = r.id_rol and ";
+        }
+
+        if(isset($filtro["area"])){
+            $sql .= "pa.id_area = ". $filtro["area"] . " and a.id_area = ". $filtro["area"] . " ";
+        }else{
+            $sql .= "pa.id_area = a.id_area ";
+        }
+
+        $sql .= "ORDER BY p.\"primerNombre\", p.apellido asc";
+
+        $datos = $this->_db->query($sql);
+        return $datos->fetchAll();
+    }
+
+    public function getManuscritosParaAdmin(){
+        $manuscrito = $this->_db->query("SELECT m.id_manuscrito, m.titulo, r.nombre, o.fecha FROM manuscrito m, revista r, obra o WHERE m.id_obra = o.id_obra and o.issn = r.issn order by r.issn");
+        return $manuscrito->fetchAll();
+    }
 
     
 }

@@ -86,7 +86,7 @@
 
 	                    <div class="form-group">
 	                        <label for="palabrasClaves">Palabras claves </label>
-	                        <input type="text" name="palabrasClaves" id="palabrasClave" class="form-control" value="" placeholder="Ejemplo: test1, test2" />
+	                        <input type="text" name="palabrasClaves" id="palabrasClave" class="form-control" value="<?php if(isset($this->manuscrito['palabras_claves'])) echo $this->manuscrito['palabras_claves']; ?>" placeholder="Ejemplo: test1, test2" />
 	                        <label class="error" id="error_palabrasClave"></label>
 	                    </div>
                    </div>

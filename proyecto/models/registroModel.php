@@ -147,6 +147,11 @@ class registroModel extends Model{
         return $paises->fetchAll();
     }
 
+    public function updatePass($id_persona, $pass){
+        $pass = Hash::getHash('md5', $pass, HASH_KEY);
+        $this->_db->query("UPDATE usuario pass='$pass' WHERE id_persona = $id_persona;");
+    }
+
 }
 
 ?>

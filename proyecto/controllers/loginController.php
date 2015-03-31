@@ -36,7 +36,7 @@ class loginController extends Controller{
                         );
 
                 if(!$row){
-                    $this->_view->_error = 'Usuario y/o password incorrectos';
+                    $this->_view->_error = 'Usuario y/o contrase&ntilde;a incorrectos';
                     $this->_view->renderizar('index', 'login');
                     exit;
                 }

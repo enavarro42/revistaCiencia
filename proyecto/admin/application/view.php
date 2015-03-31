@@ -44,8 +44,8 @@ class View{
             array(
                 'id' => 'reportes',
                 'titulo' => 'Reportes',
-                'enlace' => '',
-                'flecha' => true,
+                'enlace' => BASE_URL.'reporte',
+                'flecha' => false,
                 'class' => "fa fa-line-chart fa-fw"
                 )
         );
@@ -73,19 +73,6 @@ class View{
                 'id' => 'acl',
                 'titulo' => 'Grupo de Usuario',
                 'enlace' => BASE_URL . 'acl'
-            )
-        );
-
-        $sub_menu_reportes = array(
-            array(
-                'id' => 'reporteUsuario',
-                'titulo' => 'Reportes de usuarios',
-                'enlace' => BASE_URL . 'reportes/usuario'
-            ),
-            array(
-                'id' => 'reporteManuscrito',
-                'titulo' => 'Reportes de manuscrito',
-                'enlace' => BASE_URL . 'reportes/Manuscritos'
             )
         );
         
@@ -246,7 +233,6 @@ class View{
             'menu_principal' => $menu_principal,
             'sub_menu_acl' => $sub_menu_acl,
             'sub_menu_manuscrito' => $sub_menu_manuscrito,
-            'sub_menu_reportes' => $sub_menu_reportes,
             'menu_top' => $menu_top,
             'menu_left' => $menu_left,
             'menu_right' => $menu_right,
@@ -262,9 +248,12 @@ class View{
         
         $rutaView = ROOT . 'views' . DS . $this->_controlador . DS . $vista . '.php';
 
-        if($this->_controlador == 'login' || $this->_controlador == 'registro'){
+        $prefijo = explode("_", $vista);
+
+        if($this->_controlador == 'login' || $this->_controlador == 'registro' || ($this->_controlador == 'reporte' && $vista != 'index' && $prefijo[0] == 'generar') ){
             include_once $rutaView;
-        }else{
+        }
+        else{
         
             if(is_readable($rutaView)){
                 include_once ROOT . 'views' . DS . 'layout' . DS . DEFAULT_LAYOUT . DS . 'header.php';

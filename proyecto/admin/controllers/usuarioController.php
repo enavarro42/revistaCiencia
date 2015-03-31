@@ -15,6 +15,7 @@ class usuarioController extends Controller{
 
         $view_key = "ver_usuario";
 
+
         if(!Session::get('autenticado_admin')){
             $this->redireccionar('login');
         }
@@ -150,9 +151,6 @@ class usuarioController extends Controller{
 
         $result = $this->_usuario->getUsuariosByFiltro($filtro);
 
-        // var_dump($result);
-
-        // var_dump($filtro);
 
         $this->_view->resultado = $paginador->paginar($result, $param, $pagina);
 

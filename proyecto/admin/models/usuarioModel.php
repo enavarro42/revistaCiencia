@@ -159,7 +159,7 @@ class usuarioModel extends Model{
     }
 
     public function getAllAreas(){
-        $area = $this->_db->query("select * from area");
+        $area = $this->_db->query("select * from area order by nombre asc");
         return $area->fetchAll();
     }
 
@@ -220,18 +220,21 @@ class usuarioModel extends Model{
             if(isset($filtro['tipoBusqueda']) && $filtro['tipoBusqueda'] == 'apellido'){
 
                 if($bandera > 0 ) $sql .= " and ";
+                $bandera = 1;
                 $apellido = $filtro['busqueda'];
                 $sql .= "p.apellido ILIKE '%$apellido%'";
             }
 
             if(isset($filtro['tipoUsuario']) && $filtro['tipoUsuario']){
                 if($bandera > 0 ) $sql .= " and ";
+                $bandera = 1;
                 $id_rol = $filtro['tipoUsuario'];
-                $sql .= "p.id_persona = pr.id_persona and pr.id_rol = $id_rol";
+                $sql .= "p.id_persona = pr.id_persona and pr.id_rol = $id_rol ";
             }
 
             if(isset($filtro['area']) && $filtro['area']){
                 if($bandera > 0 ) $sql .= " and ";
+                $bandera = 1;
                 $id_area = $filtro['area'];
                 $sql .= "p.id_persona = pa.id_persona and pa.id_area = $id_area ";
             }
@@ -246,8 +249,6 @@ class usuarioModel extends Model{
         }else{
             $sql .= "ORDER BY \"nombrecompleto\" ";
         }
-
-        // var_dump($sql);
 
         $result = $this->_db->query($sql);
 

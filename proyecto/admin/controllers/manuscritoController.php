@@ -78,6 +78,13 @@ class manuscritoController extends Controller{
 
                 $id_estatus = $manuscritoActual['id_estatus'];
 
+                $urlFile = $this->_manuscrito->getUrlFile($responsable['id_responsable']);
+
+                if($urlFile)
+                    $this->_view->urlFile[] = "../" . $urlFile["carpeta"] . "/" . $urlFile["nombre"];
+                else
+                    $this->_view->urlFile[] = "";
+
                 $estatus = $this->_manuscrito->getEstatus($id_estatus);
 
                 // var_dump($estatus);
@@ -366,25 +373,19 @@ class manuscritoController extends Controller{
             $this->_manuscrito->editarEvaluacionById($evaluacion[$i], $revision['id_revision']);
         }
 
-        // $this->getLibrary('class.phpmailer');
-        // $mail = new PHPMailer();
-        // $mail->From = 'www.fecRevistasCientificas.com';
-        // $mail->FromName = 'Revistas Arbitradas FEC';
-        // $mail->Subject = 'Revistas FEC';
-        // $url = $this->getUrlPagina('arbitro/solicitud/' . $this->getInt('id_persona') . "/" . $this->getInt('id_manuscrito') . "/" . $postulado['codigo']);
-        // $mail->Body = '<p>Ciudadano (a) <strong>' . $persona['primerNombre'] . " " . $persona['apellido'] . '</strong></p>'.
-        //         '<p>La Revista CIENCIA adscrita a la Facultad Experimental de Ciencias de la Universidad del Zulia, '.
-        //         'Maracaibo Venezuela se complace en invitarle a participar como árbitro de nuestra revista '.
-        //         'y de ser su gusto, solicitarle la revisión del manuscrito titulado: </p>'.
-        //         '<p><strong>'. $manuscrito['titulo'] .'</strong></p>'.
-        //         '<p>Para responder sobre su decisi&oacute;n de arbitraje pulsar en el enlace:</p> '.
-        //         '<a href="'. $url .'">'.$url.'</a>'.
-        //         '<br /><p>Puede ingresar con su usuario y contrase&ntilde;a:</p>'.
-        //         '<p>Usuario: '.$usuario['usuario'].'</p>'.
-        //         '<p>Clave: '.$pass.'</p>';
-        // $mail->AltBody = "Su servidor de correo no soporta html";
-        // $mail->addAddress($persona['email']);
-        // $mail->Send();
+        $autor = $ths->_perosna->getEmailByResponsableId($resp_manuscrito["id_responsable"]);
+        $manuscrito = $this->_manuscrito->getManuscrito($id_manuscrito);
+
+        $this->getLibrary('class.phpmailer');
+        $mail = new PHPMailer();
+
+        $mail->From = 'www.fecRevistasCientificas.com';
+        $mail->FromName = 'Revistas Arbitradas FEC';
+        $mail->Subject = 'Revistas FEC';
+        $mail->Body = "Los Árbitros han realizado la corrección del manuscrito titulado: <strong>" . $manuscrito["titulo"]. "</strong>";
+        $mail->AltBody = "Su servidor de correo no soporta html";
+        $mail->addAddress($autor['email']);
+        $mail->Send();
 
         //recordar ocultar el checkbox y cambiar el estatus de pendiente a enviado
     }
@@ -1176,7 +1177,7 @@ class manuscritoController extends Controller{
                 
                 //palabrasClave
                 
-                if(!$this->getSql('palabrasClave')){
+                if(!$this->getSql('palabrasClaves')){
                     $datos["palabrasClave"] = 'Debe introducir palabras claves';
                     $arreglo["status"] = 0; 
                 }
@@ -1193,7 +1194,7 @@ class manuscritoController extends Controller{
             $obra = $this->_manuscrito->getUltimaObra();
             
             //set manuscrito
-            $this->_manuscrito->setManuscrito($this->getSql('titulo'), $this->getSql('resumen'), $obra['id_obra']);
+            $this->_manuscrito->setManuscrito($this->getSql('titulo'), $this->getSql('resumen'), $obra['id_obra'], $this->getSql('palabrasClaves'));
             $manuscrito = $this->_manuscrito->getManuscritoObra($obra['id_obra']);
 
 

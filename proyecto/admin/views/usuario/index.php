@@ -86,8 +86,7 @@
 					 </div>
 
 					 <div class="form-group col-md-3 col-lg-3">
-					 	<button type="submit" class="btn btn-primary btn-filtro"><i class="fa fa-filter"></i>
- Filtrar</button>
+					 	<button type="submit" class="btn btn-primary btn-filtro"><i class="fa fa-search"></i> Buscar</button>
 					 </div>
 	        	</form>
 

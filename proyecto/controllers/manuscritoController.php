@@ -383,7 +383,7 @@ class manuscritoController extends Controller{
                 $obra = $this->_manuscrito->getUltimaObra();
                 
                 //set manuscrito
-                $this->_manuscrito->setManuscrito($this->getSql('titulo'), $this->getSql('resumen'), $obra['id_obra']);
+                $this->_manuscrito->setManuscrito($this->getSql('titulo'), $this->getSql('resumen'), $obra['id_obra'], $this->getSql('palabrasClave'));
                 $manuscrito = $this->_manuscrito->getManuscritoObra($obra['id_obra']);
                 
                 $responsable = 0;
@@ -645,15 +645,19 @@ class manuscritoController extends Controller{
             } 
             if(move_uploaded_file($fileTmpLoc, $ruta."/".$fileName)){
 
+                $arreglo["post"] = $_POST;
+
                 //si es la correccion del arbitro establecer las respuestas a cada carreccion
                 if((int)$_POST["tipo"] == 2){
 
                     $id_manuscrito = $_POST["manuscrito"];
-                    $cont = $_POST["contador"];
+                    $cont = (int) $_POST["contador"];
+
+                    $arreglo["cont"] = $cont;
 
                     $resp = $this->_manuscrito->getResponsable($id_manuscrito);
 
-                    for($i=0; $i<count($cont); $i++){
+                    for($i=0; $i<$cont; $i++){
                         $this->_manuscrito->setRespuestaEvaluacion($_POST["id_".$i], $resp["id_responsable"], $_POST["resp_".$i]);
                     }
 
@@ -678,10 +682,29 @@ class manuscritoController extends Controller{
 
                 $resp = $this->_manuscrito->getArbitrosByManuscrito($_POST['manuscrito'], $rolArbitro[0]);
 
+                $this->getLibrary('class.phpmailer');
+                $mail = new PHPMailer();
+
+                $manuscrito = $this->_manuscrito->getManuscrito($_POST['manuscrito']);
+
                 for($i = 0; $i<count($resp); $i++){
-                    $this->_persona->setPermisoResponsable($resp['id_responsable'], 1);
+                     $this->_persona->setPermisoResponsable($resp[$i]['id_responsable'], 1);
+
+                    // get persona by responsable
+                    // obtener el correo y enviar
+
+                    $emails = $this->_persona->getEmailByResponsableId($resp[$i]['id_responsable']);
+
+                    $mail->From = 'www.fecRevistasCientificas.com';
+                    $mail->FromName = 'Revistas Cientificas';
+                    $mail->Subject = 'Revistas FEC';
+                    $mail->Body = "El autor ha realizado la corrección para el manuscrito titulado: <strong>". $manuscrito["titulo"] . "</strong>";
+                    $mail->AltBody = "Su servidor de correo no soporta html";
+                    $mail->addAddress($emails[$i]["email"]);
+                    $mail->Send();
+
                 }
-                
+                    
                 
             } else { 
             //echo "move_uploaded_file function failed"; 

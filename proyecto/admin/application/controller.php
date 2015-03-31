@@ -51,6 +51,11 @@ abstract class Controller{
         return 0;
     }
 
+    protected function getUrlImage(){
+
+        return ROOT . "image/";
+    }
+
     protected function getUrl($ruta = false){
         if($ruta){
             return BASE_URL . $ruta;

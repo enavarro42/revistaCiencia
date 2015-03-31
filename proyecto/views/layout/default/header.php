@@ -24,6 +24,7 @@
         <script src="<?php echo BASE_URL;?>public/js/jquery-1.10.2.min.js"></script>
         <script src="<?php echo BASE_URL;?>public/js/bootstrap.min.js"></script>
         <script src="<?php echo BASE_URL;?>public/js/resize.js"></script>
+        <script src="<?php echo BASE_URL;?>public/js/jquery.blockUI.js"></script>
         <script src="<?php echo BASE_URL;?>public/js/jquery.validate.js"></script>
         
         
@@ -267,7 +268,11 @@
                 <div id="pad_content">
                     <noscript><p>Para el correcto funcionamiento de la p&acaute;gina de tener habilitado JavaScript..!</p></noscript>
                     <?php if(isset($this->_error)): ?>
-                    <div id="error"><?php echo $this->_error; ?></div>
+                    <p></p>
+                    <div role="alert" class="alert alert-danger alert-dismissible fade in">
+                      <button aria-label="Close" data-dismiss="alert" class="close" type="button"><span aria-hidden="true">×</span></button>
+                      <strong><?php echo $this->_error; ?></strong>
+                    </div>
                     <?php endif; ?>
 
                     <?php if(isset($this->_mensaje)): ?>

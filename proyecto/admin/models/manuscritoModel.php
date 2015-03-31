@@ -483,6 +483,11 @@ where ed.id_evaluacion = 12 and ed.id_pregunta = p.id_pregunta and p.id_seccion 
         return $revision->fetch();
         
     }
+
+    public function getUrlFile($id_responsable){
+        $url = $this->_db->query("select f.carpeta, f.nombre from revision r, fisico f where r.id_responsable = $id_responsable and r.id_fisico = f.id_fisico order by r.fecha desc limit 1");
+        return $url->fetch();
+    }
     
     public function getRevision($responsable){
         

@@ -444,7 +444,6 @@ function agregar_campos(iter){
      formdata = new FormData();
      var idx_autor = -1;
 
-    alert(array_numeros.join());
      //validando la parte de autores
      for(i = 0; i < iter; i++){
         var idx = array_numeros[i];

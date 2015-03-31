@@ -283,7 +283,7 @@ class registroController extends Controller{
 
 
                 $mail->From = 'www.fecRevistasCientificas.com';
-                $mail->FromName = 'Revistas Cient&iacute;ficas';
+                $mail->FromName = 'Revistas Científicas';
                 $mail->Subject = 'Revistas FEC';
                 $mail->Body = 'Hola, <strong>'.$this->getSql('primerNombre').' ' .$this->getSql('apellido'). '</strong>' .
                         '<p><strong>Usuario: </strong>'.$this->getSql('usuario').'</p>'.

@@ -14,7 +14,7 @@
 
                     <button class="btn btn-lg btn-primary btn-block" type="submit">Iniciar sesi&oacute;n</button>
 
-                    <a href="#" class="pull-left need-help">Olvid&oacute; su contrase&ntilde;a? </a><span class="clearfix"></span>
+                    <a href="<?php echo BASE_URL . "index/recuperarPassword"; ?>" class="pull-left need-help">Olvid&oacute; su contrase&ntilde;a? </a><span class="clearfix"></span>
                 </form>
             </div>
             <a href="<?php echo BASE_URL; ?>registro" class="text-center new-account">Crear una cuenta</a>

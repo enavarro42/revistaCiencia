@@ -35,6 +35,14 @@ body {
     margin-bottom: 10px;
 }
 
+.reportes{
+    text-align: center;
+}
+
+.reportes img{
+    width: 200px;
+}
+
 @media(min-width:768px) {
     #page-wrapper {
         position: inherit;
