@@ -215,6 +215,32 @@ class arbitroController extends Controller{
         }
     }
 
+    public function prueba(){
+                $responsable = $this->_persona->getPersonaResponsable($_SESSION['id_person'], 13);
+
+                // $num_evaluaciones = $this->_arbitro->getNumEvaluaciones($responsable['id_responsable']);
+                // $evaluaciones = 0;
+                // if($num_evaluaciones === false)
+                //     $evaluaciones =  1;
+                // else if($num_evaluaciones)
+                //     $evaluaciones += $num_evaluaciones['evaluacion'] + 1;
+
+                $this->_arbitro->setEvaluacion($responsable['id_responsable'], 4, 1,  null, "asdddddd", "ttttttt");
+
+                $lastEvaluacion = $this->_arbitro->getLastEvaluacion();
+
+                //seccion 2
+                for($i = 0; $i<10; $i++){
+                    $this->_arbitro->setEvaluacionDetalles($lastEvaluacion['id_evaluacion'], $this->filtrarInt($_POST['pregunta_'.$i]), $this->filtrarInt($_POST['seccion2_opcion_'.$i]));
+                }
+
+                //seccion 3
+                 $this->_arbitro->setEvaluacionDetalles($lastEvaluacion['id_evaluacion'], $this->filtrarInt($_POST['preguntaSeccion3']), $this->filtrarInt($_POST['seccion3_opcion']));
+
+                 //set permiso en 0
+                 $this->_persona->setPermisoResponsable($responsable['id_responsable'], 0);
+    }
+
     public function enviarEvaluacion(){
         $arreglo["status"] = 1;
 
@@ -243,61 +269,94 @@ class arbitroController extends Controller{
             $control_arch = (int)$count_fisico['count_fisico'] + 1;
         }
 
-        //upload file
-        $fileName = $control_arch . "_" . $_FILES["archivo"]["name"]; 
+        if(isset($_FILES["archivo"])){
 
-        // The file name 
-        $fileTmpLoc = $_FILES["archivo"]["tmp_name"]; // File in the PHP tmp folder 
-        $fileType = $_FILES["archivo"]["type"]; // The type of file it is 
-        $fileSize = $_FILES["archivo"]["size"]; // File size in bytes 
-        $fileErrorMsg = $_FILES["archivo"]["error"]; // 0 for false... and 1 for true 
-        if (!$fileTmpLoc) { 
-                // if file not chosen 
-                //echo "ERROR: Please browse for a file before clicking the upload button."; 
-            $arreglo["msj_file"] = "Error: Debe seleccionar un archivo";
-            $arreglo["status"] = 0;
-            exit(); 
-        } 
-        if(move_uploaded_file($fileTmpLoc, $ruta."/".$fileName)){ 
-                //echo "$fileName upload is complete";
-            $arreglo["msj_file"] = "$fileName Subida completada";
-            
-            $this->_manuscrito->setFisico($ruta, $fileName);
+            //upload file
+            $fileName = $control_arch . "_" . $_FILES["archivo"]["name"]; 
 
-            $fisico = $this->_manuscrito->getUltimoFisico();
+            // The file name 
+            $fileTmpLoc = $_FILES["archivo"]["tmp_name"]; // File in the PHP tmp folder 
+            $fileType = $_FILES["archivo"]["type"]; // The type of file it is 
+            $fileSize = $_FILES["archivo"]["size"]; // File size in bytes 
+            $fileErrorMsg = $_FILES["archivo"]["error"]; // 0 for false... and 1 for true 
+            if (!$fileTmpLoc) { 
+                    // if file not chosen 
+                    //echo "ERROR: Please browse for a file before clicking the upload button."; 
+                $arreglo["msj_file"] = "Error: Debe seleccionar un archivo";
+                $arreglo["status"] = 0;
+                exit(); 
+            } 
+            if(move_uploaded_file($fileTmpLoc, $ruta."/".$fileName)){ 
+                    //echo "$fileName upload is complete";
+                $arreglo["msj_file"] = "$fileName Subida completada";
+                
+                $this->_manuscrito->setFisico($ruta, $fileName);
 
-            $responsable = $this->_persona->getPersonaResponsable($_SESSION['id_person'], $this->filtrarInt($_POST['manuscrito']));
+                $fisico = $this->_manuscrito->getUltimoFisico();
 
-            $num_evaluaciones = $this->_arbitro->getNumEvaluaciones($responsable['id_responsable']);
-            $evaluaciones = 0;
-            if($num_evaluaciones === false)
-                $evaluaciones =  1;
-            else if($num_evaluaciones)
-                $evaluaciones += $num_evaluaciones['evaluacion'] + 1;
+                $responsable = $this->_persona->getPersonaResponsable($_SESSION['id_person'], $this->filtrarInt($_POST['manuscrito']));
 
-            $this->_arbitro->setEvaluacion($responsable['id_responsable'], $evaluaciones, $evaluar,  $fisico['id_fisico'], $sugerencia, $comentario);
+                $num_evaluaciones = $this->_arbitro->getNumEvaluaciones($responsable['id_responsable']);
+                $evaluaciones = 0;
+                if($num_evaluaciones === false)
+                    $evaluaciones =  1;
+                else if($num_evaluaciones)
+                    $evaluaciones += $num_evaluaciones['evaluacion'] + 1;
 
-            $lastEvaluacion = $this->_arbitro->getLastEvaluacion();
+                $this->_arbitro->setEvaluacion($responsable['id_responsable'], $evaluaciones, $evaluar,  $fisico['id_fisico'], $sugerencia, $comentario);
 
-            //seccion 2
-            for($i = 0; $i<10; $i++){
-                $this->_arbitro->setEvaluacionDetalles($lastEvaluacion['id_evaluacion'], $this->filtrarInt($_POST['pregunta_'.$i]), $this->filtrarInt($_POST['seccion2_opcion_'.$i]));
+                $lastEvaluacion = $this->_arbitro->getLastEvaluacion();
+
+                //seccion 2
+                for($i = 0; $i<10; $i++){
+                    $this->_arbitro->setEvaluacionDetalles($lastEvaluacion['id_evaluacion'], $this->filtrarInt($_POST['pregunta_'.$i]), $this->filtrarInt($_POST['seccion2_opcion_'.$i]));
+                }
+
+                //seccion 3
+                 $this->_arbitro->setEvaluacionDetalles($lastEvaluacion['id_evaluacion'], $this->filtrarInt($_POST['preguntaSeccion3']), $this->filtrarInt($_POST['seccion3_opcion']));
+
+                 //set permiso en 0
+                 $this->_persona->setPermisoResponsable($responsable['id_responsable'], 0);
+                
+                
+                
+            } else { 
+            //echo "move_uploaded_file function failed"; 
+                $arreglo["msj_file"] = "Error al subir el archivo";
+                $arreglo["status"] = 0;
             }
+        }else{
 
-            //seccion 3
-             $this->_arbitro->setEvaluacionDetalles($lastEvaluacion['id_evaluacion'], $this->filtrarInt($_POST['preguntaSeccion3']), $this->filtrarInt($_POST['seccion3_opcion']));
+                // $this->_manuscrito->setFisico($ruta, $fileName);
 
-             //set permiso en 0
-             $this->_persona->setPermisoResponsable($responsable['id_responsable'], 0);
-            
-            
-            
-        } else { 
-        //echo "move_uploaded_file function failed"; 
-            $arreglo["msj_file"] = "Error al subir el archivo";
-            $arreglo["status"] = 0;
+                // $fisico = $this->_manuscrito->getUltimoFisico();
+
+                $responsable = $this->_persona->getPersonaResponsable($_SESSION['id_person'], $this->filtrarInt($_POST['manuscrito']));
+
+                $num_evaluaciones = $this->_arbitro->getNumEvaluaciones($responsable['id_responsable']);
+                $evaluaciones = 0;
+                if($num_evaluaciones === false)
+                    $evaluaciones =  1;
+                else if($num_evaluaciones)
+                    $evaluaciones += $num_evaluaciones['evaluacion'] + 1;
+
+                $this->_arbitro->setEvaluacion($responsable['id_responsable'], $evaluaciones, $evaluar,  null, $sugerencia, $comentario);
+
+                $lastEvaluacion = $this->_arbitro->getLastEvaluacion();
+
+                //seccion 2
+                for($i = 0; $i<10; $i++){
+                    $this->_arbitro->setEvaluacionDetalles($lastEvaluacion['id_evaluacion'], $this->filtrarInt($_POST['pregunta_'.$i]), $this->filtrarInt($_POST['seccion2_opcion_'.$i]));
+                }
+
+                //seccion 3
+                 $this->_arbitro->setEvaluacionDetalles($lastEvaluacion['id_evaluacion'], $this->filtrarInt($_POST['preguntaSeccion3']), $this->filtrarInt($_POST['seccion3_opcion']));
+
+                 //set permiso en 0
+                 $this->_persona->setPermisoResponsable($responsable['id_responsable'], 0);
+
         }
-
+        //var_dump($arreglo);
         echo json_encode($arreglo);
 
     }

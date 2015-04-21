@@ -24,6 +24,7 @@
                     <th>Estatus</th>
                     <th>Editar</th>
                     <th>Hist&oacute;rico</th>
+                    <th>Art&iacute;culo</th>
                     <th>Descargar</th>
                   </tr>
                 </thead>
@@ -47,6 +48,7 @@
                     <td><label><?php echo trim($this->manuscritos[$i]['estatus']); ?></label></td>
                     <td><a href="<?php echo BASE_URL . 'manuscrito/editar/' .$this->manuscritos[$i]['id_manuscrito']; ?>" class="btn btn-info center-block"><span class="fa fa-pencil-square-o"></span></a></td>
                     <td><a href="<?php echo BASE_URL . 'manuscrito/historico/' .$this->manuscritos[$i]['id_manuscrito']; ?>" class="btn btn-primary center-block"><span class="fa fa-list"></span></a></td>
+                    <td><a href="" class="btn btn-default center-block"><span class="glyphicon glyphicon-book"></span></a></td>
                     <td><a href="<?php echo $this->urlFile[$i]; ?>" class="btn btn-success center-block"><span class="fa fa-cloud-download"></span></a></td>
                   </tr>
                   <?php } ?>

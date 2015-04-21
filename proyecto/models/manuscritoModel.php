@@ -7,6 +7,13 @@ class manuscritoModel extends Model{
         parent::__construct();
     }
 
+    public function getConfigRecordatorioByRol($id_rol){
+        $result = $this->_db->query(
+                "SELECT * FROM config_recordatorio WHERE id_rol = $id_rol"
+                );
+        return $result->fetch();
+    }
+
     public function validarResponsable($id_manuscrito, $id_persona, $id_rol){
         $persona = $this->_db->query(
                 "SELECT * FROM responsable WHERE id_manuscrito = $id_manuscrito and id_persona = $id_persona and id_rol = $id_rol"
@@ -20,6 +27,15 @@ class manuscritoModel extends Model{
                 "SET id_estatus = $id_estatus WHERE id_manuscrito = " . $id_manuscrito
                 );
     }
+
+    public function editarFechasResponsable($id_responsable, $fecha_inicio = '', $fecha_fin = ''){
+         $this->_db->query(
+                "UPDATE responsable ".
+                "SET fecha_inicio='".$fecha_inicio."', fecha_fin='".$fecha_fin."' WHERE id_responsable = " . $id_responsable
+                );
+    }
+
+
     public function getResponsableById($id_responsable){
         $result = $this->_db->query("SELECT * FROM responsable where id_responsable = $id_responsable");
         return $result->fetch();
@@ -61,16 +77,19 @@ class manuscritoModel extends Model{
                  );
     }
     
-    public function setResponsable($id_manuscrito, $id_persona, $id_rol, $permiso, $correspondencia){
-         $this->_db->prepare("INSERT INTO responsable(id_manuscrito, id_persona, id_rol, permiso, correspondencia) VALUES(:id_manuscrito, :id_persona, :id_rol, :permiso, :correspondencia)")
+    public function setResponsable($id_manuscrito, $id_persona, $id_rol, $permiso, $correspondencia, $fecha_inicio, $fecha_fin){
+         $this->_db->prepare("INSERT INTO responsable(id_manuscrito, id_persona, id_rol, permiso, correspondencia, fecha_inicio, fecha_fin) VALUES(:id_manuscrito, :id_persona, :id_rol, :permiso, :correspondencia, :fecha_inicio, :fecha_fin)")
                  ->execute(
                          array(
                              ":id_manuscrito" => $id_manuscrito,
                              ":id_persona" => $id_persona,
                              ":id_rol" => $id_rol,
                              ":permiso" => $permiso,
-                             ":correspondencia" => $correspondencia
+                             ":correspondencia" => $correspondencia,
+                             ":fecha_inicio" => $fecha_inicio,
+                             ":fecha_fin" => $fecha_fin
                          ));
+        
     }
     
     public function setFisico($carpeta, $nombre_arch){

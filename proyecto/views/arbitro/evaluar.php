@@ -66,7 +66,7 @@
 			<?php for($i=0; $i < count($this->_opciones_seccion_3); $i++){ ?>
 			<tr>
 				<td><?php echo $this->_opciones_seccion_3[$i]['opcion']; ?></td>
-				<td class="text-center"><input type="radio" name="seccion3_opcion" value="<?php echo $this->_opciones_seccion_3[$i]['id_opcion']; ?>"></td>
+				<td class="text-center"><input type="radio" name="seccion3_opcion" titulo="<?php echo strtolower(trim($this->_opciones_seccion_3[$i]['opcion'])); ?>" value="<?php echo $this->_opciones_seccion_3[$i]['id_opcion']; ?>"></td>
 			</tr>
 			<?php } ?>
 		</tbody>
@@ -95,14 +95,6 @@
 		<label for="inputPassword" class="control-label">Sugerencias</label>
 
 	    <textarea class="form-control" rows="3" name="sugerencia" id="sugerencia"></textarea>
-	</div>
-
-	<p>Escriba los cambios realizados en el manuscrito</p>
-
-	<div class="form-group">
-		<label for="inputPassword" class="control-label">Cambios realizados</label>
-
-	    <textarea class="form-control" rows="3" name="cambios" id="cambios"></textarea>
 	</div>
 
   </div>

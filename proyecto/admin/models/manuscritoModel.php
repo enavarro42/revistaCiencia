@@ -1,3 +1,4 @@
+
 <?php
 
 
@@ -5,6 +6,13 @@ class manuscritoModel extends Model{
     
     public function __construct(){
         parent::__construct();
+    }
+
+    public function getConfigRecordatorioByRol($id_rol){
+        $result = $this->_db->query(
+                "SELECT * FROM config_recordatorio WHERE id_rol = $id_rol"
+                );
+        return $result->fetch();
     }
 
     public function editarEvaluacionById($id_evaluacion, $id_revision){
@@ -88,6 +96,13 @@ class manuscritoModel extends Model{
         return $arbitro->fetch();
     }
 
+    public function editarFechasResponsable($id_responsable, $fecha_inicio = '', $fecha_fin = ''){
+         $this->_db->query(
+                "UPDATE responsable ".
+                "SET fecha_inicio='".$fecha_inicio."', fecha_fin='".$fecha_fin."' WHERE id_responsable = " . $id_responsable
+                );
+    }
+
     public function editarManuscrito($datos = false){
         if($datos){
             $this->_db->query(
@@ -157,15 +172,18 @@ class manuscritoModel extends Model{
                  );
     }
     
-    public function setResponsable($id_manuscrito, $id_persona, $id_rol, $permiso, $correspondencia){
-         $this->_db->prepare("INSERT INTO responsable(id_manuscrito, id_persona, id_rol, permiso, correspondencia) VALUES(:id_manuscrito, :id_persona, :id_rol, :permiso, :correspondencia)")
+    public function setResponsable($id_manuscrito, $id_persona, $id_rol, $permiso, $correspondencia, $fecha_inicio, $fecha_fin){
+
+         $this->_db->prepare("INSERT INTO responsable(id_manuscrito, id_persona, id_rol, permiso, correspondencia, fecha_inicio, fecha_fin) VALUES(:id_manuscrito, :id_persona, :id_rol, :permiso, :correspondencia, :fecha_inicio, :fecha_fin)")
                  ->execute(
                          array(
                              ":id_manuscrito" => $id_manuscrito,
                              ":id_persona" => $id_persona,
                              ":id_rol" => $id_rol,
                              ":permiso" => $permiso,
-                             ":correspondencia" => $correspondencia
+                             ":correspondencia" => $correspondencia,
+                             ":fecha_inicio" => $fecha_inicio,
+                             ":fecha_fin" => $fecha_fin
                          ));
     }
     
@@ -189,6 +207,10 @@ class manuscritoModel extends Model{
                             ":observaciones" => $observaciones
                         ));
         }
+    }
+
+    public function setPermisoResponsablesByManuscrito($id_manuscrito, $permiso){
+        $this->_db->query("UPDATE responsable SET permiso=$permiso WHERE id_manuscrito = $id_manuscrito");
     }
 
     public function getResponsableById($id_responsable){
@@ -465,6 +487,10 @@ where ed.id_evaluacion = 12 and ed.id_pregunta = p.id_pregunta and p.id_seccion 
         $this->_db->query("UPDATE responsable SET permiso=$id_permiso WHERE id_responsable = $id_responsable");
     }
 
+    public function updateFechaResponsable($id_responsable, $fecha_inicio, $fecha_fin){
+        $this->_db->query("UPDATE responsable SET fecha_inicio='$fecha_inicio', fecha_fin='$fecha_fin' WHERE id_responsable = $id_responsable");
+    }
+
     
     public function getResponsable($id_manuscrito){
         $responsable = $this->_db->query("select * from responsable where id_manuscrito = $id_manuscrito and correspondencia = 1");
@@ -478,13 +504,14 @@ where ed.id_evaluacion = 12 and ed.id_pregunta = p.id_pregunta and p.id_seccion 
     }
 
     public function getManuscritoActual($responsable){
-        // var_dump("select * from revision where id_responsable = $responsable order by fecha DESC LIMIT 1");
+        //var_dump("select * from revision where id_responsable = $responsable order by fecha DESC LIMIT 1");
         $revision = $this->_db->query("select * from revision where id_responsable = $responsable order by fecha DESC LIMIT 1");
         return $revision->fetch();
         
     }
 
     public function getUrlFile($id_responsable){
+        //var_dump("select f.carpeta, f.nombre from revision r, fisico f where r.id_responsable = $id_responsable and r.id_fisico = f.id_fisico order by r.fecha desc limit 1");
         $url = $this->_db->query("select f.carpeta, f.nombre from revision r, fisico f where r.id_responsable = $id_responsable and r.id_fisico = f.id_fisico order by r.fecha desc limit 1");
         return $url->fetch();
     }
@@ -498,6 +525,7 @@ where ed.id_evaluacion = 12 and ed.id_pregunta = p.id_pregunta and p.id_seccion 
 
     public function getAutoresByManuscrito($id_manuscrito){
 
+       // var_dump("select * from responsable where id_manuscrito = $id_manuscrito and (id_rol = 4 or id_rol = 5)");
         $responsables = $this->_db->query("select * from responsable where id_manuscrito = $id_manuscrito and (id_rol = 4 or id_rol = 5)");
 
         $responsables = $responsables->fetchAll();
@@ -510,11 +538,13 @@ where ed.id_evaluacion = 12 and ed.id_pregunta = p.id_pregunta and p.id_seccion 
                 $ids .= ", " . $responsables[$i]['id_persona'];
         }
 
-        $autores = $this->_db->query("select (p.\"primerNombre\" || ' ' || p.apellido) as nombreCompleto from persona p where id_persona IN ($ids) order by nombreCompleto");
+       // var_dump("select (p.\"primerNombre\" || ' ' || p.apellido) as nombreCompleto from persona p where id_persona IN ($ids) order by nombreCompleto");
 
-        $autores = $autores->fetchAll();
+        $autores = $this->_db->query("select (p.\"primerNombre\" || ' ' || p.apellido) as nombreCompleto from persona p where id_persona IN (".$ids.") order by nombreCompleto");
 
-        return $autores;
+        //$autores = $autores->fetchAll();
+
+        return $autores->fetchAll();
     }
 
     public function getManuscritoUbicacion($id_fisico){

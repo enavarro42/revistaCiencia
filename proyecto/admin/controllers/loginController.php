@@ -7,11 +7,16 @@ class loginController extends Controller{
     public function __construct(){
         parent::__construct();
         $this->_login = $this->loadModel('login');
+        $this->_usuario = $this->loadModel('usuario');
     }
     
     public function index(){
         $this->_view->titulo = 'Iniciar Sesi&oacute;n';
         $this->_view->_error = "";
+
+        if(!$this->_usuario->getUsuarios()){
+            $this->redireccionar('registro');
+        }
         
         if(!Session::get('autenticado_admin')){
         

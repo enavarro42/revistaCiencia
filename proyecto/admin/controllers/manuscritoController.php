@@ -74,7 +74,9 @@ class manuscritoController extends Controller{
                 $responsable =  $this->_manuscrito->getResponsable($manuscritos[$i]['id_manuscrito']);
                 // var_dump($responsable);
                 //para saber el estatus actual del manuscrito
+                //var_dump($responsable['id_responsable']);
                 $manuscritoActual = $this->_manuscrito->getManuscritoActual($responsable['id_responsable']);
+
 
                 $id_estatus = $manuscritoActual['id_estatus'];
 
@@ -332,7 +334,8 @@ class manuscritoController extends Controller{
         $this->_view->renderizar('evaluaciones', 'manuscrito');
     }
 
-    //enviar evaluacion de los arbitros
+
+    //enviar evaluacion de los arbitros a los autores
     public function enviarEvaluacion(){
         $id_persona = Session::get('id_persona');
         //esto no creo que este bien, porq si esa persona tiene mas roles
@@ -344,7 +347,7 @@ class manuscritoController extends Controller{
         //var_dump($resp);
 
         if(empty($resp)){
-            $this->_manuscrito->setResponsable($id_manuscrito, $id_persona, $rol['id_rol'], 0, 0);
+            $this->_manuscrito->setResponsable($id_manuscrito, $id_persona, $rol['id_rol'], 0, 0, date("Y-m-d"), null);
 
             $responsable = $this->_manuscrito->getUltimoResponsable();
             $responsable = $responsable["id_responsable"];
@@ -352,7 +355,7 @@ class manuscritoController extends Controller{
             $responsable = $resp["id_responsable"];
         }
 
-        //get id_estatus pamatro clave
+        //get id_estatus parametro clave
         $estatus = $this->getInt('id_estatus');
 
         $this->_manuscrito->setRevision($responsable, $estatus, null);
@@ -361,7 +364,18 @@ class manuscritoController extends Controller{
         $resp_manuscrito = $this->_manuscrito->getResponsable($id_manuscrito);
 
         //actualiza el permiso del autor responsable del manuscrito
-        $this->_manuscrito->updatePermisoResponsable($resp_manuscrito["id_responsable"], 1);
+
+        //--------------    
+            $info_estatus = $this->_manuscrito->getEstatusById($estatus);
+
+            if(trim($info_estatus["clave"]) == "publicable"){
+                $this->_manuscrito->setPermisoResponsablesByManuscrito($id_manuscrito, 0);
+            }else{
+                $this->_manuscrito->updatePermisoResponsable($resp_manuscrito["id_responsable"], 1);
+            }
+
+        //---------------
+
 
         $revision = $this->_manuscrito->getUltimaRevisionByResponsable($responsable);
 
@@ -373,8 +387,9 @@ class manuscritoController extends Controller{
             $this->_manuscrito->editarEvaluacionById($evaluacion[$i], $revision['id_revision']);
         }
 
-        $autor = $ths->_perosna->getEmailByResponsableId($resp_manuscrito["id_responsable"]);
+        $autor = $this->_persona->get_email_by_responsable($resp_manuscrito["id_responsable"]);
         $manuscrito = $this->_manuscrito->getManuscrito($id_manuscrito);
+
 
         $this->getLibrary('class.phpmailer');
         $mail = new PHPMailer();
@@ -382,7 +397,7 @@ class manuscritoController extends Controller{
         $mail->From = 'www.fecRevistasCientificas.com';
         $mail->FromName = 'Revistas Arbitradas FEC';
         $mail->Subject = 'Revistas FEC';
-        $mail->Body = "Los Árbitros han realizado la corrección del manuscrito titulado: <strong>" . $manuscrito["titulo"]. "</strong>";
+        $mail->Body = "Los Árbitros han realizado la corrección del manuscrito titulado: <strong>" . $manuscrito["titulo"]. "</strong>. Para consultar su estatus diríjase a la página oficial.";
         $mail->AltBody = "Su servidor de correo no soporta html";
         $mail->addAddress($autor['email']);
         $mail->Send();
@@ -442,6 +457,8 @@ class manuscritoController extends Controller{
 
         //metodo para validar la existencia del id
         if($id_manuscrito){
+
+            $this->_view->setJs(array('jquery.blockUI'));
 
             $this->_view->setJs(array('controllerEvaluacion'));
 
@@ -554,7 +571,25 @@ class manuscritoController extends Controller{
 
         if($this->getInt('id_persona') && $this->getInt('id_manuscrito')){
             $this->_manuscrito->editarEstatusArbitro($this->getInt('id_persona'), $this->getInt('id_manuscrito'), 2);
-            $this->_manuscrito->asignarArbitroManuscrito($this->getInt('id_persona'), $this->getInt('id_manuscrito'), $id_arbitro[0]);
+            //$this->_manuscrito->asignarArbitroManuscrito($this->getInt('id_persona'), $this->getInt('id_manuscrito'), $id_arbitro[0]);
+
+            //consultar los dias que tiene para arbitrar
+            $result_config = $this->_manuscrito->getConfigRecordatorioByRol($id_arbitro[0]);
+
+            $periodo = 30;
+
+            if(isset($result_config)){
+                $periodo = $result_config["periodo"];
+            }
+
+            //establecer el intervalo
+            $fecha_fin = new DateTime(date("Y-m-d"));
+            $fecha_fin->add(new DateInterval('P'.$periodo.'D'));
+
+            //aqui es donde se calcula la fecha fin
+            $this->_manuscrito->setResponsable($this->getInt('id_manuscrito'), $this->getInt('id_persona'), $id_arbitro[0], 1, 0,date("Y-m-d"), $fecha_fin->format('Y-m-d'));
+            
+
 
             //asignamos en la latabla revision que ya se esta comenzando a evaluar
             $rol = $this->_rol->getRolByIdPersona($this->getInt('id_persona'));
@@ -666,11 +701,17 @@ class manuscritoController extends Controller{
 
             $personaRol =  $this->_rol->getPersonaRol($this->getInt('id_persona'), $id_autor[0]);
 
+            //hacer query, verificar la configuracion del autor
+            $config_rol = $this->_manuscrito->getConfigRecordatorioByRol($id_autor);
+            //agarrar los dias para la fecha_fin
+
+            //pasar parametros a la funcion SetResponsable
+
             if($personaRol){
                 if($this->getPostParam('rol') == 'Autor'){
-                    $this->_manuscrito->setResponsable($this->getInt('id_manuscrito'), $this->getInt('id_persona'), $id_autor[0], 1, 1);
+                    $this->_manuscrito->setResponsable($this->getInt('id_manuscrito'), $this->getInt('id_persona'), $id_autor[0], 1, 1, date("Y-m-d"), null);
                 }else{
-                    $this->_manuscrito->setResponsable($this->getInt('id_manuscrito'), $this->getInt('id_persona'), $id_autor[0], 0, 0);
+                    $this->_manuscrito->setResponsable($this->getInt('id_manuscrito'), $this->getInt('id_persona'), $id_autor[0], 0, 0, date("Y-m-d"), null);
                 }
 
                 $resp['prueba1'] = $this->getInt('id_manuscrito');
@@ -826,7 +867,7 @@ class manuscritoController extends Controller{
 
                 if($responsable == false){
 
-                    $this->_manuscrito->setResponsable($id_manuscrito, $_SESSION['id_persona'], $rol['id_rol'], 0, 0);
+                    $this->_manuscrito->setResponsable($id_manuscrito, $_SESSION['id_persona'], $rol['id_rol'], 0, 0, date("Y-m-d"), null);
 
                     $responsable = $this->_manuscrito->getUltimoResponsable();
 
@@ -860,7 +901,7 @@ class manuscritoController extends Controller{
 
                 if($responsable == false){
 
-                    $this->_manuscrito->setResponsable($id_manuscrito, $_SESSION['id_persona'], $rol['id_rol'], 0, 0);
+                    $this->_manuscrito->setResponsable($id_manuscrito, $_SESSION['id_persona'], $rol['id_rol'], 0, 0, date("Y-m-d"), null);
 
                     $responsable = $this->_manuscrito->getUltimoResponsable();
 
@@ -1209,7 +1250,7 @@ class manuscritoController extends Controller{
 
                 $permiso = 0;
 
-                $this->_manuscrito->setResponsable($manuscrito['id_manuscrito'],$id_persona_responsable, $rolAutor[0], $permiso, 1);
+                $this->_manuscrito->setResponsable($manuscrito['id_manuscrito'],$id_persona_responsable, $rolAutor[0], $permiso, 1, date("Y-m-d"), null);
                 $responsable = $this->_manuscrito->getUltimoResponsable();
 
 
@@ -1238,7 +1279,7 @@ class manuscritoController extends Controller{
 
                 $permiso = 0;
 
-                $this->_manuscrito->setResponsable($manuscrito['id_manuscrito'],$persona['id_persona'], $rolAutor[0], $permiso, 1);
+                $this->_manuscrito->setResponsable($manuscrito['id_manuscrito'],$persona['id_persona'], $rolAutor[0], $permiso, 1, date("Y-m-d"), null);
                 $responsable = $this->_manuscrito->getUltimoResponsable();
 
             }
@@ -1256,7 +1297,7 @@ class manuscritoController extends Controller{
 
                     $permiso = 0;
 
-                    $this->_manuscrito->setResponsable($manuscrito['id_manuscrito'],$temp['id_persona'], $rolCoAutor[0], $permiso, 0);
+                    $this->_manuscrito->setResponsable($manuscrito['id_manuscrito'],$temp['id_persona'], $rolCoAutor[0], $permiso, 0, date("Y-m-d"), null);
                     // $this->_manuscrito->getUltimoResponsable();
                 }else{
 
@@ -1278,7 +1319,7 @@ class manuscritoController extends Controller{
 
                     $permiso = 0;
 
-                    $this->_manuscrito->setResponsable($manuscrito['id_manuscrito'],$persona['id_persona'], $rolCoAutor[0], $permiso, 0);
+                    $this->_manuscrito->setResponsable($manuscrito['id_manuscrito'],$persona['id_persona'], $rolCoAutor[0], $permiso, 0, date("Y-m-d"), null);
 
                 }
 
@@ -1687,12 +1728,12 @@ class manuscritoController extends Controller{
                         if((int)$_POST["autorPrincipal"] == $i){
                             $this->_registro->setPersonaRol($persona['id_persona'], $rolAutor[0]);
 
-                            $this->_manuscrito->setResponsable($manuscrito['id_manuscrito'],$persona['id_persona'], $rolAutor[0], $permiso, 0);
+                            $this->_manuscrito->setResponsable($manuscrito['id_manuscrito'],$persona['id_persona'], $rolAutor[0], $permiso, 0, date("Y-m-d"), null);
 
                                 // $responsable = $this->_manuscrito->getUltimoResponsable();
                         }else{
                             $this->_registro->setPersonaRol($persona['id_persona'], $rolCoAutor[0]);
-                            $this->_manuscrito->setResponsable($manuscrito['id_manuscrito'],$persona['id_persona'], $rolCoAutor[0], $permiso, 0);
+                            $this->_manuscrito->setResponsable($manuscrito['id_manuscrito'],$persona['id_persona'], $rolCoAutor[0], $permiso, 0, date("Y-m-d"), null);
                         }
                         
                     }
@@ -1707,12 +1748,12 @@ class manuscritoController extends Controller{
                         if((int)$_POST["autorPrincipal"] == $i){
                         
                             if(isset($_SESSION["id_persona"])){
-                                $this->_manuscrito->setResponsable($manuscrito['id_manuscrito'],$_SESSION["id_persona"], $rolAutor[0], $permiso, 1);
+                                $this->_manuscrito->setResponsable($manuscrito['id_manuscrito'],$_SESSION["id_persona"], $rolAutor[0], $permiso, 1, date("Y-m-d"), null);
                                 $responsable = $this->_manuscrito->getUltimoResponsable();
                             }
                         }else{
                                 $this->_registro->setPersonaRol($persona['id_persona'], $rolCoAutor[0]);
-                                $this->_manuscrito->setResponsable($manuscrito['id_manuscrito'],$_SESSION["id_persona"], $rolCoAutor[0], $permiso, 1);
+                                $this->_manuscrito->setResponsable($manuscrito['id_manuscrito'],$_SESSION["id_persona"], $rolCoAutor[0], $permiso, 1, date("Y-m-d"), null);
                                 //esta variabla responsable guarda el autor para la correspondencia
                                 $responsable = $this->_manuscrito->getUltimoResponsable();
 

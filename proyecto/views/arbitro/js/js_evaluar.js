@@ -8,7 +8,11 @@ $(document).on("ready", function(){
 
   $("#btn_enviar").click(function(){
     if(validarEnvio()){
-      $("#progressBar").show();
+      var archivo = $("#archivo").val();
+
+      if(archivo){
+        $("#progressBar").show();
+      }
       subirDatos();
     }
   });
@@ -82,25 +86,52 @@ $.fn.upload = function(remote,data,successFn,progressFn) {
 
 
 function subirDatos(){
-    $("#archivo").upload(URL_BASE + "arbitro/enviarEvaluacion", formdata
-    ,function(data){
-            console.log("done", data);
+    var archivo = $("#archivo").val();
+
+    if(archivo){
+
+          $("#archivo").upload(URL_BASE + "arbitro/enviarEvaluacion", formdata
+              ,function(data){
+                      console.log("done", data);
 
 
-            if(!parseInt(data.status)){
-                document.getElementById("status").innerHTML = "Ocurri&oacute; un error, al enviar el documento."; 
-                $("#progressBar").hide();
-            }
-            else{
+                      if(!parseInt(data.status)){
+                          document.getElementById("status").innerHTML = "Ocurri&oacute; un error, al enviar el documento."; 
+                          $("#progressBar").hide();
+                      }
+                      else{
+                          document.getElementById("status").innerHTML = "Completado..!";
+                          alert("Evaluacion exitosa!");
+                          url = URL_BASE + "arbitro/";
+                          $(location).attr('href',url);
+                      }
+
+                      $("#progressBar").val(0);
+              },$("#progressBar")
+          );
+    }else{
+
+      $.ajax({
+        url: URL_BASE + "arbitro/enviarEvaluacion",
+        type: "POST",
+        data: formdata,
+        dataType: "json",
+        processData: false,
+        contentType: false,
+        success: function(data){
+
+            if(parseInt(data.status)){
                 document.getElementById("status").innerHTML = "Completado..!";
                 alert("Evaluacion exitosa!");
                 url = URL_BASE + "arbitro/";
                 $(location).attr('href',url);
             }
+        }
+      });
 
-            $("#progressBar").val(0);
-    },$("#progressBar")
-);
+    }
+
+
                         
 
 }
@@ -109,31 +140,36 @@ function validarEnvio(){
     var valido = true;
     var archivo = $("#archivo").val();
     var msj_archivo = "";
+    var extension = "";
 
-    extensiones_permitidas = new Array(".doc", ".docx"); 
+    extensiones_permitidas = new Array(".doc", ".docx");
    
-   if (!archivo) {
+   if (!archivo && $('input:radio[name=seccion3_opcion]:checked').attr("titulo") != "publicable") {
        msj_archivo = "No has seleccionado ning&uacute;n archivo";
        valido = false;
    }else{
       //recupero la extensión de este nombre de archivo
-      extension = (archivo.substring(archivo.lastIndexOf("."))).toLowerCase();
-      //alert (extension);
+      
       //compruebo si la extensión está entre las permitidas
-      permitida = false;
-      for (var i = 0; i < extensiones_permitidas.length; i++) {
-         if (extensiones_permitidas[i] == extension) {
-         permitida = true;
-         break;
-         }
-      }
-      if (!permitida) {
-         msj_archivo = "Comprueba la extensi&oacute;n de los archivos a subir. S&oacute;lo se pueden subir archivos con extensiones: " + extensiones_permitidas.join();
-         valido = false;
+      if(archivo != ""){
+
+        extension = (archivo.substring(archivo.lastIndexOf("."))).toLowerCase();
+
+          permitida = false;
+          for (var i = 0; i < extensiones_permitidas.length; i++) {
+             if (extensiones_permitidas[i] == extension) {
+             permitida = true;
+             break;
+             }
+          }
+          if (!permitida) {
+             msj_archivo = "Comprueba la extensi&oacute;n de los archivos a subir. S&oacute;lo se pueden subir archivos con extensiones: " + extensiones_permitidas.join();
+             valido = false;
+           }
        }
    }
 
-   if(valido){
+   if(extension != "" && valido){
         var file = document.getElementById("archivo").files[0];
         
         formdata.append("archivo", file);
@@ -163,6 +199,8 @@ function validarEnvio(){
     formdata.append('preguntaSeccion3', $('#preguntaSeccion3').val());
 
     formdata.append('seccion3_opcion', $('input:radio[name=seccion3_opcion]:checked').val());
+
+    formdata.append("manuscrito", $("#manuscrito").val());
 
     formdata.append('id_manuscrito', $('input:text[name=manuscrito]').val());
 

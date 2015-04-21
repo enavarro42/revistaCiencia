@@ -112,7 +112,7 @@ function subirDatos(){
                 document.getElementById("status").innerHTML = "Completado..!";
                 alert("Manuscrito enviado con éxito!");
                 url = URL_BASE + "manuscrito/misManuscritos/"+$("#manuscrito").val()+"/1";
-                // $(location).attr('href',url);
+                $(location).attr('href',url);
             }
 
             $("#progressBar").val(0);

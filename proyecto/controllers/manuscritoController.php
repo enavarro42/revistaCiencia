@@ -167,8 +167,10 @@ class manuscritoController extends Controller{
 
             $detallesEvaluacion = null;
 
+            $est_pub = $this->_manuscrito->getEstatusByClave("publicable");
+
             for($i = 0; $i<count($estatusPorArbitro); $i++){
-                if($estatusPorArbitro[$i]['id_estatus'] == $revision['id_estatus']){
+                if($estatusPorArbitro[$i]['id_estatus'] == $revision['id_estatus'] && $est_pub["id_estatus"] != $revision['id_estatus']){
                     $this->_view->estatusEvaluacionArbitro = true;
                     $detallesEvaluacion = $this->_manuscrito->getEvaluacionesByRevision($id_revision);
                     break;
@@ -420,12 +422,13 @@ class manuscritoController extends Controller{
                         if((int)$_POST["autorPrincipal"] == $i){
                             $this->_registro->setPersonaRol($persona['id_persona'], $rolAutor[0]);
 
-                            $this->_manuscrito->setResponsable($manuscrito['id_manuscrito'],$persona['id_persona'], $rolAutor[0], $permiso, 0);
+                            $this->_manuscrito->setResponsable($manuscrito['id_manuscrito'],$persona['id_persona'], $rolAutor[0], $permiso, 0, date("Y-m-d"), null);
 
-                                // $responsable = $this->_manuscrito->getUltimoResponsable();
+                            $responsable = $this->_manuscrito->getUltimoResponsable();
+
                         }else{
                             $this->_registro->setPersonaRol($persona['id_persona'], $rolCoAutor[0]);
-                            $this->_manuscrito->setResponsable($manuscrito['id_manuscrito'],$persona['id_persona'], $rolCoAutor[0], $permiso, 0);
+                            $this->_manuscrito->setResponsable($manuscrito['id_manuscrito'],$persona['id_persona'], $rolCoAutor[0], $permiso, 0, date("Y-m-d"), null);
                         }
                         
                     }
@@ -440,12 +443,12 @@ class manuscritoController extends Controller{
                         if((int)$_POST["autorPrincipal"] == $i){
                         
                             if(isset($_SESSION["id_person"])){
-                                $this->_manuscrito->setResponsable($manuscrito['id_manuscrito'],$_SESSION["id_person"], $rolAutor[0], $permiso, 1);
+                                $this->_manuscrito->setResponsable($manuscrito['id_manuscrito'],$_SESSION["id_person"], $rolAutor[0], $permiso, 1, date("Y-m-d"), null);
                                 $responsable = $this->_manuscrito->getUltimoResponsable();
                             }
                         }else{
                                 $this->_registro->setPersonaRol($persona['id_persona'], $rolCoAutor[0]);
-                                $this->_manuscrito->setResponsable($manuscrito['id_manuscrito'],$_SESSION["id_person"], $rolCoAutor[0], $permiso, 1);
+                                $this->_manuscrito->setResponsable($manuscrito['id_manuscrito'],$_SESSION["id_person"], $rolCoAutor[0], $permiso, 1, date("Y-m-d"), null);
                                 //esta variabla responsable guarda el autor para la correspondencia
                                 $responsable = $this->_manuscrito->getUltimoResponsable();
 
@@ -608,6 +611,7 @@ class manuscritoController extends Controller{
 
     }
 
+
     public function enviarCorreccion(){
 
             $arreglo["status"] = 1;
@@ -636,7 +640,7 @@ class manuscritoController extends Controller{
             $fileType = $_FILES["archivo"]["type"]; // The type of file it is 
             $fileSize = $_FILES["archivo"]["size"]; // File size in bytes 
             $fileErrorMsg = $_FILES["archivo"]["error"]; // 0 for false... and 1 for true 
-            if (!$fileTmpLoc) { 
+            if (!$fileTmpLoc) {
                     // if file not chosen 
                     //echo "ERROR: Please browse for a file before clicking the upload button."; 
                 $arreglo["msj_file"] = "Error: Debe seleccionar un archivo";
@@ -680,27 +684,44 @@ class manuscritoController extends Controller{
                 //--------------------------------------------
                 $rolArbitro = $this->_rol->getIdRol("Arbitro");
 
-                $resp = $this->_manuscrito->getArbitrosByManuscrito($_POST['manuscrito'], $rolArbitro[0]);
+                $resp = $this->_manuscrito->getArbitrosByManuscrito(13, $rolArbitro[0]);
 
                 $this->getLibrary('class.phpmailer');
                 $mail = new PHPMailer();
 
-                $manuscrito = $this->_manuscrito->getManuscrito($_POST['manuscrito']);
+                $manuscrito = $this->_manuscrito->getManuscrito(13);
 
                 for($i = 0; $i<count($resp); $i++){
-                     $this->_persona->setPermisoResponsable($resp[$i]['id_responsable'], 1);
+
+                    //consultar los dias que tiene para arbitrar
+                    $result_config = $this->_manuscrito->getConfigRecordatorioByRol($rolArbitro[0]);
+
+                    $periodo = 30;
+
+                    if(isset($result_config)){
+                        $periodo = $result_config["periodo"];
+                    }
+
+                    //establecer el intervalo
+                    $fecha_fin = new DateTime(date("Y-m-d"));
+                    $fecha_fin->add(new DateInterval('P'.$periodo.'D'));
+
+                    //asiganar fecha a los arbitros
+                    $this->_manuscrito->editarFechasResponsable($resp[$i]['id_responsable'], date("Y-m-d"), $fecha_fin->format('Y-m-d'));
+
+                    $this->_persona->setPermisoResponsable($resp[$i]['id_responsable'], 1);
 
                     // get persona by responsable
                     // obtener el correo y enviar
 
-                    $emails = $this->_persona->getEmailByResponsableId($resp[$i]['id_responsable']);
+                    $emails = $this->_persona->get_email_by_responsable($resp[$i]['id_responsable']);
 
                     $mail->From = 'www.fecRevistasCientificas.com';
                     $mail->FromName = 'Revistas Cientificas';
                     $mail->Subject = 'Revistas FEC';
                     $mail->Body = "El autor ha realizado la corrección para el manuscrito titulado: <strong>". $manuscrito["titulo"] . "</strong>";
                     $mail->AltBody = "Su servidor de correo no soporta html";
-                    $mail->addAddress($emails[$i]["email"]);
+                    $mail->addAddress($emails["email"]);
                     $mail->Send();
 
                 }

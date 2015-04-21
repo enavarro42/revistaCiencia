@@ -162,7 +162,7 @@ function subirDatos(){
                 //alert("Los datos fueron almacenados exitosamente...!");
                 //document.getElementById("status").innerHTML = event.target.responseText; 
             }
-            else{//si hubo algun error mostrarlo
+            else{
                 document.getElementById("status").innerHTML = "Datos almacenados corr&eacute;ctamente...!";
                 alert("Nuevo Manuscrito creado con éxito!");
                 url = URL_BASE + "manuscrito/";
